@@ -19,7 +19,10 @@ package com.jerrellmardis.amphitheatre.api;
 import com.jerrellmardis.amphitheatre.model.tmdb.Config;
 import com.jerrellmardis.amphitheatre.model.tmdb.Metadata;
 import com.jerrellmardis.amphitheatre.model.tmdb.Movie;
+import com.jerrellmardis.amphitheatre.util.ApiConstants;
 
+import retrofit.RequestInterceptor;
+import retrofit.RestAdapter;
 import retrofit.http.GET;
 import retrofit.http.Path;
 import retrofit.http.Query;
@@ -44,7 +47,17 @@ public class TMDbClient {
 
     private static TMDbService getService() {
         if (service == null) {
-            service = Clients.getRestAdapter().create(TMDbService.class);
+            RestAdapter restAdapter = new RestAdapter.Builder()
+                    .setConverter(Util.JSON_CONVERTER)
+                    .setEndpoint(ApiConstants.TMDB_SERVER_URL)
+                    .setRequestInterceptor(new RequestInterceptor() {
+                        @Override
+                        public void intercept(RequestFacade request) {
+                            request.addQueryParam("api_key", ApiConstants.TMDB_SERVER_API_KEY);
+                        }
+                    })
+                    .build();
+            service = restAdapter.create(TMDbService.class);
         }
         return service;
     }

@@ -17,7 +17,9 @@
 package com.jerrellmardis.amphitheatre.api;
 
 import com.jerrellmardis.amphitheatre.model.Movie;
+import com.jerrellmardis.amphitheatre.util.ApiConstants;
 
+import retrofit.RestAdapter;
 import retrofit.http.GET;
 import retrofit.http.Query;
 
@@ -35,7 +37,11 @@ public class GuessItClient {
 
     private static GuessItService getService() {
         if (service == null) {
-            service = Clients.getRestAdapter().create(GuessItService.class);
+            RestAdapter restAdapter = new RestAdapter.Builder()
+                    .setConverter(Util.JSON_CONVERTER)
+                    .setEndpoint(ApiConstants.GUESS_IT_SERVER_URL)
+                    .build();
+            service = restAdapter.create(GuessItService.class);
         }
         return service;
     }
