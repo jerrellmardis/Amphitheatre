@@ -7,6 +7,11 @@ Amphitheatre is an Android TV app that connects with network shares, organizes a
 * Indexes movie files on SMB or CIFS shares.
 * View movie poster art, details and quickly search through your video collection. 
 
+**On To-Do List**
+* Implement batch movie scanning processing
+* Add periodic scanning support
+* Add TV Show support
+
 Dependencies
 ------------
 
