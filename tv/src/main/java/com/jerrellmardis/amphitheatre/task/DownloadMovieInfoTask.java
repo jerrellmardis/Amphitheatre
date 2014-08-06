@@ -104,9 +104,18 @@ public class DownloadMovieInfoTask extends AsyncTask<Void, Void, Boolean> {
             if (!TextUtils.isEmpty(movie.getTitle())) {
                 try {
                     Metadata metadata = TMDbClient.getMetadata(movie.getTitle(), movie.getYear());
-                    movie.setCardImageUrl(config.getImages().getBase_url() + "original" + metadata.getResults().get(0).getPoster_path());
-                    movie.setBackgroundImageUrl(config.getImages().getBase_url() + "original" + metadata.getResults().get(0).getBackdrop_path());
-                    movie.settMDbId(metadata.getResults().get(0).getId());
+
+                    if (metadata.getResults() != null && !metadata.getResults().isEmpty()) {
+                        String cardImageUrl = config.getImages().getBase_url() + "original" +
+                                metadata.getResults().get(0).getPoster_path();
+                        movie.setCardImageUrl(cardImageUrl);
+
+                        String bgImageUrl = config.getImages().getBase_url() + "original" +
+                                metadata.getResults().get(0).getBackdrop_path();
+                        movie.setBackgroundImageUrl(bgImageUrl);
+
+                        movie.settMDbId(metadata.getResults().get(0).getId());
+                    }
 
                     if (movie.gettMDbId() != null) {
                         com.jerrellmardis.amphitheatre.model.tmdb.Movie tmDbMovie = TMDbClient.getMovie(movie.gettMDbId());
