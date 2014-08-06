@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   Copyright (C) 2014 Jerrell Mardis
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<LinearLayout
+    android:id="@+id/edit_name"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="500dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="@color/fastlane_background"
+    android:orientation="vertical"
+    android:padding="24dp"
+    tools:context="com.jerrellmardis.amphitheatre.fragment.AddSourceDialogFragment">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="480dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:layout_marginLeft="8dp"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textStyle="bold"
+        tools:text="ADD SOURCE"/>
+
+    <EditText
+        android:id="@+id/path"
+        android:layout_width="480dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="8dp"
+        android:hint="@string/enter_ip_address"
+        android:imeOptions="actionNext"
+        android:inputType="text"/>
+
+    <EditText
+        android:id="@+id/user"
+        android:layout_width="480dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="8dp"
+        android:hint="@string/enter_username"
+        android:imeOptions="actionNext"
+        android:inputType="text"/>
+
+    <EditText
+        android:id="@+id/password"
+        android:layout_width="480dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="8dp"
+        android:hint="@string/enter_password"
+        android:imeOptions="actionDone"
+        android:inputType="textPassword"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:layout_marginTop="24dp"
+        android:gravity="right"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/cancel_button"
+            android:layout_width="88dp"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:text="@string/cancel"
+            android:textAllCaps="true"
+            android:textColor="@drawable/dialog_button_text_selector"
+            android:textStyle="bold"/>
+
+        <Button
+            android:id="@+id/add_button"
+            android:layout_width="88dp"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:text="@string/add"
+            android:textAllCaps="true"
+            android:textColor="@drawable/dialog_button_text_selector"
+            android:textStyle="bold"/>
+
+    </LinearLayout>
+
+</LinearLayout>
