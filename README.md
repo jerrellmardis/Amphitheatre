@@ -3,6 +3,8 @@ Amphitheatre
 
 Amphitheatre is an Android TV app that connects with network shares, organizes and serves videos to any Android capable media player.
 
+![](https://lh6.googleusercontent.com/-q_OSJf3AKMs/U-JpQmNmWuI/AAAAAAACIdE/RFg-EXZhlUs/w2228-h1254-no/amphitheatre_screenshot.png)
+
 **Features**
 * Indexes movie files on SMB or CIFS shares.
 * View movie poster art, details and quickly search through your video collection. 
