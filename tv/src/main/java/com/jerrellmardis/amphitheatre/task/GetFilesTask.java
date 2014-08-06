@@ -16,13 +16,14 @@
 
 package com.jerrellmardis.amphitheatre.task;
 
-import android.os.AsyncTask;
-
 import com.jerrellmardis.amphitheatre.util.VideoUtils;
 
 import org.apache.commons.collections4.ListUtils;
 
+import android.os.AsyncTask;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -61,9 +62,7 @@ public class GetFilesTask extends AsyncTask<Void, Void, List<SmbFile>> implement
 
     @Override
     protected List<SmbFile> doInBackground(Void... params) {
-        List<SmbFile> files = new ArrayList<SmbFile>();
-        files.addAll(getFiles());
-        return files;
+        return new ArrayList<SmbFile>(getFiles());
     }
 
     @Override
@@ -99,7 +98,7 @@ public class GetFilesTask extends AsyncTask<Void, Void, List<SmbFile>> implement
     private List<SmbFile> getFiles() {
         NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication("", mUser, mPassword);
 
-        List<SmbFile> files = new ArrayList<SmbFile>();
+        List<SmbFile> files = Collections.emptyList();
         try {
             String domain = "smb://" + mPath;
             files = VideoUtils.getFilesFromDir(domain, auth);
