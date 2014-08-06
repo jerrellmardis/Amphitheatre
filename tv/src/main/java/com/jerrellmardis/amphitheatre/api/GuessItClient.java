@@ -16,19 +16,10 @@
 
 package com.jerrellmardis.amphitheatre.api;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.jerrellmardis.amphitheatre.BuildConfig;
 import com.jerrellmardis.amphitheatre.model.Movie;
-import com.jerrellmardis.amphitheatre.util.ApiConstants;
 
-import retrofit.RestAdapter;
-import retrofit.converter.GsonConverter;
 import retrofit.http.GET;
 import retrofit.http.Query;
-
-import static retrofit.RestAdapter.LogLevel.FULL;
-import static retrofit.RestAdapter.LogLevel.NONE;
 
 /**
  * Created by Jerrell Mardis on 7/8/14.
@@ -40,27 +31,23 @@ public class GuessItClient {
         Movie guess(@Query("filename") CharSequence filename);
     }
 
+    private static GuessItService service;
+
+    private static GuessItService getService() {
+        if (service == null) {
+            service = Clients.getRestAdapter().create(GuessItService.class);
+        }
+        return service;
+    }
+
     public static Movie guess(CharSequence filename) {
         try {
-            Movie movie = getHttpService().guess(filename);
+            Movie movie = getService().guess(filename);
             return movie;
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return null;
-    }
-
-    private static GuessItService getHttpService() {
-        Gson gson = new GsonBuilder().create();
-
-        RestAdapter restAdapter = new RestAdapter.Builder()
-                .setConverter(new GsonConverter(gson))
-                .setEndpoint(ApiConstants.GUESS_IT_SERVER_URL)
-                .build();
-
-        restAdapter.setLogLevel(BuildConfig.DEBUG ? FULL : NONE);
-
-        return restAdapter.create(GuessItService.class);
     }
 }
