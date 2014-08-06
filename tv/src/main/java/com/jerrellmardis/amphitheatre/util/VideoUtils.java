@@ -16,21 +16,26 @@
 
 package com.jerrellmardis.amphitheatre.util;
 
+import com.jerrellmardis.amphitheatre.model.Movie;
+import com.jerrellmardis.amphitheatre.server.Streamer;
+
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
-import com.jerrellmardis.amphitheatre.model.Movie;
-import com.jerrellmardis.amphitheatre.server.Streamer;
-
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbFile;
@@ -208,14 +213,26 @@ public class VideoUtils {
     }
 
     public static List<SmbFile> getFilesFromDir(String path, NtlmPasswordAuthentication auth) throws Exception {
-        SmbFile baseDir = new SmbFile(path, auth);
-        SmbFile[] files = baseDir.listFiles();
-        List results = new ArrayList();
+        List<SmbFile> results = new ArrayList<SmbFile>();
+        Set<SmbFile> seen = new LinkedHashSet<SmbFile>();
+        Deque<SmbFile> queue = new ArrayDeque<SmbFile>();
 
-        for (int i = 0; i < files.length; i++) {
-            SmbFile file = files[i];
+        SmbFile baseDir = new SmbFile(path, auth);
+        queue.add(baseDir);
+
+        while (!queue.isEmpty()) {
+            SmbFile file = queue.removeFirst();
+            seen.add(file);
+
             if (file.isDirectory()) {
-                results.addAll(VideoUtils.getFilesFromDir(file.getPath(), auth));
+                Set<SmbFile> smbFiles = new LinkedHashSet<SmbFile>();
+                Collections.addAll(smbFiles, file.listFiles());
+
+                for (SmbFile child : smbFiles) {
+                    if (!seen.contains(child)) {
+                        queue.add(child);
+                    }
+                }
             } else if (VideoUtils.isVideoFile(file.getName())) {
                 results.add(file);
             }
