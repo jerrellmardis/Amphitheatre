@@ -1,5 +1,8 @@
 apply plugin: 'com.android.application'
 
+def loadSecret(String name) {
+    return hasProperty(name) ? getProperty(name) : "MISSING"
+}
 
 android {
     compileSdkVersion 'android-L'
@@ -11,6 +14,8 @@ android {
         targetSdkVersion 'L'
         versionCode 1
         versionName "1.0"
+
+        buildConfigField "String", "TMDB_API_KEY", "\"${loadSecret("TMDB_API_KEY")}\""
     }
 
     buildTypes {
