@@ -16,6 +16,8 @@
 
 package com.jerrellmardis.amphitheatre.util;
 
+import com.jerrellmardis.amphitheatre.BuildConfig;
+
 /**
  * Created by Jerrell Mardis on 8/5/14.
  */
@@ -24,5 +26,5 @@ public final class ApiConstants {
     public static final String GUESS_IT_SERVER_URL = "http://guessit.io";
 
     public static final String TMDB_SERVER_URL = "https://api.themoviedb.org/3";
-    public static final String TMDB_SERVER_API_KEY = "ADD YOUR TMDB API KEY HERE";
+    public static final String TMDB_SERVER_API_KEY = BuildConfig.TMDB_API_KEY;
 }

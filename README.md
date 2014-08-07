@@ -17,8 +17,19 @@ Amphitheatre is an Android TV app that connects with network shares, organizes a
 Dependencies
 ------------
 
-* Amphitheatre uses The Movie Database (TMDb) in order to fetch movie information. You'll need to sign up as a developer and add your TMDb API Key to the ApiConstants.java class.
-* Amphitheatre does not play the actual video file but serves it to a capable media player application. So you'll need to install a media player as well. MXPlayer is a great player worth checking out.
+#### The Movie Database (TMDb)
+
+Amphitheatre uses The Movie Database (TMDb) in order to fetch movie information.
+
+You'll need to sign up as a developer and add your TMDb API Key to your `~/.gradle/gradle.properties`:
+```
+TMDB_API_KEY=<your api key>
+```
+
+#### Media Player
+
+Amphitheatre does not play the actual video file but serves it to a capable media player application. So you'll need to install a media player as well. MXPlayer is a great player worth checking out.
+
 
 Contributing
 ------------
