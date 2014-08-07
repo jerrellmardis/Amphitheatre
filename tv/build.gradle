@@ -20,6 +20,15 @@ android {
         }
     }
 
+    signingConfigs {
+        debug {
+            storeFile rootProject.file('debug.keystore')
+            storePassword "android"
+            keyAlias "debug"
+            keyPassword "android"
+        }
+    }
+
     packagingOptions {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/LICENSE.txt'
