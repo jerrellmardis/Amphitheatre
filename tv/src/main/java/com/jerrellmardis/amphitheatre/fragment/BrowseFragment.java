@@ -16,6 +16,19 @@
 
 package com.jerrellmardis.amphitheatre.fragment;
 
+import com.jerrellmardis.amphitheatre.R;
+import com.jerrellmardis.amphitheatre.activity.DetailsActivity;
+import com.jerrellmardis.amphitheatre.activity.SearchActivity;
+import com.jerrellmardis.amphitheatre.model.Movie;
+import com.jerrellmardis.amphitheatre.model.Source;
+import com.jerrellmardis.amphitheatre.task.GetFilesTask;
+import com.jerrellmardis.amphitheatre.util.Constants;
+import com.jerrellmardis.amphitheatre.util.PicassoBackgroundManagerTarget;
+import com.jerrellmardis.amphitheatre.util.SecurePreferences;
+import com.jerrellmardis.amphitheatre.widget.CardPresenter;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.graphics.Color;
@@ -31,7 +44,6 @@ import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.OnItemSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
-import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
@@ -39,27 +51,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jerrellmardis.amphitheatre.R;
-import com.jerrellmardis.amphitheatre.activity.DetailsActivity;
-import com.jerrellmardis.amphitheatre.activity.SearchActivity;
-import com.jerrellmardis.amphitheatre.model.Source;
-import com.jerrellmardis.amphitheatre.model.Movie;
-import com.jerrellmardis.amphitheatre.task.GetFilesTask;
-import com.jerrellmardis.amphitheatre.util.Constants;
-import com.jerrellmardis.amphitheatre.util.PicassoBackgroundManagerTarget;
-import com.jerrellmardis.amphitheatre.util.SecurePreferences;
-import com.jerrellmardis.amphitheatre.widget.CardPresenter;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-
-import org.apache.commons.lang3.StringUtils;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -208,7 +204,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
     private void updateAdapter() {
         ArrayObjectAdapter rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
-        CardPresenter cardPresenter = new CardPresenter();
+        CardPresenter cardPresenter = new CardPresenter(getActivity());
 
         // get all categories
         List<Source> sources = Source.listAll(Source.class);
