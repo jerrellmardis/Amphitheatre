@@ -294,6 +294,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                 .load(R.drawable.amphitheatre)
                 .resize(mMetrics.widthPixels, mMetrics.heightPixels)
                 .centerCrop()
+                .skipMemoryCache()
                 .into(mBackgroundTarget);
     }
 
