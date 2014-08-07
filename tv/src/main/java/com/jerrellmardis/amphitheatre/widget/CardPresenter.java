@@ -16,6 +16,11 @@
 
 package com.jerrellmardis.amphitheatre.widget;
 
+import com.jerrellmardis.amphitheatre.R;
+import com.jerrellmardis.amphitheatre.model.Movie;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -25,61 +30,20 @@ import android.support.v17.leanback.widget.Presenter;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.jerrellmardis.amphitheatre.R;
-import com.jerrellmardis.amphitheatre.model.Movie;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-
-import java.net.URI;
-
 public class CardPresenter extends Presenter {
-
-    private static Context mContext;
 
     private static float RATIO = 2 / 3f;
     private static int CARD_HEIGHT = 380;
     private static int CARD_WIDTH = Math.round(CARD_HEIGHT * RATIO);
 
-    static class ViewHolder extends Presenter.ViewHolder {
+    private final Context mContext;
 
-        private Movie mMovie;
-        private ImageCardView mCardView;
-        private Drawable mDefaultCardImage;
-        private PicassoImageCardViewTarget mImageCardViewTarget;
-
-        public ViewHolder(View view) {
-            super(view);
-            mCardView = (ImageCardView) view;
-            mImageCardViewTarget = new PicassoImageCardViewTarget(mCardView);
-            mDefaultCardImage = mContext.getResources().getDrawable(R.drawable.placeholder);
-        }
-
-        public void setMovie(Movie m) {
-            mMovie = m;
-        }
-
-        public Movie getMovie() {
-            return mMovie;
-        }
-
-        public ImageCardView getCardView() {
-            return mCardView;
-        }
-
-        protected void updateCardViewImage(URI uri) {
-            Picasso.with(mContext)
-                    .load(uri.toString())
-                    .resize(CARD_WIDTH, CARD_HEIGHT)
-                    .centerCrop()
-                    .error(mDefaultCardImage)
-                    .into(mImageCardViewTarget);
-        }
+    public CardPresenter(Context context) {
+        mContext = context;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
-        mContext = parent.getContext();
-
         ImageCardView cardView = new ImageCardView(mContext);
         cardView.setFocusable(true);
         cardView.setFocusableInTouchMode(true);
@@ -90,41 +54,47 @@ public class CardPresenter extends Presenter {
     @Override
     public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
         Movie movie = (Movie) item;
-        ((ViewHolder) viewHolder).setMovie(movie);
+        ViewHolder holder = (ViewHolder) viewHolder;
 
-        if (movie.getCardImageUrl() != null) {
-            ((ViewHolder) viewHolder).mCardView.setTitleText(movie.getTitle());
-            ((ViewHolder) viewHolder).mCardView.setContentText(movie.getStudio());
-            ((ViewHolder) viewHolder).mCardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT);
-            ((ViewHolder) viewHolder).updateCardViewImage(movie.getCardImageURI());
-        }
+        holder.mCardView.setTitleText(movie.getTitle());
+        holder.mCardView.setContentText(movie.getStudio());
+        holder.mCardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT);
+
+        Picasso.with(mContext)
+                .load(movie.getCardImageUrl())
+                .resize(CARD_WIDTH, CARD_HEIGHT)
+                .centerCrop()
+                .placeholder(R.drawable.placeholder)
+                .into(holder);
     }
 
     @Override
     public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) { }
 
-    public static class PicassoImageCardViewTarget implements Target {
+    static class ViewHolder extends Presenter.ViewHolder implements Target {
 
-        private ImageCardView mImageCardView;
+        private final ImageCardView mCardView;
 
-        public PicassoImageCardViewTarget(ImageCardView mImageCardView) {
-            this.mImageCardView = mImageCardView;
+        public ViewHolder(View view) {
+            super(view);
+            mCardView = (ImageCardView) view;
         }
 
         @Override
-        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
-            Drawable bitmapDrawable = new BitmapDrawable(mContext.getResources(), bitmap);
-            mImageCardView.setMainImage(bitmapDrawable);
+        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+            Drawable bitmapDrawable = new BitmapDrawable(mCardView.getContext().getResources(), bitmap);
+            mCardView.setMainImage(bitmapDrawable);
+            // TODO cross-fade from placeholder. Picasso should provide a way to do this.
         }
 
         @Override
-        public void onBitmapFailed(Drawable drawable) {
-            mImageCardView.setMainImage(drawable);
+        public void onBitmapFailed(Drawable errorDrawable) {
+            mCardView.setMainImage(errorDrawable);
         }
 
         @Override
-        public void onPrepareLoad(Drawable drawable) {
-            mImageCardView.setMainImage(null);
+        public void onPrepareLoad(Drawable placeHolderDrawable) {
+            mCardView.setMainImage(placeHolderDrawable);
         }
     }
 }

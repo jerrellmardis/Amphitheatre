@@ -16,6 +16,11 @@
 
 package com.jerrellmardis.amphitheatre.fragment;
 
+import com.jerrellmardis.amphitheatre.R;
+import com.jerrellmardis.amphitheatre.activity.DetailsActivity;
+import com.jerrellmardis.amphitheatre.model.Movie;
+import com.jerrellmardis.amphitheatre.widget.CardPresenter;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,11 +33,6 @@ import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.Row;
 import android.text.TextUtils;
 import android.widget.Toast;
-
-import com.jerrellmardis.amphitheatre.R;
-import com.jerrellmardis.amphitheatre.activity.DetailsActivity;
-import com.jerrellmardis.amphitheatre.model.Movie;
-import com.jerrellmardis.amphitheatre.widget.CardPresenter;
 
 import java.util.List;
 
@@ -114,7 +114,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
 
         private void loadRows(String query) {
             List<Movie> movies = Movie.listAll(Movie.class);
-            ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new CardPresenter());
+            ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new CardPresenter(getActivity()));
 
             for (Movie movie : movies) {
                 if (movie == null || movie.getTitle() == null) {
