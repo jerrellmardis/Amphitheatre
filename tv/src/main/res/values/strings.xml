@@ -17,7 +17,6 @@
 
 <resources>
 
-    <string name="app_name">Amphitheatre</string>
     <string name="browse_title">My Collection</string>
     <string name="settings">Settings</string>
     <string name="add_source">Add Source</string>
