@@ -18,7 +18,6 @@ package com.jerrellmardis.amphitheatre.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 
 import com.jerrellmardis.amphitheatre.R;
 
@@ -30,7 +29,7 @@ public class BrowseActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_browse);
-        
+
         mBackPressedCallbacks = (BackPressedCallback) getFragmentManager().findFragmentById(R.id.main_browse_fragment);
     }
 
