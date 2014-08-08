@@ -51,7 +51,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,8 +61,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragment implements
-        BrowseActivity.BackPressedCallback {
+public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragment {
 
     private final Handler mHandler = new Handler();
 
@@ -74,6 +72,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     private URI mBackgroundURI;
     private List<Movie> mVideos;
     private List<Movie> mUnmatchedVideos;
+
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -122,6 +121,19 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                     }
                 }
             }
+        };
+    }
+
+    private BrowseTransitionListener getBrowseTransitionListener() {
+        return new BrowseTransitionListener() {
+
+            @Override
+            public void onHeadersTransitionStop(boolean withHeaders) {
+                if (withHeaders) {
+                    resetBackground();
+                }
+            }
+
         };
     }
 
@@ -336,6 +348,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                 startActivity(intent);
             }
         });
+        setBrowseTransitionListener(getBrowseTransitionListener());
     }
 
     private void startBackgroundTimer() {
@@ -344,11 +357,6 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         }
         mBackgroundTimer = new Timer();
         mBackgroundTimer.schedule(new UpdateBackgroundTask(), 300);
-    }
-
-    @Override
-    public void onBackPressedCallback() {
-        this.resetBackground();
     }
 
     private class UpdateBackgroundTask extends TimerTask {
@@ -391,4 +399,5 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         @Override
         public void onUnbindViewHolder(ViewHolder viewHolder) { }
     }
+
 }

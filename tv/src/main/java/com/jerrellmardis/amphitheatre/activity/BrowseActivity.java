@@ -23,26 +23,10 @@ import com.jerrellmardis.amphitheatre.R;
 
 public class BrowseActivity extends Activity {
 
-    private BackPressedCallback mBackPressedCallbacks;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_browse);
 
-        mBackPressedCallbacks = (BackPressedCallback) getFragmentManager().findFragmentById(R.id.main_browse_fragment);
-    }
-
-    public interface BackPressedCallback {
-        public void onBackPressedCallback();
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-
-        if (mBackPressedCallbacks != null) {
-            mBackPressedCallbacks.onBackPressedCallback();
-        }
     }
 }
