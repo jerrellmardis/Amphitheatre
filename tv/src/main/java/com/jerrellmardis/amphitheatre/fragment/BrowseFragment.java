@@ -63,7 +63,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragment implements
-        BrowseActivity.BackPressedCallback{
+        BrowseActivity.BackPressedCallback {
 
     private final Handler mHandler = new Handler();
 

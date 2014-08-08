@@ -41,7 +41,7 @@ public class BrowseActivity extends Activity {
     public void onBackPressed() {
         super.onBackPressed();
 
-        if(mBackPressedCallbacks != null) {
+        if (mBackPressedCallbacks != null) {
             mBackPressedCallbacks.onBackPressedCallback();
         }
     }
