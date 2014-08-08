@@ -17,6 +17,7 @@
 package com.jerrellmardis.amphitheatre.fragment;
 
 import com.jerrellmardis.amphitheatre.R;
+import com.jerrellmardis.amphitheatre.activity.BrowseActivity;
 import com.jerrellmardis.amphitheatre.activity.DetailsActivity;
 import com.jerrellmardis.amphitheatre.activity.SearchActivity;
 import com.jerrellmardis.amphitheatre.model.Movie;
@@ -61,7 +62,8 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragment {
+public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragment implements
+        BrowseActivity.BackPressedCallback{
 
     private final Handler mHandler = new Handler();
 
@@ -91,6 +93,20 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         }
 
         setupEventListeners();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        resetBackground();
+    }
+
+    private void resetBackground() {
+        // Make sure default background is loaded
+        if (mBackgroundURI != null) {
+            mBackgroundURI = null;
+        }
+        startBackgroundTimer();
     }
 
     private OnItemSelectedListener getDefaultItemSelectedListener() {
@@ -328,6 +344,11 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         }
         mBackgroundTimer = new Timer();
         mBackgroundTimer.schedule(new UpdateBackgroundTask(), 300);
+    }
+
+    @Override
+    public void onBackPressedCallback() {
+        this.resetBackground();
     }
 
     private class UpdateBackgroundTask extends TimerTask {
