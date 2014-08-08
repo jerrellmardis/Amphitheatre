@@ -30,6 +30,7 @@ public class BrowseActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_browse);
+        
         mBackPressedCallbacks = (BackPressedCallback) getFragmentManager().findFragmentById(R.id.main_browse_fragment);
     }
 
@@ -40,7 +41,9 @@ public class BrowseActivity extends Activity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        if(mBackPressedCallbacks != null)
+
+        if(mBackPressedCallbacks != null) {
             mBackPressedCallbacks.onBackPressedCallback();
+        }
     }
 }
