@@ -16,6 +16,23 @@
 
 package com.jerrellmardis.amphitheatre.fragment;
 
+import com.jerrellmardis.amphitheatre.R;
+import com.jerrellmardis.amphitheatre.activity.DetailsActivity;
+import com.jerrellmardis.amphitheatre.activity.SearchActivity;
+import com.jerrellmardis.amphitheatre.model.Source;
+import com.jerrellmardis.amphitheatre.model.Video;
+import com.jerrellmardis.amphitheatre.model.VideoGroup;
+import com.jerrellmardis.amphitheatre.task.GetFilesTask;
+import com.jerrellmardis.amphitheatre.util.Constants;
+import com.jerrellmardis.amphitheatre.util.PicassoBackgroundManagerTarget;
+import com.jerrellmardis.amphitheatre.util.SecurePreferences;
+import com.jerrellmardis.amphitheatre.util.VideoUtils;
+import com.jerrellmardis.amphitheatre.widget.CardPresenter;
+import com.jerrellmardis.amphitheatre.widget.TvShowsCardPresenter;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
+import com.squareup.picasso.Target;
+
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Intent;
@@ -39,23 +56,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.jerrellmardis.amphitheatre.R;
-import com.jerrellmardis.amphitheatre.activity.DetailsActivity;
-import com.jerrellmardis.amphitheatre.activity.SearchActivity;
-import com.jerrellmardis.amphitheatre.model.Source;
-import com.jerrellmardis.amphitheatre.model.Video;
-import com.jerrellmardis.amphitheatre.model.VideoGroup;
-import com.jerrellmardis.amphitheatre.task.GetFilesTask;
-import com.jerrellmardis.amphitheatre.util.Constants;
-import com.jerrellmardis.amphitheatre.util.PicassoBackgroundManagerTarget;
-import com.jerrellmardis.amphitheatre.util.SecurePreferences;
-import com.jerrellmardis.amphitheatre.util.VideoUtils;
-import com.jerrellmardis.amphitheatre.widget.CardPresenter;
-import com.jerrellmardis.amphitheatre.widget.TvShowsCardPresenter;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.RequestCreator;
-import com.squareup.picasso.Target;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -83,6 +83,8 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     private List<Video> mUnmatchedVideos;
     private List<Video> mMatchedTvShows;
 
+    private AddSourceDialogFragment mAddSourceDialogFragment;
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -90,6 +92,13 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         setupUIElements();
         refreshAdapter();
         setupEventListeners();
+    }
+
+    @Override public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (mAddSourceDialogFragment != null) {
+            mAddSourceDialogFragment.setOnClickListener(getDefaultClickListener());
+        }
     }
 
     private void prepareBackgroundManager() {
@@ -356,9 +365,9 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                 } else if (item instanceof String) {
                     if (((String) item).contains(getString(R.string.add_source))) {
                         FragmentManager fm = getFragmentManager();
-                        AddSourceDialogFragment addSourceDialog =
-                                AddSourceDialogFragment.newInstance(getDefaultClickListener());
-                        addSourceDialog.show(fm, AddSourceDialogFragment.class.getSimpleName());
+                        mAddSourceDialogFragment = AddSourceDialogFragment.newInstance();
+                        mAddSourceDialogFragment.setOnClickListener(getDefaultClickListener());
+                        mAddSourceDialogFragment.show(fm, AddSourceDialogFragment.class.getSimpleName());
                     }
                 }
             }

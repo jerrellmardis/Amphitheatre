@@ -40,6 +40,8 @@ public class MainActivity extends Activity implements AddSourceDialogFragment.On
     @InjectView(R.id.welcome_content) View mWelcomeContent;
     @InjectView(R.id.progress_bar_content) View mProgressBarContent;
 
+    private AddSourceDialogFragment mAddSourceDialogFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,13 +55,20 @@ public class MainActivity extends Activity implements AddSourceDialogFragment.On
         }
     }
 
+    @Override protected void onResume() {
+        super.onResume();
+        if (mAddSourceDialogFragment != null) {
+            mAddSourceDialogFragment.setOnClickListener(this);
+        }
+    }
+
     @SuppressWarnings("unused")
     @OnClick(R.id.add_source_button)
     public void addSourceButtonOnClick() {
         FragmentManager fm = getFragmentManager();
-        AddSourceDialogFragment addSourceDialog =
-                AddSourceDialogFragment.newInstance(this);
-        addSourceDialog.show(fm, AddSourceDialogFragment.class.getSimpleName());
+        mAddSourceDialogFragment = AddSourceDialogFragment.newInstance();
+        mAddSourceDialogFragment.setOnClickListener(this);
+        mAddSourceDialogFragment.show(fm, AddSourceDialogFragment.class.getSimpleName());
     }
 
     @Override

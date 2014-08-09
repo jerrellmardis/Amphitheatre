@@ -46,9 +46,8 @@ public class AddSourceDialogFragment extends DialogFragment implements Callbacks
 
     private SearchNetworkDialog mSearchNetworkDialog;
 
-    public static AddSourceDialogFragment newInstance(OnClickListener l) {
+    public static AddSourceDialogFragment newInstance() {
         AddSourceDialogFragment f = new AddSourceDialogFragment();
-        f.setOnClickListener(l);
         return f;
     }
 
