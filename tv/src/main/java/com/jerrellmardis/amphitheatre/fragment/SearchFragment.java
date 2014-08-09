@@ -16,11 +16,7 @@
 
 package com.jerrellmardis.amphitheatre.fragment;
 
-import com.jerrellmardis.amphitheatre.R;
-import com.jerrellmardis.amphitheatre.activity.DetailsActivity;
-import com.jerrellmardis.amphitheatre.model.Movie;
-import com.jerrellmardis.amphitheatre.widget.CardPresenter;
-
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,15 +28,27 @@ import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.Row;
 import android.text.TextUtils;
-import android.widget.Toast;
 
+import com.jerrellmardis.amphitheatre.R;
+import com.jerrellmardis.amphitheatre.activity.DetailsActivity;
+import com.jerrellmardis.amphitheatre.model.Source;
+import com.jerrellmardis.amphitheatre.model.Video;
+import com.jerrellmardis.amphitheatre.util.Constants;
+import com.jerrellmardis.amphitheatre.util.VideoUtils;
+import com.jerrellmardis.amphitheatre.widget.CardPresenter;
+
+import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SearchFragment extends android.support.v17.leanback.app.SearchFragment
         implements android.support.v17.leanback.app.SearchFragment.SearchResultProvider {
 
     private static final int SEARCH_DELAY_MS = 300;
 
+    private List<Video> allVideos;
+    private ArrayObjectAdapter mListRowAdapter;
     private ArrayObjectAdapter mRowsAdapter;
     private Handler mHandler = new Handler();
     private SearchRunnable mDelayedLoad;
@@ -49,6 +57,9 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        allVideos = Source.listAll(Video.class);
+
+        mListRowAdapter = new ArrayObjectAdapter(new CardPresenter(getActivity()));
         mRowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         setSearchResultProvider(this);
         setOnItemClickedListener(getDefaultItemClickedListener());
@@ -86,14 +97,17 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         return new OnItemClickedListener() {
             @Override
             public void onItemClicked(Object item, Row row) {
-                if (item instanceof Movie) {
-                    Movie movie = (Movie) item;
+                if (item instanceof Video) {
+                    Video video = (Video) item;
+
+                    if (!video.isMatched()) {
+                        VideoUtils.playVideo(new WeakReference<Activity>(getActivity()), (Video) item);
+                        return;
+                    }
+
                     Intent intent = new Intent(getActivity(), DetailsActivity.class);
-                    intent.putExtra(getString(R.string.movie), movie);
+                    intent.putExtra(Constants.VIDEO, video);
                     startActivity(intent);
-                }
-                else if (item instanceof String) {
-                    Toast.makeText(getActivity(), (String) item, Toast.LENGTH_SHORT).show();
                 }
             }
         };
@@ -113,21 +127,26 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         }
 
         private void loadRows(String query) {
-            List<Movie> movies = Movie.listAll(Movie.class);
-            ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new CardPresenter(getActivity()));
+            mListRowAdapter.clear();
 
-            for (Movie movie : movies) {
-                if (movie == null || movie.getTitle() == null) {
+            Map<String, Video> searchMap = new HashMap<String, Video>();
+
+            for (Video video : allVideos) {
+                if (video == null || video.getName() == null) {
                     continue;
                 }
 
-                if (movie.getTitle().toLowerCase().contains(query.toLowerCase())) {
-                    listRowAdapter.add(movie);
+                if (video.getName().toLowerCase().contains(query.toLowerCase())) {
+                    if (!searchMap.containsKey(video.getName())) {
+                        searchMap.put(video.getName(), video);
+                    }
                 }
             }
 
+            mListRowAdapter.addAll(0, searchMap.values());
+
             HeaderItem header = new HeaderItem(0, getResources().getString(R.string.search_results), null);
-            mRowsAdapter.add(new ListRow(header, listRowAdapter));
+            mRowsAdapter.add(new ListRow(header, mListRowAdapter));
         }
     }
 }

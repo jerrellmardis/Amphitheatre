@@ -16,7 +16,7 @@
 
 package com.jerrellmardis.amphitheatre.api;
 
-import com.jerrellmardis.amphitheatre.model.Movie;
+import com.jerrellmardis.amphitheatre.model.guessit.Guess;
 import com.jerrellmardis.amphitheatre.util.ApiConstants;
 
 import retrofit.RestAdapter;
@@ -30,7 +30,7 @@ public class GuessItClient {
 
     private interface GuessItService {
         @GET("/guess")
-        Movie guess(@Query("filename") CharSequence filename);
+        Guess guess(@Query("filename") CharSequence filename);
     }
 
     private static GuessItService service;
@@ -46,10 +46,10 @@ public class GuessItClient {
         return service;
     }
 
-    public static Movie guess(CharSequence filename) {
+    public static Guess guess(CharSequence filename) {
         try {
-            Movie movie = getService().guess(filename);
-            return movie;
+            Guess guess = getService().guess(filename);
+            return guess;
         } catch (Exception e) {
             e.printStackTrace();
         }

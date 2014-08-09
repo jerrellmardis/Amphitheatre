@@ -21,6 +21,9 @@ package com.jerrellmardis.amphitheatre.util;
  */
 public final class Constants {
 
+    public static final String SAMPLE = "sample";
+    public static final String VIDEO = "Video";
+
     public static final String PREFS_USER_KEY = "user";
     public static final String PREFS_PASSWORD_KEY = "password";
 }

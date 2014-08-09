@@ -32,7 +32,7 @@
     <string name="update_failed">Library update failed. Please try again.</string>
     <string name="welcome">Welcome to Project Amphitheatre</string>
     <string name="welcome_add_source_msg">Add a source to get started.</string>
-    <string name="unmatched">Unmatched (%1$d)</string>
+    <string name="unmatched">Unmatched</string>
     <string name="search_results">Search Results</string>
     <string name="play">Play</string>
     <string name="error">Error</string>
@@ -40,5 +40,17 @@
     <string name="released">Released %1$s</string>
     <string name="videos">Videos</string>
     <string name="search_network_title">Network Shares</string>
+    <string name="tv_show">TV Show</string>
+    <string name="tv_shows">TV Shows</string>
+    <string name="source_path_required_msg">A network path is required</string>
+    <string name="season_number">Season %1$d</string>
+    <string name="uncategorized">Uncategorized</string>
+    <string name="aired">Aired %1$s</string>
+    <string name="rating_description">Rated %.1f/10</string>
+
+    <plurals name="numberOfEpisodesAvailable">
+        <item quantity="one">1 Episode</item>
+        <item quantity="other">%d Episodes</item>
+    </plurals>
 
 </resources>

@@ -14,31 +14,11 @@
  * limitations under the License.
  */
 
-package com.jerrellmardis.amphitheatre.model;
-
-import com.orm.SugarRecord;
-
-import java.io.Serializable;
+package com.jerrellmardis.amphitheatre.listeners;
 
 /**
- * Created by Jerrell Mardis on 8/5/14.
+ * Created by Jerrell Mardis on 8/7/14.
  */
-public class Source extends SugarRecord<Source> implements Serializable {
-
-    private String mSource;
-
-    public Source() { }
-
-    public String getSource() {
-        return mSource;
-    }
-
-    public void setSource(String source) {
-        mSource = source;
-    }
-
-    @Override
-    public String toString() {
-        return mSource;
-    }
+public interface TaskListener {
+    void taskCompleted();
 }

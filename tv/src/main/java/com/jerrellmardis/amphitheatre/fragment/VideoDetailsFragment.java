@@ -17,48 +17,38 @@
 package com.jerrellmardis.amphitheatre.fragment;
 
 import android.app.Activity;
-import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v17.leanback.app.BackgroundManager;
 import android.support.v17.leanback.app.DetailsFragment;
-import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
-import android.support.v17.leanback.widget.ClassPresenterSelector;
-import android.support.v17.leanback.widget.DetailsOverviewRow;
-import android.support.v17.leanback.widget.DetailsOverviewRowPresenter;
-import android.support.v17.leanback.widget.ListRow;
-import android.support.v17.leanback.widget.ListRowPresenter;
-import android.support.v17.leanback.widget.OnActionClickedListener;
 import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.Row;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.widget.Toast;
 
 import com.jerrellmardis.amphitheatre.R;
-import com.jerrellmardis.amphitheatre.model.Movie;
+import com.jerrellmardis.amphitheatre.listeners.RowBuilderTaskListener;
+import com.jerrellmardis.amphitheatre.model.Video;
+import com.jerrellmardis.amphitheatre.task.DetailRowBuilderTask;
+import com.jerrellmardis.amphitheatre.util.Constants;
 import com.jerrellmardis.amphitheatre.util.PicassoBackgroundManagerTarget;
 import com.jerrellmardis.amphitheatre.util.VideoUtils;
-import com.jerrellmardis.amphitheatre.widget.DetailsDescriptionPresenter;
+import com.orm.query.Condition;
+import com.orm.query.Select;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
-public class VideoDetailsFragment extends DetailsFragment {
+public class VideoDetailsFragment extends DetailsFragment implements RowBuilderTaskListener {
 
-    private static final int ACTION_PLAY = 1;
-    private static final float RATIO = 2 / 3f;
-    private static final int DETAIL_THUMB_HEIGHT = 274;
-    private static final int DETAIL_THUMB_WIDTH = Math.round(DETAIL_THUMB_HEIGHT * RATIO);
-
-    private static final String MOVIE = "Movie";
-
-    private Movie selectedMovie;
     private Drawable mDefaultBackground;
     private Target mBackgroundTarget;
     private DisplayMetrics mMetrics;
@@ -76,90 +66,82 @@ public class VideoDetailsFragment extends DetailsFragment {
         mMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
 
-        selectedMovie = (Movie) getActivity().getIntent().getSerializableExtra(MOVIE);
-        new DetailRowBuilderTask().execute(selectedMovie);
+        Video video = (Video) getActivity().getIntent().getSerializableExtra(Constants.VIDEO);
 
-        setOnItemClickedListener(getDefaultItemClickedListener());
-        updateBackground(selectedMovie.getBackgroundImageURI());
-    }
+        if (video.isMovie()) {
+            new DetailRowBuilderTask(getActivity(), this).execute(video);
+        } else {
+            List<Video> videos = Select
+                    .from(Video.class)
+                    .where(Condition.prop("name").eq(video.getName()),
+                            Condition.prop("is_movie").eq(0))
+                    .list();
 
-    private class DetailRowBuilderTask extends AsyncTask<Movie, Integer, DetailsOverviewRow> {
+            Map<String, List<Video>> groups = new TreeMap<String, List<Video>>(Collections.reverseOrder());
 
-        @Override
-        protected DetailsOverviewRow doInBackground(Movie... movies) {
-            selectedMovie = movies[0];
+            for (Video vid : videos) {
+                // if an Episode item exists then categorize it
+                // otherwise, add it to the uncategorized list
+                if (vid.getTvShow() != null && vid.getTvShow().getEpisode() != null) {
+                    int seasonNumber = vid.getTvShow().getEpisode().getSeasonNumber();
+                    String key = String.format(getString(R.string.season_number), seasonNumber);
 
-            DetailsOverviewRow row = new DetailsOverviewRow(selectedMovie);
-            try {
-                Bitmap poster = Picasso.with(getActivity())
-                        .load(selectedMovie.getCardImageUrl())
-                        .resize(dpToPx(DETAIL_THUMB_WIDTH, getActivity().getApplicationContext()),
-                                dpToPx(DETAIL_THUMB_HEIGHT, getActivity().getApplicationContext()))
-                        .centerCrop()
-                        .get();
-                row.setImageBitmap(getActivity(), poster);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            row.addAction(new Action(ACTION_PLAY, getString(R.string.play)));
-
-            return row;
-        }
-
-        @Override
-        protected void onPostExecute(DetailsOverviewRow detailRow) {
-            ClassPresenterSelector ps = new ClassPresenterSelector();
-            DetailsOverviewRowPresenter dorPresenter =
-                    new DetailsOverviewRowPresenter(new DetailsDescriptionPresenter(getActivity()));
-
-            dorPresenter.setBackgroundColor(getResources().getColor(R.color.fastlane_background));
-            dorPresenter.setStyleLarge(true);
-            dorPresenter.setOnActionClickedListener(new OnActionClickedListener() {
-                @Override
-                public void onActionClicked(Action action) {
-                    if (action.getId() == ACTION_PLAY) {
-                        VideoUtils.playVideo(new WeakReference<Activity>(getActivity()), selectedMovie);
+                    if (groups.containsKey(key)) {
+                        List<Video> subVideos = groups.get(key);
+                        subVideos.add(vid);
+                    } else {
+                        List<Video> list = new ArrayList<Video>();
+                        list.add(vid);
+                        groups.put(key, list);
                     }
-                    else {
-                        Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
+                } else {
+                    String key = getString(R.string.uncategorized);
+
+                    if (groups.containsKey(key)) {
+                        groups.get(key).add(vid);
+                    } else {
+                        List<Video> list = new ArrayList<Video>();
+                        list.add(vid);
+                        groups.put(key, list);
                     }
                 }
-            });
+            }
 
-            ps.addClassPresenter(DetailsOverviewRow.class, dorPresenter);
-            ps.addClassPresenter(ListRow.class, new ListRowPresenter());
-
-            ArrayObjectAdapter adapter = new ArrayObjectAdapter(ps);
-            adapter.add(detailRow);
-
-            setAdapter(adapter);
+            new DetailRowBuilderTask(getActivity(), groups, this).execute(video);
         }
+
+        setOnItemClickedListener(getDefaultItemClickedListener());
+        updateBackground(video.getBackgroundImageUrl());
     }
 
     protected OnItemClickedListener getDefaultItemClickedListener() {
         return new OnItemClickedListener() {
             @Override
             public void onItemClicked(Object item, Row row) {
-                if (item instanceof Movie) {
-                    VideoUtils.playVideo(new WeakReference<Activity>(getActivity()), (Movie) item);
+                if (item instanceof Video) {
+                    VideoUtils.playVideo(new WeakReference<Activity>(getActivity()), (Video) item);
                 }
             }
         };
     }
 
-    protected void updateBackground(URI uri) {
-        if (uri == null) return;
+    private void updateBackground(String url) {
+        RequestCreator rc;
 
-        Picasso.with(getActivity())
-                .load(uri.toString())
-                .resize(mMetrics.widthPixels, mMetrics.heightPixels)
-                .error(mDefaultBackground)
-                .into(mBackgroundTarget);
+        if (TextUtils.isEmpty(url)) {
+            rc = Picasso.with(getActivity()).load(R.drawable.placeholder);
+        } else {
+            rc = Picasso.with(getActivity()).load(url);
+        }
+
+        int w = mMetrics.widthPixels;
+        int h = mMetrics.heightPixels;
+
+        rc.resize(w, h).centerCrop().error(mDefaultBackground).into(mBackgroundTarget);
     }
 
-    public static int dpToPx(int dp, Context ctx) {
-        float density = ctx.getResources().getDisplayMetrics().density;
-        return Math.round((float) dp * density);
+    @Override
+    public void taskCompleted(ArrayObjectAdapter adapter) {
+        setAdapter(adapter);
     }
 }
