@@ -38,7 +38,6 @@ public class AddSourceDialogFragment extends DialogFragment {
 
     private OnClickListener mOnClickListener;
 
-    @InjectView(R.id.title) TextView mTitleText;
     @InjectView(R.id.user) EditText mUserText;
     @InjectView(R.id.password) EditText mPasswordText;
     @InjectView(R.id.path) EditText mPathText;

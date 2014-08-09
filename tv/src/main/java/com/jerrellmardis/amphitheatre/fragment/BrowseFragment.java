@@ -92,12 +92,6 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         setupEventListeners();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        resetBackground();
-    }
-
     private void prepareBackgroundManager() {
         BackgroundManager backgroundManager = BackgroundManager.getInstance(getActivity());
         backgroundManager.attach(getActivity().getWindow());
@@ -352,7 +346,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                     }
 
                     if (!video.isMatched()) {
-                        VideoUtils.playVideo(new WeakReference<Activity>(getActivity()), (Video) item);
+                        VideoUtils.playVideo(new WeakReference<Activity>(getActivity()), video);
                         return;
                     }
 
