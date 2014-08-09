@@ -16,9 +16,6 @@
 
 package com.jerrellmardis.amphitheatre.task;
 
-import android.os.AsyncTask;
-import android.text.TextUtils;
-
 import com.jerrellmardis.amphitheatre.api.GuessItClient;
 import com.jerrellmardis.amphitheatre.api.TMDbClient;
 import com.jerrellmardis.amphitheatre.model.Movie;
@@ -26,6 +23,9 @@ import com.jerrellmardis.amphitheatre.model.tmdb.Config;
 import com.jerrellmardis.amphitheatre.model.tmdb.Metadata;
 
 import org.apache.commons.lang3.text.WordUtils;
+
+import android.os.AsyncTask;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.List;

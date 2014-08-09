@@ -100,7 +100,10 @@ public class GetFilesTask extends AsyncTask<Void, Void, List<SmbFile>> implement
 
         List<SmbFile> files = Collections.emptyList();
         try {
-            String domain = "smb://" + mPath;
+            String domain = mPath;
+            if (!domain.startsWith("smb://")) {
+                domain = "smb://" + domain;
+            }
             files = VideoUtils.getFilesFromDir(domain, auth);
         } catch (Exception e) {
             e.printStackTrace();

@@ -16,20 +16,20 @@
 
 package com.jerrellmardis.amphitheatre.activity;
 
+import com.jerrellmardis.amphitheatre.R;
+import com.jerrellmardis.amphitheatre.fragment.AddSourceDialogFragment;
+import com.jerrellmardis.amphitheatre.model.Movie;
+import com.jerrellmardis.amphitheatre.model.Source;
+import com.jerrellmardis.amphitheatre.task.GetFilesTask;
+import com.jerrellmardis.amphitheatre.util.Constants;
+import com.jerrellmardis.amphitheatre.util.SecurePreferences;
+
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
-
-import com.jerrellmardis.amphitheatre.R;
-import com.jerrellmardis.amphitheatre.fragment.AddSourceDialogFragment;
-import com.jerrellmardis.amphitheatre.model.Source;
-import com.jerrellmardis.amphitheatre.model.Movie;
-import com.jerrellmardis.amphitheatre.task.GetFilesTask;
-import com.jerrellmardis.amphitheatre.util.Constants;
-import com.jerrellmardis.amphitheatre.util.SecurePreferences;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;

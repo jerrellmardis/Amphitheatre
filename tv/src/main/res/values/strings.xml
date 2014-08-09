@@ -39,5 +39,6 @@
     <string name="ok">OK</string>
     <string name="released">Released %1$s</string>
     <string name="videos">Videos</string>
+    <string name="search_network_title">Network Shares</string>
 
 </resources>

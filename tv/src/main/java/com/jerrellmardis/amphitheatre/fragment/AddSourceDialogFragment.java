@@ -16,6 +16,9 @@
 
 package com.jerrellmardis.amphitheatre.fragment;
 
+import com.jerrellmardis.amphitheatre.R;
+import com.jerrellmardis.amphitheatre.fragment.SearchNetworkDialog.Callbacks;
+
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
@@ -25,13 +28,11 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.TextView;
 
-import com.jerrellmardis.amphitheatre.R;
-
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 
-public class AddSourceDialogFragment extends DialogFragment {
+public class AddSourceDialogFragment extends DialogFragment implements Callbacks {
 
     private static final String TITLE = "title";
 
@@ -41,6 +42,8 @@ public class AddSourceDialogFragment extends DialogFragment {
     @InjectView(R.id.user) TextView mUser;
     @InjectView(R.id.password) TextView mPassword;
     @InjectView(R.id.path) TextView mPath;
+
+    private SearchNetworkDialog mSearchNetworkDialog;
 
     public static AddSourceDialogFragment newInstance(String title, OnClickListener l) {
         AddSourceDialogFragment f = new AddSourceDialogFragment();
@@ -90,5 +93,22 @@ public class AddSourceDialogFragment extends DialogFragment {
             mOnClickListener.onAddClicked(mUser.getText(), mPassword.getText(), mPath.getText());
         }
         getDialog().dismiss();
+    }
+
+    @SuppressWarnings("unused")
+    @OnClick(R.id.search)
+    public void searchButtonClick() {
+        mSearchNetworkDialog = new SearchNetworkDialog(getActivity());
+        mSearchNetworkDialog.setCallbacks(this);
+        mSearchNetworkDialog.show();
+    }
+
+    @Override public void onDeviceSelected(String address) {
+        mPath.setText(address);
+        mUser.requestFocus();
+        if (mSearchNetworkDialog != null) {
+            mSearchNetworkDialog.dismiss();
+            mSearchNetworkDialog = null;
+        }
     }
 }
