@@ -70,7 +70,7 @@ public class GetFilesTask extends AsyncTask<Void, Void, List<SmbFile>> implement
         try {
             final int cpuCount = Runtime.getRuntime().availableProcessors();
             final int maxPoolSize = cpuCount * 2 + 1;
-            final int partitionSize = files.size() / maxPoolSize;
+            final int partitionSize = files.size() < maxPoolSize ? files.size() : (files.size() / maxPoolSize);
 
             List<List<SmbFile>> subSets = ListUtils.partition(files, partitionSize);
 
