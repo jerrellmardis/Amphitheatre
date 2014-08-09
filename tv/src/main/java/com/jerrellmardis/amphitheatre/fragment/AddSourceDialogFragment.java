@@ -17,7 +17,8 @@
 package com.jerrellmardis.amphitheatre.fragment;
 
 import com.jerrellmardis.amphitheatre.R;
-import com.jerrellmardis.amphitheatre.fragment.SearchNetworkDialog.Callbacks;
+import com.jerrellmardis.amphitheatre.dialog.SearchNetworkDialog;
+import com.jerrellmardis.amphitheatre.dialog.SearchNetworkDialog.Callbacks;
 
 import android.app.Dialog;
 import android.app.DialogFragment;

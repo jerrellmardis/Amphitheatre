@@ -1,4 +1,4 @@
-package com.jerrellmardis.amphitheatre.fragment;
+package com.jerrellmardis.amphitheatre.dialog;
 
 import com.jerrellmardis.amphitheatre.R;
 
@@ -36,7 +36,7 @@ public class SearchNetworkDialog extends Dialog {
 
     private Callbacks mCallbacks;
 
-    protected SearchNetworkDialog(Context context) {
+    public SearchNetworkDialog(Context context) {
         super(context);
 
         setTitle(R.string.search_network_title);
