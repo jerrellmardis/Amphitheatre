@@ -20,7 +20,7 @@ import android.content.Context;
 import android.support.v17.leanback.widget.AbstractDetailsDescriptionPresenter;
 
 import com.jerrellmardis.amphitheatre.R;
-import com.jerrellmardis.amphitheatre.model.Movie;
+import com.jerrellmardis.amphitheatre.model.Video;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -37,21 +37,23 @@ public class DetailsDescriptionPresenter extends AbstractDetailsDescriptionPrese
 
     @Override
     protected void onBindDescription(ViewHolder viewHolder, Object item) {
-        Movie movie = (Movie) item;
+        Video video = (Video) item;
 
-        if (movie != null) {
-            viewHolder.getTitle().setText(movie.getTitle());
-            viewHolder.getBody().setText(movie.getDescription());
+        if (video != null) {
+            viewHolder.getTitle().setText(video.getName());
+            viewHolder.getBody().setText(video.getOverview());
 
-            try {
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                Date date = formatter.parse(movie.getYear());
-                DateFormat df = DateFormat.getDateInstance();
-                String subtitle = String.format(mContext.getString(R.string.released), df.format(date));
-                viewHolder.getSubtitle().setText(subtitle);
+            if (video.getMovie() != null) {
+                try {
+                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                    Date date = formatter.parse(video.getMovie().getReleaseDate());
+                    DateFormat df = DateFormat.getDateInstance();
+                    String subtitle = String.format(mContext.getString(R.string.released), df.format(date));
+                    viewHolder.getSubtitle().setText(subtitle);
 
-            } catch (Exception e) {
-                e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

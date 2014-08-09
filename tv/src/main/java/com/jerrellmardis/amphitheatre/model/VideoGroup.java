@@ -16,29 +16,27 @@
 
 package com.jerrellmardis.amphitheatre.model;
 
-import com.orm.SugarRecord;
-
-import java.io.Serializable;
-
 /**
- * Created by Jerrell Mardis on 8/5/14.
+ * Created by Jerrell Mardis on 8/8/14.
  */
-public class Source extends SugarRecord<Source> implements Serializable {
+public class VideoGroup {
 
-    private String mSource;
+    private Video mVideo;
+    private int numOfVideos = 0;
 
-    public Source() { }
-
-    public String getSource() {
-        return mSource;
+    public Video getVideo() {
+        return mVideo;
     }
 
-    public void setSource(String source) {
-        mSource = source;
+    public void setVideo(Video video) {
+        mVideo = video;
     }
 
-    @Override
-    public String toString() {
-        return mSource;
+    public int getNumOfVideos() {
+        return numOfVideos;
+    }
+
+    public void increment() {
+        numOfVideos++;
     }
 }

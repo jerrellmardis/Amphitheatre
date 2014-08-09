@@ -14,31 +14,37 @@
  * limitations under the License.
  */
 
-package com.jerrellmardis.amphitheatre.model;
+package com.jerrellmardis.amphitheatre.model.tmdb;
 
 import com.orm.SugarRecord;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
-/**
- * Created by Jerrell Mardis on 8/5/14.
- */
-public class Source extends SugarRecord<Source> implements Serializable {
+public class Genre extends SugarRecord<Genre> implements Serializable {
 
-    private String mSource;
+    private String name;
+    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    public Source() { }
-
-    public String getSource() {
-        return mSource;
+    public String getName() {
+        return name;
     }
 
-    public void setSource(String source) {
-        mSource = source;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Map<String, Object> getAdditionalProperties() {
+        return this.additionalProperties;
+    }
+
+    public void setAdditionalProperty(String name, Object value) {
+        this.additionalProperties.put(name, value);
     }
 
     @Override
     public String toString() {
-        return mSource;
+        return name;
     }
 }

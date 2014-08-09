@@ -16,27 +16,27 @@
 
 package com.jerrellmardis.amphitheatre.widget;
 
-import com.jerrellmardis.amphitheatre.R;
-import com.jerrellmardis.amphitheatre.model.Movie;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.jerrellmardis.amphitheatre.R;
+import com.jerrellmardis.amphitheatre.model.Video;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
+import com.squareup.picasso.Target;
+
 public class CardPresenter extends Presenter {
 
-    private static float RATIO = 2 / 3f;
-    private static int CARD_HEIGHT = 380;
-    private static int CARD_WIDTH = Math.round(CARD_HEIGHT * RATIO);
-
-    private final Context mContext;
+    protected final Context mContext;
+    protected int mCardHeight = 400;
+    protected int mCardWidth = Math.round(mCardHeight * (2 / 3f));
 
     public CardPresenter(Context context) {
         mContext = context;
@@ -53,18 +53,36 @@ public class CardPresenter extends Presenter {
 
     @Override
     public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
-        Movie movie = (Movie) item;
+        Video video = (Video) item;
         ViewHolder holder = (ViewHolder) viewHolder;
 
-        holder.mCardView.setTitleText(movie.getTitle());
-        holder.mCardView.setContentText(movie.getStudio());
-        holder.mCardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT);
+        holder.mCardView.setTitleText(video.getName());
+        holder.mCardView.setMainImageDimensions(mCardWidth, mCardHeight);
 
-        Picasso.with(mContext)
-                .load(movie.getCardImageUrl())
-                .resize(CARD_WIDTH, CARD_HEIGHT)
+        if (video.getTvShow() != null && video.getTvShow().getVoteAverage() != null) {
+            holder.mCardView.setContentText(String.format(
+                    mContext.getString(R.string.rating_description),
+                    video.getTvShow().getVoteAverage()));
+        } else if (video.getMovie() != null && video.getMovie().getVoteAverage() != null) {
+            holder.mCardView.setContentText(String.format(
+                    mContext.getString(R.string.rating_description),
+                    video.getMovie().getVoteAverage()));
+        } else {
+            holder.mCardView.setContentText(String.format(
+                    mContext.getString(R.string.rating_description), 0.0d));
+        }
+
+        RequestCreator rc;
+        String url = video.getCardImageUrl();
+        if (TextUtils.isEmpty(url)) {
+            rc = Picasso.with(mContext).load(R.drawable.placeholder);
+        } else {
+            rc = Picasso.with(mContext).load(url);
+        }
+
+        rc.resize(mCardWidth, mCardHeight)
                 .centerCrop()
-                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.placeholder)
                 .into(holder);
     }
 
@@ -73,7 +91,7 @@ public class CardPresenter extends Presenter {
 
     static class ViewHolder extends Presenter.ViewHolder implements Target {
 
-        private final ImageCardView mCardView;
+        protected final ImageCardView mCardView;
 
         public ViewHolder(View view) {
             super(view);

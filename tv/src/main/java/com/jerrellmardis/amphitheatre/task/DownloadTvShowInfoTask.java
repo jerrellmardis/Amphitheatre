@@ -25,8 +25,9 @@ import com.jerrellmardis.amphitheatre.listeners.TaskListener;
 import com.jerrellmardis.amphitheatre.model.Video;
 import com.jerrellmardis.amphitheatre.model.guessit.Guess;
 import com.jerrellmardis.amphitheatre.model.tmdb.Config;
-import com.jerrellmardis.amphitheatre.model.tmdb.Movie;
+import com.jerrellmardis.amphitheatre.model.tmdb.Episode;
 import com.jerrellmardis.amphitheatre.model.tmdb.SearchResult;
+import com.jerrellmardis.amphitheatre.model.tmdb.TvShow;
 import com.jerrellmardis.amphitheatre.util.Constants;
 
 import org.apache.commons.lang3.StringUtils;
@@ -39,13 +40,13 @@ import jcifs.smb.SmbFile;
 /**
  * Created by Jerrell Mardis on 8/5/14.
  */
-public class DownloadMovieInfoTask extends AsyncTask<Void, Void, Boolean> {
+public class DownloadTvShowInfoTask extends AsyncTask<Void, Void, Boolean> {
 
     private String mDirectory;
     private List<SmbFile> mFiles;
     private TaskListener mTaskListener;
 
-    public DownloadMovieInfoTask(String directory, List<SmbFile> files, TaskListener l) {
+    public DownloadTvShowInfoTask(String directory, List<SmbFile> files, TaskListener l) {
         mDirectory = directory;
         mFiles = files;
         mTaskListener = l;
@@ -64,7 +65,7 @@ public class DownloadMovieInfoTask extends AsyncTask<Void, Void, Boolean> {
 
             // if a guess is not found, search again using the parent directory's name
             if (guess != null &&
-                    (TextUtils.isEmpty(guess.getTitle()) || guess.getTitle().equals(file.getName()))) {
+                    (TextUtils.isEmpty(guess.getSeries()) || guess.getSeries().equals(file.getName()))) {
 
                 String[] sections = file.getPath().split("/");
                 String name = sections[sections.length - 2];
@@ -78,40 +79,58 @@ public class DownloadMovieInfoTask extends AsyncTask<Void, Void, Boolean> {
 
             Video video = new Video();
 
-            if (guess == null || TextUtils.isEmpty(guess.getTitle())) {
+            // couldn't find a match. Create a TV Show, mark it as unmatched and move on.
+            if (guess == null || TextUtils.isEmpty(guess.getSeries())) {
                 video.setName(WordUtils.capitalizeFully(file.getName()));
                 video.setVideoUrl(file.getPath());
                 video.setIsMatched(false);
-                video.setIsMovie(true);
+                video.setIsMovie(false);
                 video.save();
                 continue;
             }
 
-            video.setName(WordUtils.capitalizeFully(guess.getTitle()));
+            video.setName(WordUtils.capitalizeFully(guess.getSeries()));
             video.setVideoUrl(file.getPath());
-            video.setIsMovie(true);
+            video.setIsMovie(false);
 
-            if (!TextUtils.isEmpty(guess.getTitle())) {
+            if (!TextUtils.isEmpty(guess.getSeries())) {
                 try {
-                    // search for the movie
-                    SearchResult searchResult = TMDbClient.findMovie(guess.getTitle(), guess.getYear());
+                    // search for the TV show
+                    SearchResult searchResult = TMDbClient.findTvShow(guess.getSeries());
 
-                    // if found, get the detailed info for the movie
+                    // if found, get the detailed info for the show
                     if (searchResult.getResults() != null && !searchResult.getResults().isEmpty()) {
                         Long id = searchResult.getResults().get(0).getId();
 
                         if (id != null) {
-                            Movie movie = TMDbClient.getMovie(id);
-                            movie.setTmdbId(id);
-                            movie.setId(null);
-                            movie.setFlattenedGenres(StringUtils.join(movie.getGenres(), ","));
-                            movie.setFlattenedProductionCompanies(StringUtils.join(movie.getProductionCompanies(), ","));
-                            movie.save();
+                            TvShow tvShow = TMDbClient.getTvShow(id);
+                            tvShow.setTmdbId(id);
+                            tvShow.setId(null);
 
-                            video.setOverview(movie.getOverview());
-                            video.setName(movie.getTitle());
+                            if (guess.getEpisodeNumber() != null && guess.getSeason() != null) {
+                                Episode episode = TMDbClient.getEpisode(tvShow.getTmdbId(),
+                                        guess.getSeason(), guess.getEpisodeNumber());
+
+                                if (episode != null) {
+                                    String stillPathUrl = config.getImages().getBase_url() + "original" +
+                                            episode.getStillPath();
+                                    episode.setStillPath(stillPathUrl);
+
+                                    episode.setTmdbId(id);
+                                    episode.setId(null);
+
+                                    episode.save();
+                                    tvShow.setEpisode(episode);
+                                }
+                            }
+
+                            tvShow.setFlattenedGenres(StringUtils.join(tvShow.getGenres(), ","));
+                            tvShow.save();
+
+                            video.setName(tvShow.getOriginalName());
+                            video.setOverview(tvShow.getOverview());
                             video.setIsMatched(true);
-                            video.setMovie(movie);
+                            video.setTvShow(tvShow);
                         }
 
                         String cardImageUrl = config.getImages().getBase_url() + "original" +

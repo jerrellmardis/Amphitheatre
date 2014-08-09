@@ -16,13 +16,19 @@
 
 package com.jerrellmardis.amphitheatre.api;
 
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.jerrellmardis.amphitheatre.model.tmdb.Config;
-import com.jerrellmardis.amphitheatre.model.tmdb.Metadata;
+import com.jerrellmardis.amphitheatre.model.tmdb.Episode;
 import com.jerrellmardis.amphitheatre.model.tmdb.Movie;
+import com.jerrellmardis.amphitheatre.model.tmdb.SearchResult;
+import com.jerrellmardis.amphitheatre.model.tmdb.TvShow;
 import com.jerrellmardis.amphitheatre.util.ApiConstants;
 
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
+import retrofit.converter.GsonConverter;
 import retrofit.http.GET;
 import retrofit.http.Path;
 import retrofit.http.Query;
@@ -36,19 +42,33 @@ public class TMDbClient {
         @GET("/configuration")
         Config getConfig();
 
-        @GET("/search/movie")
-        Metadata getMetadata(@Query("query") CharSequence name, @Query("year") CharSequence year);
-
         @GET("/movie/{id}")
         Movie getMovie(@Path("id") Long id);
+
+        @GET("/tv/{id}")
+        TvShow getTvShow(@Path("id") Long id);
+
+        @GET("/tv/{id}/season/{season_number}/episode/{episode_number}")
+        Episode getEpisode(@Path("id") Long id, @Path("season_number") int seasonNumber,
+                           @Path("episode_number") int episodeNumber);
+
+        @GET("/search/movie")
+        SearchResult findMovie(@Query("query") CharSequence name, @Query("year") Integer year);
+
+        @GET("/search/tv")
+        SearchResult findTvShow(@Query("query") CharSequence name);
     }
 
     private static TMDbService service;
 
     private static TMDbService getService() {
+        Gson gson = new GsonBuilder()
+                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                .create();
+
         if (service == null) {
             RestAdapter restAdapter = new RestAdapter.Builder()
-                    .setConverter(Util.JSON_CONVERTER)
+                    .setConverter(new GsonConverter(gson))
                     .setEndpoint(ApiConstants.TMDB_SERVER_URL)
                     .setRequestInterceptor(new RequestInterceptor() {
                         @Override
@@ -66,12 +86,23 @@ public class TMDbClient {
         return getService().getConfig();
     }
 
-    public static Metadata getMetadata(CharSequence name, CharSequence year) {
-        return getService().getMetadata(name, year);
-    }
-
     public static Movie getMovie(Long id) {
         return getService().getMovie(id);
     }
 
+    public static TvShow getTvShow(Long id) {
+        return getService().getTvShow(id);
+    }
+
+    public static SearchResult findMovie(CharSequence name, Integer year) {
+        return getService().findMovie(name, year);
+    }
+
+    public static SearchResult findTvShow(CharSequence name) {
+        return getService().findTvShow(name);
+    }
+
+    public static Episode getEpisode(Long id, int seasonNumber, int episodeNumber) {
+        return getService().getEpisode(id, seasonNumber, episodeNumber);
+    }
 }

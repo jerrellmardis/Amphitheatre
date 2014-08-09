@@ -16,30 +16,49 @@
 
 package com.jerrellmardis.amphitheatre.model.tmdb;
 
+import com.orm.SugarRecord;
+import com.orm.dsl.Ignore;
+
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class Movie {
+public class Movie extends SugarRecord<Movie> implements Serializable {
 
+    private Long tmdbId;
     private Boolean adult;
-    private String backdrop_path;
+    private String backdropPath;
     private Long budget;
+    private String flattenedGenres;
     private String homepage;
-    private Long id;
-    private String imdb_id;
-    private String original_title;
+    private String imdbId;
+    private String originalTitle;
     private String overview;
-    private Float popularity;
-    private String poster_path;
-    private String release_date;
+    private Double popularity;
+    private String posterPath;
+    private String flattenedProductionCompanies;
+    private String releaseDate;
     private Long revenue;
     private Long runtime;
     private String status;
     private String tagline;
     private String title;
-    private Float vote_average;
-    private Long vote_count;
+    private Double voteAverage;
+    private Long voteCount;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    @Ignore private List<Genre> genres = new ArrayList<Genre>();
+    @Ignore private List<ProductionCompany> productionCompanies = new ArrayList<ProductionCompany>();
+
+    public Long getTmdbId() {
+        return tmdbId;
+    }
+
+    public void setTmdbId(Long tmdbId) {
+        this.tmdbId = tmdbId;
+    }
 
     public Boolean getAdult() {
         return adult;
@@ -49,12 +68,12 @@ public class Movie {
         this.adult = adult;
     }
 
-    public String getBackdrop_path() {
-        return backdrop_path;
+    public String getBackdropPath() {
+        return backdropPath;
     }
 
-    public void setBackdrop_path(String backdrop_path) {
-        this.backdrop_path = backdrop_path;
+    public void setBackdropPath(String backdropPath) {
+        this.backdropPath = backdropPath;
     }
 
     public Long getBudget() {
@@ -65,6 +84,14 @@ public class Movie {
         this.budget = budget;
     }
 
+    public List<Genre> getGenres() {
+        return genres;
+    }
+
+    public void setGenres(List<Genre> genres) {
+        this.genres = genres;
+    }
+
     public String getHomepage() {
         return homepage;
     }
@@ -73,28 +100,20 @@ public class Movie {
         this.homepage = homepage;
     }
 
-    public Long getId() {
-        return id;
+    public String getImdbId() {
+        return imdbId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setImdbId(String imdbId) {
+        this.imdbId = imdbId;
     }
 
-    public String getImdb_id() {
-        return imdb_id;
+    public String getOriginalTitle() {
+        return originalTitle;
     }
 
-    public void setImdb_id(String imdb_id) {
-        this.imdb_id = imdb_id;
-    }
-
-    public String getOriginal_title() {
-        return original_title;
-    }
-
-    public void setOriginal_title(String original_title) {
-        this.original_title = original_title;
+    public void setOriginalTitle(String originalTitle) {
+        this.originalTitle = originalTitle;
     }
 
     public String getOverview() {
@@ -105,28 +124,36 @@ public class Movie {
         this.overview = overview;
     }
 
-    public Float getPopularity() {
+    public Double getPopularity() {
         return popularity;
     }
 
-    public void setPopularity(Float popularity) {
+    public void setPopularity(Double popularity) {
         this.popularity = popularity;
     }
 
-    public String getPoster_path() {
-        return poster_path;
+    public String getPosterPath() {
+        return posterPath;
     }
 
-    public void setPoster_path(String poster_path) {
-        this.poster_path = poster_path;
+    public void setPosterPath(String posterPath) {
+        this.posterPath = posterPath;
     }
 
-    public String getRelease_date() {
-        return release_date;
+    public List<ProductionCompany> getProductionCompanies() {
+        return productionCompanies;
     }
 
-    public void setRelease_date(String release_date) {
-        this.release_date = release_date;
+    public void setProductionCompanies(List<ProductionCompany> productionCompanies) {
+        this.productionCompanies = productionCompanies;
+    }
+
+    public String getReleaseDate() {
+        return releaseDate;
+    }
+
+    public void setReleaseDate(String releaseDate) {
+        this.releaseDate = releaseDate;
     }
 
     public Long getRevenue() {
@@ -169,20 +196,36 @@ public class Movie {
         this.title = title;
     }
 
-    public Float getVote_average() {
-        return vote_average;
+    public Double getVoteAverage() {
+        return voteAverage;
     }
 
-    public void setVote_average(Float vote_average) {
-        this.vote_average = vote_average;
+    public void setVoteAverage(Double voteAverage) {
+        this.voteAverage = voteAverage;
     }
 
-    public Long getVote_count() {
-        return vote_count;
+    public Long getVoteCount() {
+        return voteCount;
     }
 
-    public void setVote_count(Long vote_count) {
-        this.vote_count = vote_count;
+    public void setVoteCount(Long voteCount) {
+        this.voteCount = voteCount;
+    }
+
+    public String getFlattenedGenres() {
+        return flattenedGenres;
+    }
+
+    public void setFlattenedGenres(String flattenedGenres) {
+        this.flattenedGenres = flattenedGenres;
+    }
+
+    public String getFlattenedProductionCompanies() {
+        return flattenedProductionCompanies;
+    }
+
+    public void setFlattenedProductionCompanies(String flattenedProductionCompanies) {
+        this.flattenedProductionCompanies = flattenedProductionCompanies;
     }
 
     public Map<String, Object> getAdditionalProperties() {

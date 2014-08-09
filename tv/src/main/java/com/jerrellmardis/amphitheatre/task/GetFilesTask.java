@@ -16,11 +16,12 @@
 
 package com.jerrellmardis.amphitheatre.task;
 
+import android.os.AsyncTask;
+
+import com.jerrellmardis.amphitheatre.listeners.TaskListener;
 import com.jerrellmardis.amphitheatre.util.VideoUtils;
 
 import org.apache.commons.collections4.ListUtils;
-
-import android.os.AsyncTask;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,25 +34,27 @@ import jcifs.smb.SmbFile;
 /**
  * Created by Jerrell Mardis on 8/5/14.
  */
-public class GetFilesTask extends AsyncTask<Void, Void, List<SmbFile>> implements DownloadMovieInfoTask.OnTaskCompletedListener {
+public class GetFilesTask extends AsyncTask<Void, Void, List<SmbFile>> implements TaskListener {
 
     private String mPath;
     private String mUser;
     private String mPassword;
     private AtomicInteger mSetsProcessedCounter;
-    private OnTaskCompletedListener mOnTaskCompletedListener;
+    private Callback mCallback;
     private int mNumOfSets;
+    private boolean mIsMovie;
 
-    public interface OnTaskCompletedListener {
-        void onTaskCompleted();
-        void onTaskFailed();
+    public interface Callback {
+        void success();
+        void failure();
     }
 
-    public GetFilesTask(String user, String password, String path, OnTaskCompletedListener l) {
+    public GetFilesTask(String user, String password, String path, boolean isMovie, Callback l) {
         mUser = user;
         mPassword = password;
         mPath = path;
-        mOnTaskCompletedListener = l;
+        mIsMovie = isMovie;
+        mCallback = l;
 
         mSetsProcessedCounter = new AtomicInteger(0);
 
@@ -78,20 +81,25 @@ public class GetFilesTask extends AsyncTask<Void, Void, List<SmbFile>> implement
 
             String[] sections = mPassword.split("/");
             String directory = sections[sections.length - 1];
+
             for (List<SmbFile> subSet : subSets) {
-                new DownloadMovieInfoTask(directory, subSet, this).executeOnExecutor(THREAD_POOL_EXECUTOR);
+                if (mIsMovie) {
+                    new DownloadMovieInfoTask(directory, subSet, this).executeOnExecutor(THREAD_POOL_EXECUTOR);
+                } else {
+                    new DownloadTvShowInfoTask(directory, subSet, this).executeOnExecutor(THREAD_POOL_EXECUTOR);
+                }
             }
         } catch (Exception e) {
-            if (mOnTaskCompletedListener != null) {
-                mOnTaskCompletedListener.onTaskFailed();
+            if (mCallback != null) {
+                mCallback.failure();
             }
         }
     }
 
     @Override
-    public void onTaskCompleted() {
-        if (incrementAndGetSetsProcessed() == mNumOfSets - 1 && mOnTaskCompletedListener != null) {
-            mOnTaskCompletedListener.onTaskCompleted();
+    public void taskCompleted() {
+        if (incrementAndGetSetsProcessed() == mNumOfSets - 1 && mCallback != null) {
+            mCallback.success();
         }
     }
 

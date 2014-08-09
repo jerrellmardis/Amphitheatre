@@ -33,6 +33,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         android:layout_marginLeft="8dp"
+        android:text="@string/add_source"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textStyle="bold"
         tools:text="ADD SOURCE"/>
@@ -66,6 +67,28 @@
         android:hint="@string/enter_password"
         android:imeOptions="actionDone"
         android:inputType="textPassword"/>
+
+    <RadioGroup
+        android:id="@+id/source_type_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/radio_movie"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            android:text="@string/movie"/>
+
+        <RadioButton
+            android:id="@+id/radio_tv_show"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/tv_show"/>
+    </RadioGroup>
 
     <LinearLayout
         android:layout_width="match_parent"

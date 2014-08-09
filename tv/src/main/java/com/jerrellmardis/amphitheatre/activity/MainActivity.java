@@ -26,7 +26,7 @@ import android.widget.Toast;
 import com.jerrellmardis.amphitheatre.R;
 import com.jerrellmardis.amphitheatre.fragment.AddSourceDialogFragment;
 import com.jerrellmardis.amphitheatre.model.Source;
-import com.jerrellmardis.amphitheatre.model.Movie;
+import com.jerrellmardis.amphitheatre.model.Video;
 import com.jerrellmardis.amphitheatre.task.GetFilesTask;
 import com.jerrellmardis.amphitheatre.util.Constants;
 import com.jerrellmardis.amphitheatre.util.SecurePreferences;
@@ -48,7 +48,7 @@ public class MainActivity extends Activity implements AddSourceDialogFragment.On
 
         ButterKnife.inject(this);
 
-        if (Movie.count(Movie.class, null, null) > 0) {
+        if (Video.count(Video.class, null, null) > 0) {
             launchBrowseFragment();
         }
     }
@@ -58,20 +58,22 @@ public class MainActivity extends Activity implements AddSourceDialogFragment.On
     public void addSourceButtonOnClick() {
         FragmentManager fm = getFragmentManager();
         AddSourceDialogFragment addSourceDialog =
-                AddSourceDialogFragment.newInstance(getString(R.string.add_source), this);
+                AddSourceDialogFragment.newInstance(this);
         addSourceDialog.show(fm, AddSourceDialogFragment.class.getSimpleName());
     }
 
     @Override
-    public void onAddClicked(CharSequence user, CharSequence password, final CharSequence path) {
+    public void onAddClicked(CharSequence user, CharSequence password, final CharSequence path,
+                             boolean isMovie) {
+
         mWelcomeContent.setVisibility(View.GONE);
         mProgressBarContent.setVisibility(View.VISIBLE);
 
-        new GetFilesTask(user.toString(), password.toString(), path.toString(),
-                new GetFilesTask.OnTaskCompletedListener() {
+        new GetFilesTask(user.toString(), password.toString(), path.toString(), isMovie,
+                new GetFilesTask.Callback() {
 
                     @Override
-                    public void onTaskCompleted() {
+                    public void success() {
                         Source source = new Source();
                         source.setSource(path.toString());
                         source.save();
@@ -80,7 +82,7 @@ public class MainActivity extends Activity implements AddSourceDialogFragment.On
                     }
 
                     @Override
-                    public void onTaskFailed() {
+                    public void failure() {
                         mWelcomeContent.setVisibility(View.VISIBLE);
                         mProgressBarContent.setVisibility(View.GONE);
                         Toast.makeText(MainActivity.this, getString(R.string.update_failed),

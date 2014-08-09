@@ -16,14 +16,14 @@
 
 package com.jerrellmardis.amphitheatre.util;
 
-import com.jerrellmardis.amphitheatre.model.Movie;
-import com.jerrellmardis.amphitheatre.server.Streamer;
-
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+
+import com.jerrellmardis.amphitheatre.model.Video;
+import com.jerrellmardis.amphitheatre.server.Streamer;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -50,7 +50,7 @@ public class VideoUtils {
     private static final char UNIX_SEPARATOR = '/';
     private static final char WINDOWS_SEPARATOR = '\\';
 
-    public static void playVideo(WeakReference<Activity> ref, final Movie movie) {
+    public static void playVideo(WeakReference<Activity> ref, final Video video) {
         final Activity activity = ref.get();
 
         if (activity != null) {
@@ -64,15 +64,15 @@ public class VideoUtils {
                         String user = preferences.getString(Constants.PREFS_USER_KEY, "");
                         String pass = preferences.getString(Constants.PREFS_PASSWORD_KEY, "");
                         NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication("", user, pass);
-                        SmbFile file = new SmbFile(movie.getVideoUrl(), auth);
+                        SmbFile file = new SmbFile(video.getVideoUrl(), auth);
                         streamer.setStreamSrc(file, null);
 
                         activity.runOnUiThread(new Runnable() {
                             public void run() {
                                 try {
-                                    Uri uri = Uri.parse(Streamer.URL + Uri.fromFile(new File(Uri.parse(movie.getVideoUrl()).getPath())).getEncodedPath());
+                                    Uri uri = Uri.parse(Streamer.URL + Uri.fromFile(new File(Uri.parse(video.getVideoUrl()).getPath())).getEncodedPath());
                                     Intent i = new Intent(Intent.ACTION_VIEW);
-                                    i.setDataAndType(uri, VideoUtils.getMimeType(movie.getVideoUrl(), true));
+                                    i.setDataAndType(uri, VideoUtils.getMimeType(video.getVideoUrl(), true));
                                     activity.startActivity(i);
                                 } catch (ActivityNotFoundException e) {
                                     e.printStackTrace();
@@ -168,41 +168,43 @@ public class VideoUtils {
         return Math.max(lastUnixPos, lastWindowsPos);
     }
 
-    public static Intent getVideoIntent(Movie movie) {
-        return getVideoIntent(movie.getVideoUrl().replace("smb", "http"), "video/*", movie);
+    public static Intent getVideoIntent(Video video) {
+        return getVideoIntent(video.getVideoUrl().replace("smb", "http"), "video/*", video);
     }
 
-    public static Intent getVideoIntent(String fileUrl, String mimeType, Movie movie) {
-        if (fileUrl.startsWith("http"))
-            return getVideoIntent(Uri.parse(fileUrl), mimeType, movie);
+    public static Intent getVideoIntent(String fileUrl, String mimeType, Video video) {
+        if (fileUrl.startsWith("http")) {
+            return getVideoIntent(Uri.parse(fileUrl), mimeType, video);
+        }
 
         Intent videoIntent = new Intent(Intent.ACTION_VIEW);
         videoIntent.setDataAndType(Uri.fromFile(new File(fileUrl)), mimeType);
-        videoIntent.putExtras(getVideoIntentBundle(movie));
+        videoIntent.putExtras(getVideoIntentBundle(video));
 
         return videoIntent;
     }
 
-    public static Intent getVideoIntent(Uri file, String mimeType, Object videoObject) {
+    public static Intent getVideoIntent(Uri file, String mimeType, Video video) {
         Intent videoIntent = new Intent(Intent.ACTION_VIEW);
         videoIntent.setDataAndType(file, mimeType);
-        videoIntent.putExtras(getVideoIntentBundle(videoObject));
+        videoIntent.putExtras(getVideoIntentBundle(video));
 
         return videoIntent;
     }
 
-    private static Bundle getVideoIntentBundle(Object videoObject) {
+    private static Bundle getVideoIntentBundle(Video video) {
         Bundle b = new Bundle();
 
-        String title = "";
+        String title = video.getName();
 
-        if (videoObject instanceof Movie) {
-            title = ((Movie) videoObject).getTitle();
-            b.putString("plot", ((Movie) videoObject).getDescription());
-            b.putString("date", ((Movie) videoObject).getYear());
-//            b.putDouble("rating", ((Movie) videoObject).getRawRating());
-            b.putString("cover", ((Movie) videoObject).getCardImageUrl());
-//            b.putString("genres", ((Movie) videoObject).getGenres());
+        if (video.getMovie() != null) {
+            b.putString("plot", video.getMovie().getOverview());
+            b.putString("date", video.getMovie().getReleaseDate());
+            b.putString("cover", video.getCardImageUrl());
+        } else if (video.getTvShow() != null) {
+            b.putString("plot", video.getTvShow().getOverview());
+            b.putString("date", video.getTvShow().getFirstAirDate());
+            b.putString("cover", video.getCardImageUrl());
         }
 
         b.putString("title", title);

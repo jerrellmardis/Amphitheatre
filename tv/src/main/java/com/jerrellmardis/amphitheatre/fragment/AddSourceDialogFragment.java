@@ -19,10 +19,13 @@ package com.jerrellmardis.amphitheatre.fragment;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.jerrellmardis.amphitheatre.R;
@@ -33,29 +36,22 @@ import butterknife.OnClick;
 
 public class AddSourceDialogFragment extends DialogFragment {
 
-    private static final String TITLE = "title";
-
     private OnClickListener mOnClickListener;
 
-    @InjectView(R.id.title) TextView mTitle;
-    @InjectView(R.id.user) TextView mUser;
-    @InjectView(R.id.password) TextView mPassword;
-    @InjectView(R.id.path) TextView mPath;
+    @InjectView(R.id.title) TextView mTitleText;
+    @InjectView(R.id.user) EditText mUserText;
+    @InjectView(R.id.password) EditText mPasswordText;
+    @InjectView(R.id.path) EditText mPathText;
+    @InjectView(R.id.radio_movie) RadioButton mMovieRadioButton;
 
-    public static AddSourceDialogFragment newInstance(String title, OnClickListener l) {
+    public static AddSourceDialogFragment newInstance(OnClickListener l) {
         AddSourceDialogFragment f = new AddSourceDialogFragment();
-
         f.setOnClickListener(l);
-
-        Bundle bundle = new Bundle();
-        bundle.putString(TITLE, title);
-        f.setArguments(bundle);
-
         return f;
     }
 
     public interface OnClickListener {
-        void onAddClicked(CharSequence user, CharSequence password, CharSequence path);
+        void onAddClicked(CharSequence user, CharSequence password, CharSequence path, boolean isMovie);
     }
 
     public void setOnClickListener(OnClickListener onClickListener) {
@@ -66,7 +62,6 @@ public class AddSourceDialogFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_add_source_dialog, container);
         ButterKnife.inject(this, view);
-        mTitle.setText(getArguments().getString(TITLE));
         return view;
     }
 
@@ -86,8 +81,16 @@ public class AddSourceDialogFragment extends DialogFragment {
     @SuppressWarnings("unused")
     @OnClick(R.id.add_button)
     public void addButtonOnClick() {
+        if (TextUtils.isEmpty(mPathText.getText())) {
+            mPathText.setError(getString(R.string.source_path_required_msg));
+            return;
+        } else {
+            mPathText.setError(null);
+        }
+
         if (mOnClickListener != null) {
-            mOnClickListener.onAddClicked(mUser.getText(), mPassword.getText(), mPath.getText());
+            mOnClickListener.onAddClicked(mUserText.getText(), mPasswordText.getText(),
+                    mPathText.getText(), mMovieRadioButton.isChecked());
         }
         getDialog().dismiss();
     }

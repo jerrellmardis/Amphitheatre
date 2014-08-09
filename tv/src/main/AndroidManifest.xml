@@ -15,8 +15,8 @@
    limitations under the License.
 -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.jerrellmardis.amphitheatre">
+<manifest package="com.jerrellmardis.amphitheatre"
+          xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
@@ -26,11 +26,11 @@
         android:required="false"/>
 
     <application
+        android:name="com.orm.SugarApp"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
-        android:name="com.orm.SugarApp">
+        android:theme="@style/AppTheme">
 
         <activity
             android:name=".activity.MainActivity"
@@ -53,12 +53,15 @@
         <meta-data
             android:name="DATABASE"
             android:value="amphitheatre.db"/>
+
         <meta-data
             android:name="VERSION"
             android:value="1"/>
+
         <meta-data
             android:name="QUERY_LOG"
             android:value="false"/>
+
         <meta-data
             android:name="DOMAIN_PACKAGE_NAME"
             android:value="com.jerrellmardis.amphitheatre"/>
