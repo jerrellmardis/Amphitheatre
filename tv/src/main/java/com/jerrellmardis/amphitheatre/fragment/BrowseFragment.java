@@ -261,7 +261,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         int w = mMetrics.widthPixels;
         int h = mMetrics.heightPixels;
 
-        rc.resize(w, h).centerCrop().error(mDefaultBackground).into(mBackgroundTarget);
+        rc.resize(w, h).centerCrop().error(mDefaultBackground).skipMemoryCache().into(mBackgroundTarget);
     }
 
     private void clearBackground() {
