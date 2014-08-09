@@ -17,6 +17,7 @@
 package com.jerrellmardis.amphitheatre.fragment;
 
 import com.jerrellmardis.amphitheatre.R;
+import com.jerrellmardis.amphitheatre.activity.BrowseActivity;
 import com.jerrellmardis.amphitheatre.activity.DetailsActivity;
 import com.jerrellmardis.amphitheatre.activity.SearchActivity;
 import com.jerrellmardis.amphitheatre.model.Movie;
@@ -50,7 +51,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,6 +73,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     private List<Movie> mVideos;
     private List<Movie> mUnmatchedVideos;
 
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -93,6 +94,20 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         setupEventListeners();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        resetBackground();
+    }
+
+    private void resetBackground() {
+        // Make sure default background is loaded
+        if (mBackgroundURI != null) {
+            mBackgroundURI = null;
+        }
+        startBackgroundTimer();
+    }
+
     private OnItemSelectedListener getDefaultItemSelectedListener() {
         return new OnItemSelectedListener() {
             @Override
@@ -106,6 +121,19 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                     }
                 }
             }
+        };
+    }
+
+    private BrowseTransitionListener getBrowseTransitionListener() {
+        return new BrowseTransitionListener() {
+
+            @Override
+            public void onHeadersTransitionStop(boolean withHeaders) {
+                if (withHeaders) {
+                    resetBackground();
+                }
+            }
+
         };
     }
 
@@ -321,6 +349,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                 startActivity(intent);
             }
         });
+        setBrowseTransitionListener(getBrowseTransitionListener());
     }
 
     private void startBackgroundTimer() {
@@ -371,4 +400,5 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         @Override
         public void onUnbindViewHolder(ViewHolder viewHolder) { }
     }
+
 }
