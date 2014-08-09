@@ -194,6 +194,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                 .load(uri.toString())
                 .resize(mMetrics.widthPixels, mMetrics.heightPixels)
                 .centerCrop()
+                .skipMemoryCache()
                 .error(mDefaultBackground)
                 .into(mBackgroundTarget);
     }
