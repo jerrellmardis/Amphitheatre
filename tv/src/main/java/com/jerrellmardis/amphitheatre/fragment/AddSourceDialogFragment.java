@@ -16,6 +16,7 @@
 
 package com.jerrellmardis.amphitheatre.fragment;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
@@ -26,7 +27,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.RadioButton;
-import android.widget.TextView;
 
 import com.jerrellmardis.amphitheatre.R;
 
@@ -43,18 +43,25 @@ public class AddSourceDialogFragment extends DialogFragment {
     @InjectView(R.id.path) EditText mPathText;
     @InjectView(R.id.radio_movie) RadioButton mMovieRadioButton;
 
-    public static AddSourceDialogFragment newInstance(OnClickListener l) {
-        AddSourceDialogFragment f = new AddSourceDialogFragment();
-        f.setOnClickListener(l);
-        return f;
+    public static AddSourceDialogFragment newInstance() {
+        return new AddSourceDialogFragment();
     }
 
     public interface OnClickListener {
         void onAddClicked(CharSequence user, CharSequence password, CharSequence path, boolean isMovie);
     }
 
-    public void setOnClickListener(OnClickListener onClickListener) {
-        mOnClickListener = onClickListener;
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        if (activity instanceof OnClickListener) {
+            mOnClickListener = (OnClickListener) activity;
+        } else if (getTargetFragment() instanceof OnClickListener) {
+            mOnClickListener = (OnClickListener) getTargetFragment();
+        } else {
+            throw new ClassCastException("Caller must implement OnClickListener interface.");
+        }
     }
 
     @Override

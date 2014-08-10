@@ -57,8 +57,7 @@ public class MainActivity extends Activity implements AddSourceDialogFragment.On
     @OnClick(R.id.add_source_button)
     public void addSourceButtonOnClick() {
         FragmentManager fm = getFragmentManager();
-        AddSourceDialogFragment addSourceDialog =
-                AddSourceDialogFragment.newInstance(this);
+        AddSourceDialogFragment addSourceDialog = AddSourceDialogFragment.newInstance();
         addSourceDialog.show(fm, AddSourceDialogFragment.class.getSimpleName());
     }
 
