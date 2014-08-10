@@ -41,20 +41,20 @@ import jcifs.smb.SmbFile;
  */
 public class DownloadMovieInfoTask extends AsyncTask<Void, Void, Boolean> {
 
+    private Config mConfig;
     private String mDirectory;
     private List<SmbFile> mFiles;
     private TaskListener mTaskListener;
 
-    public DownloadMovieInfoTask(String directory, List<SmbFile> files, TaskListener l) {
+    public DownloadMovieInfoTask(Config config, String directory, List<SmbFile> files, TaskListener l) {
         mDirectory = directory;
         mFiles = files;
         mTaskListener = l;
+        mConfig = config;
     }
 
     @Override
     protected Boolean doInBackground(Void... params) {
-        Config config = TMDbClient.getConfig();
-
         for (SmbFile file : mFiles) {
             if (TextUtils.isEmpty(file.getPath()) || file.getName().toLowerCase().contains(Constants.SAMPLE)) {
                 continue;
@@ -94,11 +94,11 @@ public class DownloadMovieInfoTask extends AsyncTask<Void, Void, Boolean> {
             if (!TextUtils.isEmpty(guess.getTitle())) {
                 try {
                     // search for the movie
-                    SearchResult searchResult = TMDbClient.findMovie(guess.getTitle(), guess.getYear());
+                    SearchResult result = TMDbClient.findMovie(guess.getTitle(), guess.getYear());
 
                     // if found, get the detailed info for the movie
-                    if (searchResult.getResults() != null && !searchResult.getResults().isEmpty()) {
-                        Long id = searchResult.getResults().get(0).getId();
+                    if (result.getResults() != null && !result.getResults().isEmpty()) {
+                        Long id = result.getResults().get(0).getId();
 
                         if (id != null) {
                             Movie movie = TMDbClient.getMovie(id);
@@ -114,12 +114,12 @@ public class DownloadMovieInfoTask extends AsyncTask<Void, Void, Boolean> {
                             video.setMovie(movie);
                         }
 
-                        String cardImageUrl = config.getImages().getBase_url() + "original" +
-                                searchResult.getResults().get(0).getPoster_path();
+                        String cardImageUrl = mConfig.getImages().getBase_url() + "original" +
+                                result.getResults().get(0).getPoster_path();
                         video.setCardImageUrl(cardImageUrl);
 
-                        String bgImageUrl = config.getImages().getBase_url() + "original" +
-                                searchResult.getResults().get(0).getBackdrop_path();
+                        String bgImageUrl = mConfig.getImages().getBase_url() + "original" +
+                                result.getResults().get(0).getBackdrop_path();
                         video.setBackgroundImageUrl(bgImageUrl);
                     }
                 } catch (Exception e) {

@@ -17,6 +17,7 @@
 package com.jerrellmardis.amphitheatre.model.tmdb;
 
 import com.orm.SugarRecord;
+import com.orm.dsl.Ignore;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -33,7 +34,7 @@ public class Episode extends SugarRecord<Episode> implements Serializable {
     private Long voteCount;
     private Long tmdbId;
     private int seasonNumber;
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    @Ignore private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     public String getAirDate() {
         return airDate;

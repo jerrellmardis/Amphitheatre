@@ -47,8 +47,8 @@ public class Movie extends SugarRecord<Movie> implements Serializable {
     private String title;
     private Double voteAverage;
     private Long voteCount;
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
+    @Ignore private Map<String, Object> additionalProperties = new HashMap<String, Object>();
     @Ignore private List<Genre> genres = new ArrayList<Genre>();
     @Ignore private List<ProductionCompany> productionCompanies = new ArrayList<ProductionCompany>();
 

@@ -18,7 +18,9 @@ package com.jerrellmardis.amphitheatre.task;
 
 import android.os.AsyncTask;
 
+import com.jerrellmardis.amphitheatre.api.TMDbClient;
 import com.jerrellmardis.amphitheatre.listeners.TaskListener;
+import com.jerrellmardis.amphitheatre.model.tmdb.Config;
 import com.jerrellmardis.amphitheatre.util.VideoUtils;
 
 import org.apache.commons.collections4.ListUtils;
@@ -41,6 +43,7 @@ public class GetFilesTask extends AsyncTask<Void, Void, List<SmbFile>> implement
     private String mPassword;
     private AtomicInteger mSetsProcessedCounter;
     private Callback mCallback;
+    private Config mConfig;
     private int mNumOfSets;
     private boolean mIsMovie;
 
@@ -65,6 +68,7 @@ public class GetFilesTask extends AsyncTask<Void, Void, List<SmbFile>> implement
 
     @Override
     protected List<SmbFile> doInBackground(Void... params) {
+        mConfig = TMDbClient.getConfig();
         return new ArrayList<SmbFile>(getFiles());
     }
 
@@ -84,9 +88,11 @@ public class GetFilesTask extends AsyncTask<Void, Void, List<SmbFile>> implement
 
             for (List<SmbFile> subSet : subSets) {
                 if (mIsMovie) {
-                    new DownloadMovieInfoTask(directory, subSet, this).executeOnExecutor(THREAD_POOL_EXECUTOR);
+                    new DownloadMovieInfoTask(mConfig, directory, subSet, this)
+                            .executeOnExecutor(THREAD_POOL_EXECUTOR);
                 } else {
-                    new DownloadTvShowInfoTask(directory, subSet, this).executeOnExecutor(THREAD_POOL_EXECUTOR);
+                    new DownloadTvShowInfoTask(mConfig, directory, subSet, this)
+                            .executeOnExecutor(THREAD_POOL_EXECUTOR);
                 }
             }
         } catch (Exception e) {

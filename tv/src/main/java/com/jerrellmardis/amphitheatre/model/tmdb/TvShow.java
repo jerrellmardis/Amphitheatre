@@ -44,8 +44,8 @@ public class TvShow extends SugarRecord<TvShow> implements Serializable {
     private Double voteAverage;
     private Long voteCount;
     private Episode episode;
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
+    @Ignore private Map<String, Object> additionalProperties = new HashMap<String, Object>();
     @Ignore private List<Genre> genres = new ArrayList<Genre>();
 
     public Long getTmdbId() {
@@ -198,5 +198,26 @@ public class TvShow extends SugarRecord<TvShow> implements Serializable {
 
     public void setAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
+    }
+
+    public static TvShow copy(TvShow tvShow) {
+        TvShow clone = new TvShow();
+        clone.tmdbId = tvShow.getTmdbId();
+        clone.backdropPath = tvShow.getBackdropPath();
+        clone.firstAirDate = tvShow.getFirstAirDate();
+        clone.flattenedGenres = tvShow.getFlattenedGenres();
+        clone.homepage = tvShow.getHomepage();
+        clone.inProduction = tvShow.getInProduction();
+        clone.lastAirDate = tvShow.getLastAirDate();
+        clone.numberOfEpisodes = tvShow.getNumberOfEpisodes();
+        clone.numberOfSeasons = tvShow.getNumberOfSeasons();
+        clone.originalName = tvShow.getOriginalName();
+        clone.overview = tvShow.getOverview();
+        clone.popularity = tvShow.getPopularity();
+        clone.posterPath = tvShow.getPosterPath();
+        clone.status = tvShow.getStatus();
+        clone.voteAverage = tvShow.getVoteAverage();
+        clone.voteCount = tvShow.getVoteCount();
+        return clone;
     }
 }

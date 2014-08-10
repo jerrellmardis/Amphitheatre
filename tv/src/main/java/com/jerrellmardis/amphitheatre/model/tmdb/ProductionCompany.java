@@ -17,6 +17,7 @@
 package com.jerrellmardis.amphitheatre.model.tmdb;
 
 import com.orm.SugarRecord;
+import com.orm.dsl.Ignore;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -25,7 +26,7 @@ import java.util.Map;
 public class ProductionCompany extends SugarRecord<ProductionCompany> implements Serializable {
 
     private String name;
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    @Ignore private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     public String getName() {
         return name;
