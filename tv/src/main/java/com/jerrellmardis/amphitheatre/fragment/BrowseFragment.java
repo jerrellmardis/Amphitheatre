@@ -69,7 +69,8 @@ import java.util.TimerTask;
 
 import static android.view.View.OnClickListener;
 
-public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragment {
+public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragment
+        implements AddSourceDialogFragment.OnClickListener {
 
     private final Handler mHandler = new Handler();
 
@@ -94,11 +95,40 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         setupEventListeners();
     }
 
-    @Override public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        if (mAddSourceDialogFragment != null) {
-            mAddSourceDialogFragment.setOnClickListener(getDefaultClickListener());
-        }
+    @Override
+    public void onAddClicked(CharSequence user, CharSequence password,
+                             final CharSequence path, boolean isMovie) {
+
+        Toast.makeText(getActivity(), getString(R.string.updating_library),
+                Toast.LENGTH_SHORT).show();
+
+        new GetFilesTask(user.toString(), password.toString(), path.toString(), isMovie,
+                new GetFilesTask.Callback() {
+
+                    @Override
+                    public void success() {
+                        if (getActivity() == null) return;
+
+                        Source source = new Source();
+                        source.setSource(path.toString());
+                        source.save();
+
+                        refreshAdapter();
+
+                        Toast.makeText(getActivity(), getString(R.string.update_complete),
+                                Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void failure() {
+                        Toast.makeText(getActivity(), getString(R.string.update_failed),
+                                Toast.LENGTH_LONG).show();
+                    }
+                }).execute();
+
+        SecurePreferences securePreferences = new SecurePreferences(getActivity().getApplicationContext());
+        securePreferences.edit().putString(Constants.PREFS_USER_KEY, user.toString()).apply();
+        securePreferences.edit().putString(Constants.PREFS_PASSWORD_KEY, password.toString()).apply();
     }
 
     private void prepareBackgroundManager() {
@@ -362,55 +392,12 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                     Intent intent = new Intent(getActivity(), DetailsActivity.class);
                     intent.putExtra(Constants.VIDEO, video);
                     startActivity(intent);
-                } else if (item instanceof String) {
-                    if (((String) item).contains(getString(R.string.add_source))) {
-                        FragmentManager fm = getFragmentManager();
-                        mAddSourceDialogFragment = AddSourceDialogFragment.newInstance();
-                        mAddSourceDialogFragment.setOnClickListener(getDefaultClickListener());
-                        mAddSourceDialogFragment.show(fm, AddSourceDialogFragment.class.getSimpleName());
-                    }
+                } else if (item instanceof String && ((String) item).contains(getString(R.string.add_source))) {
+                    FragmentManager fm = getFragmentManager();
+                    AddSourceDialogFragment addSourceDialog = AddSourceDialogFragment.newInstance();
+                    addSourceDialog.setTargetFragment(BrowseFragment.this, 0);
+                    addSourceDialog.show(fm, AddSourceDialogFragment.class.getSimpleName());
                 }
-            }
-        };
-    }
-
-    private AddSourceDialogFragment.OnClickListener getDefaultClickListener() {
-        return new AddSourceDialogFragment.OnClickListener() {
-
-            @Override
-            public void onAddClicked(CharSequence user, CharSequence password,
-                                     final CharSequence path, boolean isMovie) {
-
-                Toast.makeText(getActivity(), getString(R.string.updating_library),
-                        Toast.LENGTH_SHORT).show();
-
-                new GetFilesTask(user.toString(), password.toString(), path.toString(), isMovie,
-                        new GetFilesTask.Callback() {
-
-                            @Override
-                            public void success() {
-                                if (getActivity() == null) return;
-
-                                Source source = new Source();
-                                source.setSource(path.toString());
-                                source.save();
-
-                                refreshAdapter();
-
-                                Toast.makeText(getActivity(), getString(R.string.update_complete),
-                                        Toast.LENGTH_SHORT).show();
-                            }
-
-                            @Override
-                            public void failure() {
-                                Toast.makeText(getActivity(), getString(R.string.update_failed),
-                                        Toast.LENGTH_LONG).show();
-                            }
-                        }).execute();
-
-                SecurePreferences securePreferences = new SecurePreferences(getActivity().getApplicationContext());
-                securePreferences.edit().putString(Constants.PREFS_USER_KEY, user.toString()).apply();
-                securePreferences.edit().putString(Constants.PREFS_PASSWORD_KEY, password.toString()).apply();
             }
         };
     }

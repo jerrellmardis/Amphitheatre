@@ -42,20 +42,20 @@ import jcifs.smb.SmbFile;
  */
 public class DownloadTvShowInfoTask extends AsyncTask<Void, Void, Boolean> {
 
+    private Config mConfig;
     private String mDirectory;
     private List<SmbFile> mFiles;
     private TaskListener mTaskListener;
 
-    public DownloadTvShowInfoTask(String directory, List<SmbFile> files, TaskListener l) {
+    public DownloadTvShowInfoTask(Config config, String directory, List<SmbFile> files, TaskListener l) {
         mDirectory = directory;
         mFiles = files;
         mTaskListener = l;
+        mConfig = config;
     }
 
     @Override
     protected Boolean doInBackground(Void... params) {
-        Config config = TMDbClient.getConfig();
-
         for (SmbFile file : mFiles) {
             if (TextUtils.isEmpty(file.getPath()) || file.getName().toLowerCase().contains(Constants.SAMPLE)) {
                 continue;
@@ -95,50 +95,62 @@ public class DownloadTvShowInfoTask extends AsyncTask<Void, Void, Boolean> {
 
             if (!TextUtils.isEmpty(guess.getSeries())) {
                 try {
-                    // search for the TV show
-                    SearchResult searchResult = TMDbClient.findTvShow(guess.getSeries());
+                    TvShow tvShow = null;
+                    Long tmdbId = null;
 
-                    // if found, get the detailed info for the show
-                    if (searchResult.getResults() != null && !searchResult.getResults().isEmpty()) {
-                        Long id = searchResult.getResults().get(0).getId();
+                    // look for the TV show in the database first
+                    List<TvShow> tvShows = TvShow.find(TvShow.class, "original_name = ?",
+                            guess.getSeries());
 
-                        if (id != null) {
-                            TvShow tvShow = TMDbClient.getTvShow(id);
-                            tvShow.setTmdbId(id);
+                    // if a TV show is found, clone it.
+                    // if not, run a TMDb search for the TV show
+                    if (tvShows != null && !tvShows.isEmpty()) {
+                        tvShow = TvShow.copy(tvShows.get(0));
+                        tmdbId = tvShow.getTmdbId();
+                    } else {
+                        SearchResult result = TMDbClient.findTvShow(guess.getSeries());
+
+                        if (result.getResults() != null && !result.getResults().isEmpty()) {
+                            tmdbId = result.getResults().get(0).getId();
+                            tvShow = TMDbClient.getTvShow(tmdbId);
+                            tvShow.setTmdbId(tmdbId);
                             tvShow.setId(null);
-
-                            if (guess.getEpisodeNumber() != null && guess.getSeason() != null) {
-                                Episode episode = TMDbClient.getEpisode(tvShow.getTmdbId(),
-                                        guess.getSeason(), guess.getEpisodeNumber());
-
-                                if (episode != null) {
-                                    String stillPathUrl = config.getImages().getBase_url() + "original" +
-                                            episode.getStillPath();
-                                    episode.setStillPath(stillPathUrl);
-
-                                    episode.setTmdbId(id);
-                                    episode.setId(null);
-
-                                    episode.save();
-                                    tvShow.setEpisode(episode);
-                                }
-                            }
-
                             tvShow.setFlattenedGenres(StringUtils.join(tvShow.getGenres(), ","));
-                            tvShow.save();
+                        }
+                    }
 
-                            video.setName(tvShow.getOriginalName());
-                            video.setOverview(tvShow.getOverview());
-                            video.setIsMatched(true);
-                            video.setTvShow(tvShow);
+                    if (tmdbId != null) {
+                        // get the Episode information
+                        if (guess.getEpisodeNumber() != null && guess.getSeason() != null) {
+                            Episode episode = TMDbClient.getEpisode(tvShow.getTmdbId(),
+                                    guess.getSeason(), guess.getEpisodeNumber());
+
+                            if (episode != null) {
+                                String stillPathUrl = mConfig.getImages().getBase_url() + "original" +
+                                        episode.getStillPath();
+                                episode.setStillPath(stillPathUrl);
+
+                                episode.setTmdbId(tmdbId);
+                                episode.setId(null);
+
+                                episode.save();
+                                tvShow.setEpisode(episode);
+                            }
                         }
 
-                        String cardImageUrl = config.getImages().getBase_url() + "original" +
-                                searchResult.getResults().get(0).getPoster_path();
+                        tvShow.save();
+
+                        video.setName(tvShow.getOriginalName());
+                        video.setOverview(tvShow.getOverview());
+                        video.setIsMatched(true);
+                        video.setTvShow(tvShow);
+
+                        String cardImageUrl = mConfig.getImages().getBase_url() + "original" +
+                                tvShow.getPosterPath();
                         video.setCardImageUrl(cardImageUrl);
 
-                        String bgImageUrl = config.getImages().getBase_url() + "original" +
-                                searchResult.getResults().get(0).getBackdrop_path();
+                        String bgImageUrl = mConfig.getImages().getBase_url() + "original" +
+                                tvShow.getBackdropPath();
                         video.setBackgroundImageUrl(bgImageUrl);
                     }
                 } catch (Exception e) {

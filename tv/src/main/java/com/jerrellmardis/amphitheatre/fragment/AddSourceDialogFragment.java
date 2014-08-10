@@ -20,6 +20,7 @@ import com.jerrellmardis.amphitheatre.R;
 import com.jerrellmardis.amphitheatre.task.NetworkSearchTask;
 import com.jerrellmardis.amphitheatre.task.NetworkSearchTask.OnSharesFoundListener;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
@@ -41,6 +42,7 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnItemSelected;
 
+
 public class AddSourceDialogFragment extends DialogFragment implements OnSharesFoundListener {
 
     private OnClickListener mOnClickListener;
@@ -55,16 +57,24 @@ public class AddSourceDialogFragment extends DialogFragment implements OnSharesF
     private ArrayAdapter<String> mShareAdapter;
 
     public static AddSourceDialogFragment newInstance() {
-        AddSourceDialogFragment f = new AddSourceDialogFragment();
-        return f;
+        return new AddSourceDialogFragment();
     }
 
     public interface OnClickListener {
         void onAddClicked(CharSequence user, CharSequence password, CharSequence path, boolean isMovie);
     }
 
-    public void setOnClickListener(OnClickListener onClickListener) {
-        mOnClickListener = onClickListener;
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        if (activity instanceof OnClickListener) {
+            mOnClickListener = (OnClickListener) activity;
+        } else if (getTargetFragment() instanceof OnClickListener) {
+            mOnClickListener = (OnClickListener) getTargetFragment();
+        } else {
+            throw new ClassCastException("Caller must implement OnClickListener interface.");
+        }
     }
 
     @Override

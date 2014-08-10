@@ -57,18 +57,14 @@ public class MainActivity extends Activity implements AddSourceDialogFragment.On
 
     @Override protected void onResume() {
         super.onResume();
-        if (mAddSourceDialogFragment != null) {
-            mAddSourceDialogFragment.setOnClickListener(this);
-        }
     }
 
     @SuppressWarnings("unused")
     @OnClick(R.id.add_source_button)
     public void addSourceButtonOnClick() {
         FragmentManager fm = getFragmentManager();
-        mAddSourceDialogFragment = AddSourceDialogFragment.newInstance();
-        mAddSourceDialogFragment.setOnClickListener(this);
-        mAddSourceDialogFragment.show(fm, AddSourceDialogFragment.class.getSimpleName());
+        AddSourceDialogFragment addSourceDialog = AddSourceDialogFragment.newInstance();
+        addSourceDialog.show(fm, AddSourceDialogFragment.class.getSimpleName());
     }
 
     @Override

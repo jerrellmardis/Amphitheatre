@@ -1,18 +1,14 @@
 Amphitheatre
 ============
 
-Amphitheatre is an Android TV app that connects with network shares, organizes and serves videos to any Android capable media player.
+Amphitheatre is an Android TV project aimed to bring you the best of your content in a simple and visually appealing fashion. It connects to your network shares, organizes and serves videos to an Android capable media player.
 
-![](https://lh6.googleusercontent.com/-q_OSJf3AKMs/U-JpQmNmWuI/AAAAAAACIdE/RFg-EXZhlUs/w2228-h1254-no/amphitheatre_screenshot.png)
+![Amphitheatre](images/movies_1.png)
 
 **Features**
-* Indexes movie files on SMB or CIFS shares.
-* View movie poster art, details and quickly search through your video collection. 
-
-**On To-Do List**
-* Implement batch movie scanning processing
-* Add periodic scanning support
-* Add TV Show support
+* Indexes movie and TV show files on your SMB or CIFS shares.
+* View movie and TV show poster art and details.
+* Quickly search through your video collection.
 
 Dependencies
 ------------
@@ -29,7 +25,6 @@ TMDB_API_KEY=<your api key>
 #### Media Player
 
 Amphitheatre does not play the actual video file but serves it to a capable media player application. So you'll need to install a media player as well. MXPlayer is a great player worth checking out.
-
 
 Contributing
 ------------
