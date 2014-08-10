@@ -16,9 +16,6 @@
 
 package com.jerrellmardis.amphitheatre.task;
 
-import android.os.AsyncTask;
-import android.text.TextUtils;
-
 import com.jerrellmardis.amphitheatre.api.GuessItClient;
 import com.jerrellmardis.amphitheatre.api.TMDbClient;
 import com.jerrellmardis.amphitheatre.listeners.TaskListener;
@@ -31,6 +28,9 @@ import com.jerrellmardis.amphitheatre.util.Constants;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
+
+import android.os.AsyncTask;
+import android.text.TextUtils;
 
 import java.util.List;
 

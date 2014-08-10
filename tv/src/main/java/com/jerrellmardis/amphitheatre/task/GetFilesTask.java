@@ -16,14 +16,15 @@
 
 package com.jerrellmardis.amphitheatre.task;
 
-import android.os.AsyncTask;
-
 import com.jerrellmardis.amphitheatre.api.TMDbClient;
 import com.jerrellmardis.amphitheatre.listeners.TaskListener;
 import com.jerrellmardis.amphitheatre.model.tmdb.Config;
 import com.jerrellmardis.amphitheatre.util.VideoUtils;
 
 import org.apache.commons.collections4.ListUtils;
+
+import android.os.AsyncTask;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,6 +38,8 @@ import jcifs.smb.SmbFile;
  * Created by Jerrell Mardis on 8/5/14.
  */
 public class GetFilesTask extends AsyncTask<Void, Void, List<SmbFile>> implements TaskListener {
+
+    public static final String TAG = GetFilesTask.class.getSimpleName();
 
     private String mPath;
     private String mUser;
@@ -61,6 +64,9 @@ public class GetFilesTask extends AsyncTask<Void, Void, List<SmbFile>> implement
 
         mSetsProcessedCounter = new AtomicInteger(0);
 
+        if (!mPath.startsWith("smb://")) {
+            mPath = "smb://" + mPath;
+        }
         if (!mPath.endsWith("/")) {
             mPath += "/";
         }
@@ -96,6 +102,7 @@ public class GetFilesTask extends AsyncTask<Void, Void, List<SmbFile>> implement
                 }
             }
         } catch (Exception e) {
+            Log.e(TAG, "Failed to get files.", e);
             if (mCallback != null) {
                 mCallback.failure();
             }
@@ -114,8 +121,7 @@ public class GetFilesTask extends AsyncTask<Void, Void, List<SmbFile>> implement
 
         List<SmbFile> files = Collections.emptyList();
         try {
-            String domain = "smb://" + mPath;
-            files = VideoUtils.getFilesFromDir(domain, auth);
+            files = VideoUtils.getFilesFromDir(mPath, auth);
         } catch (Exception e) {
             e.printStackTrace();
         }

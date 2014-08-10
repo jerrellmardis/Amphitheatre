@@ -38,19 +38,26 @@
         android:textStyle="bold"
         tools:text="ADD SOURCE"/>
 
+    <Spinner
+        android:id="@+id/share_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp" />
+
     <EditText
         android:id="@+id/path"
-        android:layout_width="480dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="8dp"
         android:hint="@string/enter_ip_address"
         android:imeOptions="actionNext"
-        android:inputType="text"/>
+        android:inputType="text"
+        android:visibility="gone"/>
 
     <EditText
         android:id="@+id/user"
-        android:layout_width="480dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="8dp"
@@ -60,7 +67,7 @@
 
     <EditText
         android:id="@+id/password"
-        android:layout_width="480dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="8dp"
@@ -92,7 +99,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="36dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:gravity="right"
         android:orientation="horizontal">

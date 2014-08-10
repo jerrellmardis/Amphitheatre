@@ -39,6 +39,7 @@
     <string name="ok">OK</string>
     <string name="released">Released %1$s</string>
     <string name="videos">Videos</string>
+    <string name="search_network_title">Network Shares</string>
     <string name="tv_show">TV Show</string>
     <string name="tv_shows">TV Shows</string>
     <string name="source_path_required_msg">A network path is required</string>
@@ -46,6 +47,7 @@
     <string name="uncategorized">Uncategorized</string>
     <string name="aired">Aired %1$s</string>
     <string name="rating_description">Rated %.1f/10</string>
+    <string name="manually_enter_path">Manually Enter Path</string>
 
     <plurals name="numberOfEpisodesAvailable">
         <item quantity="one">1 Episode</item>

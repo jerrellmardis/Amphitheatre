@@ -16,32 +16,45 @@
 
 package com.jerrellmardis.amphitheatre.fragment;
 
+import com.jerrellmardis.amphitheatre.R;
+import com.jerrellmardis.amphitheatre.task.NetworkSearchTask;
+import com.jerrellmardis.amphitheatre.task.NetworkSearchTask.OnSharesFoundListener;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.Spinner;
 
-import com.jerrellmardis.amphitheatre.R;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import butterknife.OnItemSelected;
 
-public class AddSourceDialogFragment extends DialogFragment {
+
+public class AddSourceDialogFragment extends DialogFragment implements OnSharesFoundListener {
 
     private OnClickListener mOnClickListener;
 
+    @InjectView(R.id.share_spinner) Spinner mShareSpinner;
     @InjectView(R.id.user) EditText mUserText;
     @InjectView(R.id.password) EditText mPasswordText;
     @InjectView(R.id.path) EditText mPathText;
     @InjectView(R.id.radio_movie) RadioButton mMovieRadioButton;
+
+    private NetworkSearchTask mSearchTask;
+    private ArrayAdapter<String> mShareAdapter;
 
     public static AddSourceDialogFragment newInstance() {
         return new AddSourceDialogFragment();
@@ -78,6 +91,35 @@ public class AddSourceDialogFragment extends DialogFragment {
         return dialog;
     }
 
+    @Override public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mShareAdapter = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.simple_spinner_item);
+        mShareAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mShareAdapter.add(getString(R.string.manually_enter_path));
+        mShareSpinner.setAdapter(mShareAdapter);
+    }
+
+    @Override public void onResume() {
+        super.onResume();
+        searchShares();
+    }
+
+    private void searchShares() {
+        if (mSearchTask == null) {
+            mSearchTask = new NetworkSearchTask(this);
+        }
+
+        mSearchTask.execute();
+    }
+
+    @Override public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+        if (mSearchTask != null) {
+            mSearchTask.cancel(true);
+        }
+    }
+
     @SuppressWarnings("unused")
     @OnClick(R.id.cancel_button)
     public void cancelButtonOnclick() {
@@ -87,7 +129,7 @@ public class AddSourceDialogFragment extends DialogFragment {
     @SuppressWarnings("unused")
     @OnClick(R.id.add_button)
     public void addButtonOnClick() {
-        if (TextUtils.isEmpty(mPathText.getText())) {
+        if (isManualPathSelected() && TextUtils.isEmpty(mPathText.getText())) {
             mPathText.setError(getString(R.string.source_path_required_msg));
             return;
         } else {
@@ -96,8 +138,51 @@ public class AddSourceDialogFragment extends DialogFragment {
 
         if (mOnClickListener != null) {
             mOnClickListener.onAddClicked(mUserText.getText(), mPasswordText.getText(),
-                    mPathText.getText(), mMovieRadioButton.isChecked());
+                    getSharePath(), mMovieRadioButton.isChecked());
         }
         getDialog().dismiss();
+    }
+
+    @OnItemSelected(R.id.share_spinner)
+    public void onShareSelected() {
+        if (isManualPathSelected()) {
+            mPathText.setVisibility(View.VISIBLE);
+            mPathText.requestFocus();
+        } else {
+            mPathText.setVisibility(View.GONE);
+        }
+    }
+
+    @Override public void onSharesFound(List<String> shares) {
+        if (!isResumed()) {
+            return;
+        }
+
+        mShareAdapter.clear();
+        mShareAdapter.addAll(shares);
+        mShareAdapter.add(getString(R.string.manually_enter_path));
+        onShareSelected();
+    }
+
+    /**
+     * Returns true if manual entry is selected in the share spinner.
+     * @return true if manual entry is selected in the share spinner.
+     */
+    private boolean isManualPathSelected() {
+        String value = (String) mShareSpinner.getSelectedItem();
+        return getString(R.string.manually_enter_path).equals(value);
+    }
+
+    /**
+     * Gets the Samba share path, whether it was manually entered
+     * or selected in the spinner.
+     * @return The Samba share path.
+     */
+    private String getSharePath() {
+        String value = (String) mShareSpinner.getSelectedItem();
+        if (isManualPathSelected()) {
+            value = mPathText.getText().toString();
+        }
+        return value;
     }
 }

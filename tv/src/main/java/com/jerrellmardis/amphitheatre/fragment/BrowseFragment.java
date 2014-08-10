@@ -16,6 +16,23 @@
 
 package com.jerrellmardis.amphitheatre.fragment;
 
+import com.jerrellmardis.amphitheatre.R;
+import com.jerrellmardis.amphitheatre.activity.DetailsActivity;
+import com.jerrellmardis.amphitheatre.activity.SearchActivity;
+import com.jerrellmardis.amphitheatre.model.Source;
+import com.jerrellmardis.amphitheatre.model.Video;
+import com.jerrellmardis.amphitheatre.model.VideoGroup;
+import com.jerrellmardis.amphitheatre.task.GetFilesTask;
+import com.jerrellmardis.amphitheatre.util.Constants;
+import com.jerrellmardis.amphitheatre.util.PicassoBackgroundManagerTarget;
+import com.jerrellmardis.amphitheatre.util.SecurePreferences;
+import com.jerrellmardis.amphitheatre.util.VideoUtils;
+import com.jerrellmardis.amphitheatre.widget.CardPresenter;
+import com.jerrellmardis.amphitheatre.widget.TvShowsCardPresenter;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
+import com.squareup.picasso.Target;
+
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Intent;
@@ -39,23 +56,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.jerrellmardis.amphitheatre.R;
-import com.jerrellmardis.amphitheatre.activity.DetailsActivity;
-import com.jerrellmardis.amphitheatre.activity.SearchActivity;
-import com.jerrellmardis.amphitheatre.model.Source;
-import com.jerrellmardis.amphitheatre.model.Video;
-import com.jerrellmardis.amphitheatre.model.VideoGroup;
-import com.jerrellmardis.amphitheatre.task.GetFilesTask;
-import com.jerrellmardis.amphitheatre.util.Constants;
-import com.jerrellmardis.amphitheatre.util.PicassoBackgroundManagerTarget;
-import com.jerrellmardis.amphitheatre.util.SecurePreferences;
-import com.jerrellmardis.amphitheatre.util.VideoUtils;
-import com.jerrellmardis.amphitheatre.widget.CardPresenter;
-import com.jerrellmardis.amphitheatre.widget.TvShowsCardPresenter;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.RequestCreator;
-import com.squareup.picasso.Target;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -83,6 +83,8 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     private List<Video> mMatchedMovies;
     private List<Video> mUnmatchedVideos;
     private List<Video> mMatchedTvShows;
+
+    private AddSourceDialogFragment mAddSourceDialogFragment;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {

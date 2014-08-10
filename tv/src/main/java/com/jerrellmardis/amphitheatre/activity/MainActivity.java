@@ -16,13 +16,6 @@
 
 package com.jerrellmardis.amphitheatre.activity;
 
-import android.app.Activity;
-import android.app.FragmentManager;
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Toast;
-
 import com.jerrellmardis.amphitheatre.R;
 import com.jerrellmardis.amphitheatre.fragment.AddSourceDialogFragment;
 import com.jerrellmardis.amphitheatre.model.Source;
@@ -30,6 +23,13 @@ import com.jerrellmardis.amphitheatre.model.Video;
 import com.jerrellmardis.amphitheatre.task.GetFilesTask;
 import com.jerrellmardis.amphitheatre.util.Constants;
 import com.jerrellmardis.amphitheatre.util.SecurePreferences;
+
+import android.app.Activity;
+import android.app.FragmentManager;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Toast;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -39,6 +39,8 @@ public class MainActivity extends Activity implements AddSourceDialogFragment.On
 
     @InjectView(R.id.welcome_content) View mWelcomeContent;
     @InjectView(R.id.progress_bar_content) View mProgressBarContent;
+
+    private AddSourceDialogFragment mAddSourceDialogFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +53,10 @@ public class MainActivity extends Activity implements AddSourceDialogFragment.On
         if (Video.count(Video.class, null, null) > 0) {
             launchBrowseFragment();
         }
+    }
+
+    @Override protected void onResume() {
+        super.onResume();
     }
 
     @SuppressWarnings("unused")
