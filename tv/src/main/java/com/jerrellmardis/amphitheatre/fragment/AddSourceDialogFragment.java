@@ -46,15 +46,14 @@ import butterknife.OnItemSelected;
 public class AddSourceDialogFragment extends DialogFragment implements OnSharesFoundListener {
 
     private OnClickListener mOnClickListener;
+    private NetworkSearchTask mSearchTask;
+    private ArrayAdapter<String> mShareAdapter;
 
     @InjectView(R.id.share_spinner) Spinner mShareSpinner;
     @InjectView(R.id.user) EditText mUserText;
     @InjectView(R.id.password) EditText mPasswordText;
     @InjectView(R.id.path) EditText mPathText;
     @InjectView(R.id.radio_movie) RadioButton mMovieRadioButton;
-
-    private NetworkSearchTask mSearchTask;
-    private ArrayAdapter<String> mShareAdapter;
 
     public static AddSourceDialogFragment newInstance() {
         return new AddSourceDialogFragment();
@@ -100,24 +99,34 @@ public class AddSourceDialogFragment extends DialogFragment implements OnSharesF
         mShareSpinner.setAdapter(mShareAdapter);
     }
 
-    @Override public void onResume() {
+    @Override
+    public void onResume() {
         super.onResume();
         searchShares();
     }
 
-    private void searchShares() {
-        if (mSearchTask == null) {
-            mSearchTask = new NetworkSearchTask(this);
-        }
-
-        mSearchTask.execute();
-    }
-
-    @Override public void onCancel(DialogInterface dialog) {
+    @Override
+    public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
         if (mSearchTask != null) {
             mSearchTask.cancel(true);
         }
+    }
+
+    @Override
+    public void onSharesFound(List<String> shares) {
+        if (!isResumed()) {
+            return;
+        }
+
+        mShareAdapter.clear();
+
+        if (shares != null) {
+            mShareAdapter.addAll(shares);
+        }
+
+        mShareAdapter.add(getString(R.string.manually_enter_path));
+        onShareSelected();
     }
 
     @SuppressWarnings("unused")
@@ -153,15 +162,12 @@ public class AddSourceDialogFragment extends DialogFragment implements OnSharesF
         }
     }
 
-    @Override public void onSharesFound(List<String> shares) {
-        if (!isResumed()) {
-            return;
+    private void searchShares() {
+        if (mSearchTask == null) {
+            mSearchTask = new NetworkSearchTask(this);
         }
 
-        mShareAdapter.clear();
-        mShareAdapter.addAll(shares);
-        mShareAdapter.add(getString(R.string.manually_enter_path));
-        onShareSelected();
+        mSearchTask.execute();
     }
 
     /**

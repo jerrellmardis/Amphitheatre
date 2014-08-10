@@ -17,17 +17,18 @@ public class NetworkSearchTask extends AsyncTask<Void, Void, List<String>> {
 
     private static final String TAG = NetworkSearchTask.class.getSimpleName();
 
+    private OnSharesFoundListener mListener;
+
     public interface OnSharesFoundListener {
         void onSharesFound(List<String> shares);
     }
-
-    private OnSharesFoundListener mListener;
 
     public NetworkSearchTask(OnSharesFoundListener listener) {
         mListener = listener;
     }
 
-    @Override protected List<String> doInBackground(Void... voids) {
+    @Override
+    protected List<String> doInBackground(Void... voids) {
         List<String> publicShares = new ArrayList<String>();
 
         SmbFile[] domains = new SmbFile[0];
@@ -93,7 +94,8 @@ public class NetworkSearchTask extends AsyncTask<Void, Void, List<String>> {
         return publicShares;
     }
 
-    @Override protected void onPostExecute(List<String> strings) {
+    @Override
+    protected void onPostExecute(List<String> strings) {
         if (!isCancelled() && mListener != null) {
             mListener.onSharesFound(strings);
         }
