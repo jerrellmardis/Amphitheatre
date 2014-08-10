@@ -1,9 +1,5 @@
 package com.jerrellmardis.amphitheatre.task;
 
-/**
- * Created by rharter on 8/9/14.
- */
-
 import android.os.AsyncTask;
 import android.util.Log;
 
