@@ -38,29 +38,22 @@
         android:textStyle="bold"
         tools:text="ADD SOURCE"/>
 
-    <LinearLayout
+    <Spinner
+        android:id="@+id/share_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp">
+        android:layout_marginBottom="8dp" />
 
-        <EditText
-            android:id="@+id/path"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center_horizontal"
-            android:hint="@string/enter_ip_address"
-            android:imeOptions="actionNext"
-            android:inputType="text"/>
-
-        <ImageButton
-            android:id="@+id/search"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_action_search"
-            style="?android:borderlessButtonStyle"/>
-
-    </LinearLayout>
+    <EditText
+        android:id="@+id/path"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="8dp"
+        android:hint="@string/enter_ip_address"
+        android:imeOptions="actionNext"
+        android:inputType="text"
+        android:visibility="gone"/>
 
     <EditText
         android:id="@+id/user"
