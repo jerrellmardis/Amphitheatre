@@ -18,12 +18,10 @@ package com.jerrellmardis.amphitheatre.widget;
 
 import android.content.Context;
 import android.support.v17.leanback.widget.Presenter;
-import android.text.TextUtils;
 
 import com.jerrellmardis.amphitheatre.R;
 import com.jerrellmardis.amphitheatre.model.Video;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.RequestCreator;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -64,17 +62,11 @@ public class SeasonCardPresenter extends CardPresenter {
 
         holder.mCardView.setMainImageDimensions(mCardWidth, mCardHeight);
 
-        RequestCreator rc;
-
-        if (TextUtils.isEmpty(url)) {
-            rc = Picasso.with(mContext).load(R.drawable.placeholder);
-        } else {
-            rc = Picasso.with(mContext).load(url);
-        }
-
-        rc.resize(mCardWidth, mCardHeight)
+        Picasso.with(mContext)
+                .load(url)
+                .placeholder(R.drawable.placeholder)
+                .resize(mCardWidth, mCardHeight)
                 .centerCrop()
-                .error(R.drawable.placeholder)
                 .into(holder);
     }
 }

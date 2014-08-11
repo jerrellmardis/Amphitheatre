@@ -24,7 +24,6 @@ import android.support.v17.leanback.app.DetailsFragment;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.Row;
-import android.text.TextUtils;
 import android.util.DisplayMetrics;
 
 import com.jerrellmardis.amphitheatre.R;
@@ -37,7 +36,6 @@ import com.jerrellmardis.amphitheatre.util.VideoUtils;
 import com.orm.query.Condition;
 import com.orm.query.Select;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
 import java.lang.ref.WeakReference;
@@ -126,18 +124,13 @@ public class VideoDetailsFragment extends DetailsFragment implements RowBuilderT
     }
 
     private void updateBackground(String url) {
-        RequestCreator rc;
-
-        if (TextUtils.isEmpty(url)) {
-            rc = Picasso.with(getActivity()).load(R.drawable.placeholder);
-        } else {
-            rc = Picasso.with(getActivity()).load(url);
-        }
-
-        int w = mMetrics.widthPixels;
-        int h = mMetrics.heightPixels;
-
-        rc.resize(w, h).centerCrop().error(mDefaultBackground).into(mBackgroundTarget);
+        Picasso.with(getActivity())
+                .load(url)
+                .placeholder(R.drawable.placeholder)
+                .resize(mMetrics.widthPixels, mMetrics.heightPixels)
+                .centerCrop()
+                .skipMemoryCache()
+                .into(mBackgroundTarget);
     }
 
     @Override
