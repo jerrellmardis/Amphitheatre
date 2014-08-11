@@ -22,14 +22,12 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.jerrellmardis.amphitheatre.R;
 import com.jerrellmardis.amphitheatre.model.Video;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
 public class CardPresenter extends Presenter {
@@ -72,17 +70,11 @@ public class CardPresenter extends Presenter {
                     mContext.getString(R.string.rating_description), 0.0d));
         }
 
-        RequestCreator rc;
-        String url = video.getCardImageUrl();
-        if (TextUtils.isEmpty(url)) {
-            rc = Picasso.with(mContext).load(R.drawable.placeholder);
-        } else {
-            rc = Picasso.with(mContext).load(url);
-        }
-
-        rc.resize(mCardWidth, mCardHeight)
+        Picasso.with(mContext)
+                .load(video.getCardImageUrl())
+                .placeholder(R.drawable.placeholder)
+                .resize(mCardWidth, mCardHeight)
                 .centerCrop()
-                .error(R.drawable.placeholder)
                 .into(holder);
     }
 
