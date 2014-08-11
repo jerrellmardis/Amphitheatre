@@ -48,6 +48,8 @@
     <string name="aired">Aired %1$s</string>
     <string name="rating_description">Rated %.1f/10</string>
     <string name="manually_enter_path">Manually Enter Path</string>
+    <string name="recently_released">Recently released</string>
+    <string name="recently_aired">Recently aired</string>
 
     <plurals name="numberOfEpisodesAvailable">
         <item quantity="one">1 Episode</item>

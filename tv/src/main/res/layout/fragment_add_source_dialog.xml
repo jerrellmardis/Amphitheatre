@@ -71,6 +71,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="8dp"
+        android:fontFamily="sans-serif"
         android:hint="@string/enter_password"
         android:imeOptions="actionDone"
         android:inputType="textPassword"/>

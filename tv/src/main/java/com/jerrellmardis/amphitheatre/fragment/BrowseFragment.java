@@ -22,6 +22,7 @@ import com.jerrellmardis.amphitheatre.activity.SearchActivity;
 import com.jerrellmardis.amphitheatre.model.Source;
 import com.jerrellmardis.amphitheatre.model.Video;
 import com.jerrellmardis.amphitheatre.model.VideoGroup;
+import com.jerrellmardis.amphitheatre.service.RecommendationsService;
 import com.jerrellmardis.amphitheatre.task.GetFilesTask;
 import com.jerrellmardis.amphitheatre.util.Constants;
 import com.jerrellmardis.amphitheatre.util.PicassoBackgroundManagerTarget;
@@ -280,6 +281,12 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         rowsAdapter.add(new ListRow(gridHeader, gridRowAdapter));
 
         setAdapter(rowsAdapter);
+
+        updateRecommendations();
+    }
+
+    private void updateRecommendations() {
+        getActivity().startService(new Intent(getActivity(), RecommendationsService.class));
     }
 
     private void updateBackground(String url) {
