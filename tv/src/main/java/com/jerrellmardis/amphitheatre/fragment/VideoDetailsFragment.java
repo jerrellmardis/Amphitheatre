@@ -17,7 +17,6 @@
 package com.jerrellmardis.amphitheatre.fragment;
 
 import android.app.Activity;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v17.leanback.app.BackgroundManager;
 import android.support.v17.leanback.app.DetailsFragment;
@@ -30,6 +29,7 @@ import com.jerrellmardis.amphitheatre.R;
 import com.jerrellmardis.amphitheatre.listeners.RowBuilderTaskListener;
 import com.jerrellmardis.amphitheatre.model.Video;
 import com.jerrellmardis.amphitheatre.task.DetailRowBuilderTask;
+import com.jerrellmardis.amphitheatre.util.BlurTransform;
 import com.jerrellmardis.amphitheatre.util.Constants;
 import com.jerrellmardis.amphitheatre.util.PicassoBackgroundManagerTarget;
 import com.jerrellmardis.amphitheatre.util.VideoUtils;
@@ -37,6 +37,7 @@ import com.orm.query.Condition;
 import com.orm.query.Select;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
+import com.squareup.picasso.Transformation;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ import java.util.TreeMap;
 
 public class VideoDetailsFragment extends DetailsFragment implements RowBuilderTaskListener {
 
-    private Drawable mDefaultBackground;
+    private Transformation mBlurTransformation;
     private Target mBackgroundTarget;
     private DisplayMetrics mMetrics;
 
@@ -55,11 +56,11 @@ public class VideoDetailsFragment extends DetailsFragment implements RowBuilderT
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mBlurTransformation = new BlurTransform(getActivity());
+
         BackgroundManager backgroundManager = BackgroundManager.getInstance(getActivity());
         backgroundManager.attach(getActivity().getWindow());
         mBackgroundTarget = new PicassoBackgroundManagerTarget(backgroundManager);
-
-        mDefaultBackground = getResources().getDrawable(R.drawable.amphitheatre);
 
         mMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
@@ -126,6 +127,7 @@ public class VideoDetailsFragment extends DetailsFragment implements RowBuilderT
     private void updateBackground(String url) {
         Picasso.with(getActivity())
                 .load(url)
+                .transform(mBlurTransformation)
                 .placeholder(R.drawable.placeholder)
                 .resize(mMetrics.widthPixels, mMetrics.heightPixels)
                 .centerCrop()
