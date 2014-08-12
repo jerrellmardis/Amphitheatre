@@ -47,6 +47,7 @@ import com.jerrellmardis.amphitheatre.model.Video;
 import com.jerrellmardis.amphitheatre.model.VideoGroup;
 import com.jerrellmardis.amphitheatre.service.RecommendationsService;
 import com.jerrellmardis.amphitheatre.task.GetFilesTask;
+import com.jerrellmardis.amphitheatre.util.BlurTransform;
 import com.jerrellmardis.amphitheatre.util.Constants;
 import com.jerrellmardis.amphitheatre.util.PicassoBackgroundManagerTarget;
 import com.jerrellmardis.amphitheatre.util.SecurePreferences;
@@ -55,6 +56,7 @@ import com.jerrellmardis.amphitheatre.widget.CardPresenter;
 import com.jerrellmardis.amphitheatre.widget.TvShowsCardPresenter;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
+import com.squareup.picasso.Transformation;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -73,6 +75,8 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
     private final Handler mHandler = new Handler();
 
+    private Transformation mBlurTransformation;
+
     private Drawable mDefaultBackground;
     private Target mBackgroundTarget;
     private DisplayMetrics mMetrics;
@@ -88,6 +92,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        mBlurTransformation = new BlurTransform(getActivity());
         prepareBackgroundManager();
         setupUIElements();
         refreshAdapter();
@@ -290,6 +295,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     private void updateBackground(String url) {
         Picasso.with(getActivity())
                 .load(url)
+                .transform(mBlurTransformation)
                 .placeholder(R.drawable.placeholder)
                 .resize(mMetrics.widthPixels, mMetrics.heightPixels)
                 .centerCrop()
