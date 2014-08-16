@@ -34,19 +34,13 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
 
-        <activity
-            android:name=".activity.MainActivity"
-            android:label="@string/app_name"
-            android:logo="@drawable/app_icon_banner"
-            android:screenOrientation="landscape">
+        <activity android:name=".activity.BrowseActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER"/>
             </intent-filter>
         </activity>
-
-        <activity android:name=".activity.BrowseActivity"/>
 
         <activity android:name=".activity.DetailsActivity"/>
 
@@ -63,6 +57,11 @@
 
         <service
             android:name=".service.RecommendationsService"
+            android:enabled="true"/>
+
+        <service
+            android:name=".service.UpdateLibraryJob"
+            android:permission="android.permission.BIND_JOB_SERVICE"
             android:enabled="true"/>
 
         <meta-data

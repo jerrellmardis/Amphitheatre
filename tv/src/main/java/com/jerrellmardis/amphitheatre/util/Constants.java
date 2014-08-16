@@ -26,4 +26,6 @@ public final class Constants {
 
     public static final String PREFS_USER_KEY = "user";
     public static final String PREFS_PASSWORD_KEY = "password";
+
+    public static final String VIDEO_UPDATE_ACTION = "videoUpdateAction";
 }

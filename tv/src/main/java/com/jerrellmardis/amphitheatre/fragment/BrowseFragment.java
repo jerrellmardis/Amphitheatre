@@ -18,7 +18,10 @@ package com.jerrellmardis.amphitheatre.fragment;
 
 import android.app.Activity;
 import android.app.FragmentManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -32,8 +35,10 @@ import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.OnItemSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -58,13 +63,11 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.squareup.picasso.Transformation;
 
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -82,12 +85,49 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     private DisplayMetrics mMetrics;
     private Timer mBackgroundTimer;
     private String mBackgroundImageUrl;
+    private ArrayObjectAdapter mAdapter;
+    private CardPresenter mCardPresenter;
+    private TvShowsCardPresenter mTvShowsCardPresenter;
 
-    private List<Video> mMatchedMovies;
-    private List<Video> mUnmatchedVideos;
-    private List<Video> mMatchedTvShows;
+    private BroadcastReceiver videoUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getExtras();
+            if (bundle != null) {
+                Serializable obj = bundle.getSerializable(Constants.VIDEO);
+                if (obj instanceof Video) {
+                    addVideoToUi((Video) bundle.getSerializable(Constants.VIDEO));
+                }
+            }
+        }
+    };
 
-    private AddSourceDialogFragment mAddSourceDialogFragment;
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getActivity().registerReceiver(videoUpdateReceiver,
+                new IntentFilter(Constants.VIDEO_UPDATE_ACTION));
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View v = super.onCreateView(inflater, container, savedInstanceState);
+
+        mCardPresenter = new CardPresenter(getActivity());
+        mTvShowsCardPresenter = new TvShowsCardPresenter(getActivity());
+
+        // add a Settings Header and action buttons
+        HeaderItem gridHeader = new HeaderItem(0, getString(R.string.settings), null);
+        ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(new GridItemPresenter());
+        gridRowAdapter.add(getResources().getString(R.string.add_source));
+
+        mAdapter = new ArrayObjectAdapter(new ListRowPresenter());
+        mAdapter.add(new ListRow(gridHeader, gridRowAdapter));
+
+        setAdapter(mAdapter);
+
+        return v;
+    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -95,8 +135,26 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         mBlurTransformation = new BlurTransform(getActivity());
         prepareBackgroundManager();
         setupUIElements();
-        refreshAdapter();
         setupEventListeners();
+
+        if (Video.count(Video.class, null, null) == 0) {
+            showAddSourceDialog();
+        } else {
+            List<Video> videos = Source.listAll(Video.class);
+            if (videos != null && !videos.isEmpty()) {
+                for (Video video : videos) {
+                    addVideoToUi(video);
+                }
+
+                mAdapter.notifyArrayItemRangeChanged(0, mAdapter.size());
+            }
+        }
+    }
+
+    @Override
+    public void onStop() {
+        getActivity().unregisterReceiver(videoUpdateReceiver);
+        super.onStop();
     }
 
     @Override
@@ -106,25 +164,30 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         Toast.makeText(getActivity(), getString(R.string.updating_library),
                 Toast.LENGTH_SHORT).show();
 
-        new GetFilesTask(user.toString(), password.toString(), path.toString(), isMovie,
-                new GetFilesTask.Callback() {
+        Source source = new Source();
+        source.setSource(path.toString());
+        source.setType(isMovie ? Source.Type.MOVIE.name() : Source.Type.TV_SHOW.name());
+        source.save();
+
+        new GetFilesTask(getActivity(), user.toString(), password.toString(), path.toString(),
+                isMovie, new GetFilesTask.Callback() {
 
                     @Override
                     public void success() {
                         if (getActivity() == null) return;
 
-                        Source source = new Source();
-                        source.setSource(path.toString());
-                        source.save();
-
-                        refreshAdapter();
-
                         Toast.makeText(getActivity(), getString(R.string.update_complete),
                                 Toast.LENGTH_SHORT).show();
+
+                        mAdapter.notifyArrayItemRangeChanged(0, mAdapter.size());
+
+                        updateRecommendations();
                     }
 
                     @Override
                     public void failure() {
+                        if (getActivity() == null) return;
+
                         Toast.makeText(getActivity(), getString(R.string.update_failed),
                                 Toast.LENGTH_LONG).show();
                     }
@@ -163,28 +226,6 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         setSearchAffordanceColor(getResources().getColor(R.color.search_button_background));
     }
 
-    private void refreshAdapter() {
-        List<Video> allVideos = Source.listAll(Video.class);
-
-        if (!allVideos.isEmpty()) {
-            mMatchedMovies = new ArrayList<Video>();
-            mUnmatchedVideos = new ArrayList<Video>();
-            mMatchedTvShows = new ArrayList<Video>();
-
-            for (Video video : allVideos) {
-                if (video.isMatched() && video.isMovie()) {
-                    mMatchedMovies.add(video);
-                } else if (video.isMatched()) {
-                    mMatchedTvShows.add(video);
-                } else {
-                    mUnmatchedVideos.add(video);
-                }
-            }
-
-            updateAdapter();
-        }
-    }
-
     private void setupEventListeners() {
         setOnItemSelectedListener(getDefaultItemSelectedListener());
         setOnItemClickedListener(getDefaultItemClickedListener());
@@ -200,92 +241,94 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         startBackgroundTimer();
     }
 
-    private void updateAdapter() {
-        ArrayObjectAdapter rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
-        CardPresenter cardPresenter = new CardPresenter(getActivity());
-        TvShowsCardPresenter tvShowsCardPresenter = new TvShowsCardPresenter(getActivity());
+    private void addVideoToUi(Video video) {
+        if (!video.isMatched()) {
+            ListRow row = findListRow(getString(R.string.unmatched));
 
-        List<Source> sources = Source.listAll(Source.class);
+            // if found add this video
+            // if not, create a new row and add it
+            if (row != null) {
+                ((ArrayObjectAdapter) row.getAdapter()).add(video);
+            } else {
+                ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(mCardPresenter);
+                listRowAdapter.add(video);
 
-        Map<String, List<Video>> categoryMovieMap = new HashMap<String, List<Video>>();
-        Map<String, VideoGroup> categoryTvShowMap = new HashMap<String, VideoGroup>();
+                HeaderItem header = new HeaderItem(0, getString(R.string.unmatched), null);
+                int index = mAdapter.size() > 1 ? mAdapter.size() - 1 : 0;
+                mAdapter.add(0, new ListRow(header, listRowAdapter));
+            }
+        } else if (video.isMovie()) {
+            List<Source> sources = Source.listAll(Source.class);
 
-        for (Video video : mMatchedMovies) {
             for (Source source : sources) {
+                // find the video's "source" and use it as a category
                 if (video.getVideoUrl().contains(source.toString())) {
                     String[] sections = source.toString().split("/");
                     String category = sections[sections.length - 1];
 
-                    if (categoryMovieMap.containsKey(category)) {
-                        categoryMovieMap.get(category).add(video);
+                    ListRow row = findListRow(category);
+
+                    // if found add this video
+                    // if not, create a new row and add it
+                    if (row != null) {
+                        ((ArrayObjectAdapter) row.getAdapter()).add(video);
                     } else {
-                        List<Video> videos = new ArrayList<Video>();
-                        videos.add(video);
-                        categoryMovieMap.put(category, videos);
+                        ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(mCardPresenter);
+                        listRowAdapter.add(0, video);
+
+                        HeaderItem header = new HeaderItem(0, category, null);
+                        mAdapter.add(0, new ListRow(header, listRowAdapter));
                     }
 
                     break;
                 }
             }
-        }
+        } else {
+            ListRow row = findListRow(getString(R.string.tv_shows));
 
-        // add matched movies
-        for (Map.Entry<String, List<Video>> entry : categoryMovieMap.entrySet()) {
-            if (entry.getValue().size() == 0) {
-                continue;
-            }
+            // if found add this video
+            // if not, create a new row and add it
+            if (row != null) {
+                boolean found = false;
 
-            sort(entry.getValue());
+                // find the video group and increment the episode count
+                for (int i = 0; i < row.getAdapter().size(); i++) {
+                    VideoGroup group = (VideoGroup) row.getAdapter().get(i);
 
-            ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
-            listRowAdapter.addAll(0, entry.getValue());
+                    if (group.getVideo().getName().equals(video.getName())) {
+                        if (TextUtils.isEmpty(group.getVideo().getCardImageUrl())) {
+                            group.getVideo().setCardImageUrl(video.getCardImageUrl());
+                        }
 
-            HeaderItem header = new HeaderItem(0, entry.getKey(), null);
-            rowsAdapter.add(new ListRow(header, listRowAdapter));
-        }
+                        group.increment();
+                        found = true;
+                        break;
+                    }
+                }
 
-        // group TV shows by name
-        for (Video video : mMatchedTvShows) {
-            if (!categoryTvShowMap.containsKey(video.getName())) {
-                VideoGroup group = new VideoGroup();
-                group.setVideo(video);
-                group.increment();
-                categoryTvShowMap.put(video.getName(), group);
+                // if not found, then add the VideoGroup to the row
+                if (!found) {
+                    ((ArrayObjectAdapter) row.getAdapter()).add(new VideoGroup(video));
+                }
             } else {
-                categoryTvShowMap.get(video.getName()).increment();
+                ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(mTvShowsCardPresenter);
+                listRowAdapter.add(0, new VideoGroup(video));
+
+                HeaderItem header = new HeaderItem(0, getString(R.string.tv_shows), null);
+                mAdapter.add(0, new ListRow(header, listRowAdapter));
+            }
+        }
+    }
+
+    private ListRow findListRow(String headerName) {
+        for (int i = 0; i < mAdapter.size(); i++) {
+            ListRow row = (ListRow) mAdapter.get(i);
+            if (headerName.equals(row.getHeaderItem().getName())) {
+                return row;
             }
         }
 
-        // add matched TV shows
-        if (!categoryTvShowMap.isEmpty()) {
-            ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(tvShowsCardPresenter);
-            listRowAdapter.addAll(0, categoryTvShowMap.values());
-
-            HeaderItem header = new HeaderItem(0, getString(R.string.tv_shows), null);
-            rowsAdapter.add(new ListRow(header, listRowAdapter));
-        }
-
-        // add unmatched videos
-        if (!mUnmatchedVideos.isEmpty()) {
-            sort(mUnmatchedVideos);
-
-            ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
-            listRowAdapter.addAll(0, mUnmatchedVideos);
-
-            HeaderItem header = new HeaderItem(0, getString(R.string.unmatched), null);
-            rowsAdapter.add(new ListRow(header, listRowAdapter));
-        }
-
-        // add a Settings header and action buttons
-        HeaderItem gridHeader = new HeaderItem(0, getResources().getString(R.string.settings), null);
-        GridItemPresenter gridPresenter = new GridItemPresenter();
-        ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(gridPresenter);
-        gridRowAdapter.add(getResources().getString(R.string.add_source));
-        rowsAdapter.add(new ListRow(gridHeader, gridRowAdapter));
-
-        setAdapter(rowsAdapter);
-
-        updateRecommendations();
+        return null;
     }
 
     private void updateRecommendations() {
@@ -399,13 +442,17 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                     intent.putExtra(Constants.VIDEO, video);
                     startActivity(intent);
                 } else if (item instanceof String && ((String) item).contains(getString(R.string.add_source))) {
-                    FragmentManager fm = getFragmentManager();
-                    AddSourceDialogFragment addSourceDialog = AddSourceDialogFragment.newInstance();
-                    addSourceDialog.setTargetFragment(BrowseFragment.this, 0);
-                    addSourceDialog.show(fm, AddSourceDialogFragment.class.getSimpleName());
+                    showAddSourceDialog();
                 }
             }
         };
+    }
+
+    private void showAddSourceDialog() {
+        FragmentManager fm = getFragmentManager();
+        AddSourceDialogFragment addSourceDialog = AddSourceDialogFragment.newInstance();
+        addSourceDialog.setTargetFragment(this, 0);
+        addSourceDialog.show(fm, AddSourceDialogFragment.class.getSimpleName());
     }
 
     private class UpdateBackgroundTask extends TimerTask {

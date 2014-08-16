@@ -25,7 +25,10 @@ import java.io.Serializable;
  */
 public class Source extends SugarRecord<Source> implements Serializable {
 
+    public enum Type { MOVIE, TV_SHOW }
+
     private String mSource;
+    private String mType = Type.MOVIE.name();
 
     public Source() { }
 
@@ -35,6 +38,14 @@ public class Source extends SugarRecord<Source> implements Serializable {
 
     public void setSource(String source) {
         mSource = source;
+    }
+
+    public String getType() {
+        return mType;
+    }
+
+    public void setType(String type) {
+        mType = type;
     }
 
     @Override
