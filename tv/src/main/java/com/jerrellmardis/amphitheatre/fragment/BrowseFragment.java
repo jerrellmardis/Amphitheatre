@@ -58,6 +58,7 @@ import com.jerrellmardis.amphitheatre.util.PicassoBackgroundManagerTarget;
 import com.jerrellmardis.amphitheatre.util.SecurePreferences;
 import com.jerrellmardis.amphitheatre.util.VideoUtils;
 import com.jerrellmardis.amphitheatre.widget.CardPresenter;
+import com.jerrellmardis.amphitheatre.widget.SortedArrayObjectAdapter;
 import com.jerrellmardis.amphitheatre.widget.TvShowsCardPresenter;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -65,7 +66,6 @@ import com.squareup.picasso.Transformation;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Timer;
@@ -102,9 +102,35 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         }
     };
 
+    private Comparator<Video> mVideoNameComparator = new Comparator<Video>() {
+        @Override
+        public int compare(Video o1, Video o2) {
+            if (o2.getName() == null) {
+                return (o1.getName() == null) ? 0 : -1;
+            }
+            if (o1.getName() == null) {
+                return 1;
+            }
+            return o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
+        }
+    };
+
+    private Comparator<VideoGroup> mVideoGroupComparator = new Comparator<VideoGroup>() {
+        @Override
+        public int compare(VideoGroup o1, VideoGroup o2) {
+            if (o2.getVideo().getName() == null) {
+                return (o1.getVideo().getName() == null) ? 0 : -1;
+            }
+            if (o1.getVideo().getName() == null) {
+                return 1;
+            }
+            return o1.getVideo().getName().toLowerCase().compareTo(o2.getVideo().getName().toLowerCase());
+        }
+    };
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onStart() {
+        super.onStart();
         getActivity().registerReceiver(videoUpdateReceiver,
                 new IntentFilter(Constants.VIDEO_UPDATE_ACTION));
     }
@@ -153,7 +179,11 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
     @Override
     public void onStop() {
-        getActivity().unregisterReceiver(videoUpdateReceiver);
+        try {
+            getActivity().unregisterReceiver(videoUpdateReceiver);
+        } catch (IllegalArgumentException e) {
+            // do nothing
+        }
         super.onStop();
     }
 
@@ -248,14 +278,15 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
             // if found add this video
             // if not, create a new row and add it
             if (row != null) {
-                ((ArrayObjectAdapter) row.getAdapter()).add(video);
+                ((SortedArrayObjectAdapter) row.getAdapter()).add(video);
             } else {
-                ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(mCardPresenter);
+                SortedArrayObjectAdapter listRowAdapter = new SortedArrayObjectAdapter(
+                        mVideoNameComparator, mCardPresenter);
                 listRowAdapter.add(video);
 
                 HeaderItem header = new HeaderItem(0, getString(R.string.unmatched), null);
                 int index = mAdapter.size() > 1 ? mAdapter.size() - 1 : 0;
-                mAdapter.add(0, new ListRow(header, listRowAdapter));
+                mAdapter.add(index, new ListRow(header, listRowAdapter));
             }
         } else if (video.isMovie()) {
             List<Source> sources = Source.listAll(Source.class);
@@ -271,10 +302,11 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                     // if found add this video
                     // if not, create a new row and add it
                     if (row != null) {
-                        ((ArrayObjectAdapter) row.getAdapter()).add(video);
+                        ((SortedArrayObjectAdapter) row.getAdapter()).add(video);
                     } else {
-                        ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(mCardPresenter);
-                        listRowAdapter.add(0, video);
+                        SortedArrayObjectAdapter listRowAdapter = new SortedArrayObjectAdapter(
+                                mVideoNameComparator, mCardPresenter);
+                        listRowAdapter.add(video);
 
                         HeaderItem header = new HeaderItem(0, category, null);
                         mAdapter.add(0, new ListRow(header, listRowAdapter));
@@ -308,11 +340,12 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
                 // if not found, then add the VideoGroup to the row
                 if (!found) {
-                    ((ArrayObjectAdapter) row.getAdapter()).add(new VideoGroup(video));
+                    ((SortedArrayObjectAdapter) row.getAdapter()).add(new VideoGroup(video));
                 }
             } else {
-                ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(mTvShowsCardPresenter);
-                listRowAdapter.add(0, new VideoGroup(video));
+                SortedArrayObjectAdapter listRowAdapter = new SortedArrayObjectAdapter(
+                        mVideoGroupComparator, mTvShowsCardPresenter);
+                listRowAdapter.add(new VideoGroup(video));
 
                 HeaderItem header = new HeaderItem(0, getString(R.string.tv_shows), null);
                 mAdapter.add(0, new ListRow(header, listRowAdapter));
@@ -356,22 +389,6 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         }
         mBackgroundTimer = new Timer();
         mBackgroundTimer.schedule(new UpdateBackgroundTask(), 300);
-    }
-
-    private void sort(List<Video> videos) {
-        // sort alphabetically
-        Collections.sort(videos, new Comparator<Video>() {
-            @Override
-            public int compare(Video o1, Video o2) {
-                if (o2.getName() == null) {
-                    return (o1.getName() == null) ? 0 : -1;
-                }
-                if (o1.getName() == null) {
-                    return 1;
-                }
-                return o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
-            }
-        });
     }
 
     private OnClickListener getSearchClickedListener() {
