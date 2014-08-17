@@ -22,7 +22,11 @@ package com.jerrellmardis.amphitheatre.model;
 public class VideoGroup {
 
     private Video mVideo;
-    private int numOfVideos = 0;
+    private int numOfVideos = 1;
+
+    public VideoGroup(Video video) {
+        mVideo = video;
+    }
 
     public Video getVideo() {
         return mVideo;

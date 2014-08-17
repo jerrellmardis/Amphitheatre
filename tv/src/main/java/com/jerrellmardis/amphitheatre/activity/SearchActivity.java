@@ -16,10 +16,10 @@
 
 package com.jerrellmardis.amphitheatre.activity;
 
-import com.jerrellmardis.amphitheatre.R;
-
 import android.app.Activity;
 import android.os.Bundle;
+
+import com.jerrellmardis.amphitheatre.R;
 
 public class SearchActivity extends Activity {
 

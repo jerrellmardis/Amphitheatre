@@ -19,13 +19,11 @@ package com.jerrellmardis.amphitheatre.widget;
 import android.content.Context;
 import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
-import android.text.TextUtils;
 import android.view.ViewGroup;
 
 import com.jerrellmardis.amphitheatre.R;
 import com.jerrellmardis.amphitheatre.model.VideoGroup;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.RequestCreator;
 
 public class TvShowsCardPresenter extends CardPresenter {
 
@@ -59,17 +57,12 @@ public class TvShowsCardPresenter extends CardPresenter {
             holder.mCardView.setContentText(contentText);
         }
 
-        RequestCreator rc;
         String url = group.getVideo().getBackgroundImageUrl();
-        if (TextUtils.isEmpty(url)) {
-            rc = Picasso.with(mContext).load(R.drawable.placeholder);
-        } else {
-            rc = Picasso.with(mContext).load(url);
-        }
-
-        rc.resize(mCardWidth, mCardHeight)
+        Picasso.with(mContext)
+                .load(url)
+                .placeholder(R.drawable.placeholder)
+                .resize(mCardWidth, mCardHeight)
                 .centerCrop()
-                .error(R.drawable.placeholder)
                 .into(holder);
     }
 }

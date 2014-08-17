@@ -16,10 +16,6 @@
 
 package com.jerrellmardis.amphitheatre.fragment;
 
-import com.jerrellmardis.amphitheatre.R;
-import com.jerrellmardis.amphitheatre.task.NetworkSearchTask;
-import com.jerrellmardis.amphitheatre.task.NetworkSearchTask.OnSharesFoundListener;
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -34,6 +30,10 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Spinner;
+
+import com.jerrellmardis.amphitheatre.R;
+import com.jerrellmardis.amphitheatre.task.NetworkSearchTask;
+import com.jerrellmardis.amphitheatre.task.NetworkSearchTask.OnSharesFoundListener;
 
 import java.util.List;
 

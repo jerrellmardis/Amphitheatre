@@ -35,7 +35,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".activity.MainActivity"
+            android:name=".activity.BrowseActivity"
             android:label="@string/app_name"
             android:logo="@drawable/app_icon_banner"
             android:screenOrientation="landscape">
@@ -45,8 +45,6 @@
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER"/>
             </intent-filter>
         </activity>
-
-        <activity android:name=".activity.BrowseActivity"/>
 
         <activity android:name=".activity.DetailsActivity"/>
 
@@ -64,6 +62,11 @@
         <service
             android:name=".service.RecommendationsService"
             android:enabled="true"/>
+
+        <service
+            android:name=".service.UpdateLibraryJob"
+            android:enabled="true"
+            android:permission="android.permission.BIND_JOB_SERVICE"/>
 
         <meta-data
             android:name="DATABASE"
