@@ -22,6 +22,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
+import android.support.v7.graphics.Palette;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -94,6 +95,10 @@ public class CardPresenter extends Presenter {
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
             Drawable bitmapDrawable = new BitmapDrawable(mCardView.getContext().getResources(), bitmap);
             mCardView.setMainImage(bitmapDrawable);
+
+            Palette palette = Palette.generate(bitmap);
+            mCardView.findViewById(R.id.info_field).setBackgroundColor(palette.getDarkMutedColor().getRgb());
+
             // TODO cross-fade from placeholder. Picasso should provide a way to do this.
         }
 
