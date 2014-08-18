@@ -69,7 +69,7 @@ public class UpdateLibraryJob extends JobService {
                                 systemFileMap.put(file.getPath(), file);
                             }
 
-                            reconcileVideoFiles(Type.valueOf(source.getType()), config, systemFileMap);
+                            reconcileVideoFiles(source, config, systemFileMap);
                         }
                     }
                 }
@@ -84,12 +84,13 @@ public class UpdateLibraryJob extends JobService {
         return false;
     }
 
-    private void reconcileVideoFiles(Type type, Config config, Map<String, SmbFile> systemFileMap) {
-        boolean isMovie = Type.MOVIE == type;
+    private void reconcileVideoFiles(Source source, Config config, Map<String, SmbFile> systemFileMap) {
+        boolean isMovie = Type.MOVIE == Type.valueOf(source.getType());
 
         List<Video> videos = Select
                 .from(Video.class)
-                .where(Condition.prop("is_movie").eq(isMovie ? 1 : 0))
+                .where(Condition.prop("is_movie").eq(isMovie ? 1 : 0),
+                        Condition.prop("video_url").like("%" + source.getSource() + "%"))
                 .list();
 
         if (videos != null && !videos.isEmpty()) {
