@@ -16,13 +16,19 @@
 
 package com.jerrellmardis.amphitheatre.model;
 
+import java.io.Serializable;
+
 /**
  * Created by Jerrell Mardis on 8/8/14.
  */
-public class VideoGroup {
+public class VideoGroup implements Serializable {
 
     private Video mVideo;
-    private int numOfVideos = 0;
+    private int numOfVideos = 1;
+
+    public VideoGroup(Video video) {
+        mVideo = video;
+    }
 
     public Video getVideo() {
         return mVideo;

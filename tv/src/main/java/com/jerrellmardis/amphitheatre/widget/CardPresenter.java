@@ -58,15 +58,16 @@ public class CardPresenter extends Presenter {
         holder.mCardView.setTitleText(video.getName());
         holder.mCardView.setMainImageDimensions(mCardWidth, mCardHeight);
 
-        if (video.getTvShow() != null && video.getTvShow().getVoteAverage() != null) {
+        if (video.getTvShow() != null && video.getTvShow().getEpisode() != null) {
             holder.mCardView.setContentText(String.format(
-                    mContext.getString(R.string.rating_description),
-                    video.getTvShow().getVoteAverage()));
+                    mContext.getString(R.string.tv_show_card_description),
+                    video.getTvShow().getEpisode().getSeasonNumber(),
+                    video.getTvShow().getEpisode().getEpisodeNumber()));
         } else if (video.getMovie() != null && video.getMovie().getVoteAverage() != null) {
             holder.mCardView.setContentText(String.format(
                     mContext.getString(R.string.rating_description),
                     video.getMovie().getVoteAverage()));
-        } else {
+        } else if (video.getMovie() != null && video.getMovie().getVoteAverage() == null) {
             holder.mCardView.setContentText(String.format(
                     mContext.getString(R.string.rating_description), 0.0d));
         }

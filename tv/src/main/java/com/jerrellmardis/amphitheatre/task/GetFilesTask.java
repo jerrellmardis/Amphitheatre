@@ -16,22 +16,19 @@
 
 package com.jerrellmardis.amphitheatre.task;
 
+import android.content.Context;
+import android.os.AsyncTask;
+
 import com.jerrellmardis.amphitheatre.api.TMDbClient;
 import com.jerrellmardis.amphitheatre.listeners.TaskListener;
 import com.jerrellmardis.amphitheatre.model.tmdb.Config;
-import com.jerrellmardis.amphitheatre.util.VideoUtils;
 
 import org.apache.commons.collections4.ListUtils;
 
-import android.os.AsyncTask;
-import android.util.Log;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbFile;
 
 /**
@@ -39,8 +36,7 @@ import jcifs.smb.SmbFile;
  */
 public class GetFilesTask extends AsyncTask<Void, Void, List<SmbFile>> implements TaskListener {
 
-    public static final String TAG = GetFilesTask.class.getSimpleName();
-
+    private Context mContext;
     private String mPath;
     private String mUser;
     private String mPassword;
@@ -55,7 +51,10 @@ public class GetFilesTask extends AsyncTask<Void, Void, List<SmbFile>> implement
         void failure();
     }
 
-    public GetFilesTask(String user, String password, String path, boolean isMovie, Callback l) {
+    public GetFilesTask(Context context, String user, String password, String path, boolean isMovie,
+                        Callback l) {
+
+        mContext = context;
         mUser = user;
         mPassword = password;
         mPath = path;
@@ -75,7 +74,7 @@ public class GetFilesTask extends AsyncTask<Void, Void, List<SmbFile>> implement
     @Override
     protected List<SmbFile> doInBackground(Void... params) {
         mConfig = TMDbClient.getConfig();
-        return new ArrayList<SmbFile>(getFiles());
+        return new ArrayList<SmbFile>(DownloadTaskHelper.getFiles(mUser, mPassword, mPath));
     }
 
     @Override
@@ -89,20 +88,16 @@ public class GetFilesTask extends AsyncTask<Void, Void, List<SmbFile>> implement
 
             mNumOfSets = subSets.size();
 
-            String[] sections = mPassword.split("/");
-            String directory = sections[sections.length - 1];
-
             for (List<SmbFile> subSet : subSets) {
                 if (mIsMovie) {
-                    new DownloadMovieInfoTask(mConfig, directory, subSet, this)
+                    new DownloadMovieTask(mContext, mConfig, subSet, this)
                             .executeOnExecutor(THREAD_POOL_EXECUTOR);
                 } else {
-                    new DownloadTvShowInfoTask(mConfig, directory, subSet, this)
+                    new DownloadTvShowTask(mContext, mConfig, subSet, this)
                             .executeOnExecutor(THREAD_POOL_EXECUTOR);
                 }
             }
         } catch (Exception e) {
-            Log.e(TAG, "Failed to get files.", e);
             if (mCallback != null) {
                 mCallback.failure();
             }
@@ -111,25 +106,8 @@ public class GetFilesTask extends AsyncTask<Void, Void, List<SmbFile>> implement
 
     @Override
     public void taskCompleted() {
-        if (incrementAndGetSetsProcessed() == mNumOfSets - 1 && mCallback != null) {
+        if (mSetsProcessedCounter.getAndIncrement() == mNumOfSets - 1 && mCallback != null) {
             mCallback.success();
         }
-    }
-
-    private List<SmbFile> getFiles() {
-        NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication("", mUser, mPassword);
-
-        List<SmbFile> files = Collections.emptyList();
-        try {
-            files = VideoUtils.getFilesFromDir(mPath, auth);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return files;
-    }
-
-    private int incrementAndGetSetsProcessed() {
-        return mSetsProcessedCounter.getAndIncrement();
     }
 }
