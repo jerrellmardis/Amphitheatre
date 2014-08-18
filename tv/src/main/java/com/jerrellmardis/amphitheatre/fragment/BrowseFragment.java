@@ -66,6 +66,8 @@ import com.squareup.picasso.Transformation;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Timer;
@@ -99,32 +101,6 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                     addVideoToUi((Video) bundle.getSerializable(Constants.VIDEO));
                 }
             }
-        }
-    };
-
-    private Comparator<Video> mVideoNameComparator = new Comparator<Video>() {
-        @Override
-        public int compare(Video o1, Video o2) {
-            if (o2.getName() == null) {
-                return (o1.getName() == null) ? 0 : -1;
-            }
-            if (o1.getName() == null) {
-                return 1;
-            }
-            return o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
-        }
-    };
-
-    private Comparator<VideoGroup> mVideoGroupComparator = new Comparator<VideoGroup>() {
-        @Override
-        public int compare(VideoGroup o1, VideoGroup o2) {
-            if (o2.getVideo().getName() == null) {
-                return (o1.getVideo().getName() == null) ? 0 : -1;
-            }
-            if (o1.getVideo().getName() == null) {
-                return 1;
-            }
-            return o1.getVideo().getName().toLowerCase().compareTo(o2.getVideo().getName().toLowerCase());
         }
     };
 
@@ -172,6 +148,8 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                     addVideoToUi(video);
                 }
 
+                refreshSubCategories();
+
                 mAdapter.notifyArrayItemRangeChanged(0, mAdapter.size());
             }
         }
@@ -208,6 +186,8 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
                         Toast.makeText(getActivity(), getString(R.string.update_complete),
                                 Toast.LENGTH_SHORT).show();
+
+                        refreshSubCategories();
 
                         mAdapter.notifyArrayItemRangeChanged(0, mAdapter.size());
 
@@ -272,6 +252,32 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     }
 
     private void addVideoToUi(Video video) {
+        Comparator<Video> videoNameComparator = new Comparator<Video>() {
+            @Override
+            public int compare(Video o1, Video o2) {
+                if (o2.getName() == null) {
+                    return (o1.getName() == null) ? 0 : -1;
+                }
+                if (o1.getName() == null) {
+                    return 1;
+                }
+                return o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
+            }
+        };
+
+        Comparator<VideoGroup> videoGroupNameComparator = new Comparator<VideoGroup>() {
+            @Override
+            public int compare(VideoGroup o1, VideoGroup o2) {
+                if (o2.getVideo().getName() == null) {
+                    return (o1.getVideo().getName() == null) ? 0 : -1;
+                }
+                if (o1.getVideo().getName() == null) {
+                    return 1;
+                }
+                return o1.getVideo().getName().toLowerCase().compareTo(o2.getVideo().getName().toLowerCase());
+            }
+        };
+
         if (!video.isMatched()) {
             ListRow row = findListRow(getString(R.string.unmatched));
 
@@ -281,7 +287,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                 ((SortedArrayObjectAdapter) row.getAdapter()).add(video);
             } else {
                 SortedArrayObjectAdapter listRowAdapter = new SortedArrayObjectAdapter(
-                        mVideoNameComparator, mCardPresenter);
+                        videoNameComparator, mCardPresenter);
                 listRowAdapter.add(video);
 
                 HeaderItem header = new HeaderItem(0, getString(R.string.unmatched), null);
@@ -295,7 +301,8 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                 // find the video's "source" and use it as a category
                 if (video.getVideoUrl().contains(source.toString())) {
                     String[] sections = source.toString().split("/");
-                    String category = sections[sections.length - 1];
+                    String category = String.format(getString(R.string.all_category_placeholder),
+                            sections[sections.length - 1]);
 
                     ListRow row = findListRow(category);
 
@@ -305,7 +312,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                         ((SortedArrayObjectAdapter) row.getAdapter()).add(video);
                     } else {
                         SortedArrayObjectAdapter listRowAdapter = new SortedArrayObjectAdapter(
-                                mVideoNameComparator, mCardPresenter);
+                                videoNameComparator, mCardPresenter);
                         listRowAdapter.add(video);
 
                         HeaderItem header = new HeaderItem(0, category, null);
@@ -316,7 +323,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                 }
             }
         } else {
-            ListRow row = findListRow(getString(R.string.tv_shows));
+            ListRow row = findListRow(getString(R.string.all_tv_shows));
 
             // if found add this video
             // if not, create a new row and add it
@@ -344,11 +351,74 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                 }
             } else {
                 SortedArrayObjectAdapter listRowAdapter = new SortedArrayObjectAdapter(
-                        mVideoGroupComparator, mTvShowsCardPresenter);
+                        videoGroupNameComparator, mTvShowsCardPresenter);
                 listRowAdapter.add(new VideoGroup(video));
 
-                HeaderItem header = new HeaderItem(0, getString(R.string.tv_shows), null);
+                HeaderItem header = new HeaderItem(0, getString(R.string.all_tv_shows), null);
                 mAdapter.add(0, new ListRow(header, listRowAdapter));
+            }
+        }
+    }
+
+    private void refreshSubCategories() {
+        List<Video> videos = Video.listAll(Video.class);
+        Collections.sort(videos, new Comparator<Video>() {
+            @Override
+            public int compare(Video o1, Video o2) {
+                return Long.valueOf(o2.getCreated()).compareTo(o1.getCreated());
+            }
+        });
+
+        // get top 15 movies and TV shows
+        final int max = 15;
+        List<Video> movies = new ArrayList<Video>(max);
+        List<Video> tvShows = new ArrayList<Video>(max);
+
+        for (Video video : videos) {
+            if (movies.size() == max && tvShows.size() == max) {
+                break;
+            }
+
+            if (video.isMatched() && video.isMovie() && movies.size() <= max) {
+                movies.add(video);
+            } else if (video.isMatched() && !video.isMovie() && tvShows.size() <= max) {
+                tvShows.add(video);
+            }
+        }
+
+        ListRow unMatchedRow = findListRow(getString(R.string.unmatched));
+
+        // recently added movies
+        if (!movies.isEmpty()) {
+            ListRow row = findListRow(getString(R.string.recently_added_movies));
+            if (row != null) {
+                ((ArrayObjectAdapter) row.getAdapter()).clear();
+                ((ArrayObjectAdapter) row.getAdapter()).addAll(0, movies);
+            } else {
+                ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(mCardPresenter);
+                listRowAdapter.addAll(0, movies);
+
+                HeaderItem header = new HeaderItem(0, getString(R.string.recently_added_movies), null);
+                int index = mAdapter.size() > 1 ? mAdapter.size() - 1 : 0;
+                if (unMatchedRow != null) index -= 1;
+                mAdapter.add(index, new ListRow(header, listRowAdapter));
+            }
+        }
+
+        // recently added TV shows
+        if (!tvShows.isEmpty()) {
+            ListRow row = findListRow(getString(R.string.recently_added_tv_episodes));
+            if (row != null) {
+                ((ArrayObjectAdapter) row.getAdapter()).clear();
+                ((ArrayObjectAdapter) row.getAdapter()).addAll(0, tvShows);
+            } else {
+                ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(mTvShowsCardPresenter);
+                listRowAdapter.addAll(0, tvShows);
+
+                HeaderItem header = new HeaderItem(0, getString(R.string.recently_added_tv_episodes), null);
+                int index = mAdapter.size() > 1 ? mAdapter.size() - 1 : 0;
+                if (unMatchedRow != null) index -= 1;
+                mAdapter.add(index, new ListRow(header, listRowAdapter));
             }
         }
     }
@@ -442,22 +512,19 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
             @Override
             public void onItemClicked(Object item, Row row) {
                 if (item instanceof Video || item instanceof VideoGroup) {
-                    Video video;
-
                     if (item instanceof VideoGroup) {
-                        video = ((VideoGroup) item).getVideo();
+                        Intent intent = new Intent(getActivity(), DetailsActivity.class);
+                        intent.putExtra(Constants.IS_VIDEO, false);
+                        intent.putExtra(Constants.VIDEO_GROUP, (VideoGroup) item);
+                        startActivity(intent);
+                    } else if (((Video) item).isMatched()) {
+                        Intent intent = new Intent(getActivity(), DetailsActivity.class);
+                        intent.putExtra(Constants.IS_VIDEO, true);
+                        intent.putExtra(Constants.VIDEO, (Video) item);
+                        startActivity(intent);
                     } else {
-                        video = (Video) item;
+                        VideoUtils.playVideo(new WeakReference<Activity>(getActivity()), (Video) item);
                     }
-
-                    if (!video.isMatched()) {
-                        VideoUtils.playVideo(new WeakReference<Activity>(getActivity()), video);
-                        return;
-                    }
-
-                    Intent intent = new Intent(getActivity(), DetailsActivity.class);
-                    intent.putExtra(Constants.VIDEO, video);
-                    startActivity(intent);
                 } else if (item instanceof String && ((String) item).contains(getString(R.string.add_source))) {
                     showAddSourceDialog();
                 }

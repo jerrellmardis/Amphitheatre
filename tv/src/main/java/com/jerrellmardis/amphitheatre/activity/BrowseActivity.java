@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
-import android.app.job.JobService;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.Bundle;

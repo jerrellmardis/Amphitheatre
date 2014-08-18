@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.List;
 
 import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 
 /**
@@ -77,6 +78,12 @@ public final class DownloadTaskHelper {
         }
 
         Video video = new Video();
+
+        try {
+            video.setCreated(file.createTime());
+        } catch (SmbException e) {
+            // do nothing
+        }
 
         if (guess == null || TextUtils.isEmpty(guess.getTitle())) {
             video.setName(WordUtils.capitalizeFully(file.getName()));
@@ -200,15 +207,18 @@ public final class DownloadTaskHelper {
                                 guess.getSeason(), guess.getEpisodeNumber());
 
                         if (episode != null) {
-                            String stillPathUrl = config.getImages().getBase_url() + "original" +
-                                    episode.getStillPath();
-                            episode.setStillPath(stillPathUrl);
+                            if (!TextUtils.isEmpty(episode.getStillPath())) {
+                                String stillPathUrl = config.getImages().getBase_url() + "original" +
+                                        episode.getStillPath();
+                                episode.setStillPath(stillPathUrl);
+                            }
 
                             episode.setTmdbId(tmdbId);
                             episode.setId(null);
 
                             episode.save();
                             tvShow.setEpisode(episode);
+                            video.setIsMatched(true);
                         }
                     }
 
@@ -216,7 +226,6 @@ public final class DownloadTaskHelper {
 
                     video.setName(tvShow.getOriginalName());
                     video.setOverview(tvShow.getOverview());
-                    video.setIsMatched(true);
                     video.setTvShow(tvShow);
 
                     String cardImageUrl = config.getImages().getBase_url() + "original" +

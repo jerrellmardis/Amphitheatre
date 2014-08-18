@@ -60,18 +60,16 @@ public class DetailRowBuilderTask extends AsyncTask<Video, Integer, DetailsOverv
 
     private Video mVideo;
     private Map<String, List<Video>> mVideoGroups;
+    private boolean mShowPlayButton;
     private Activity mActivity;
     private RowBuilderTaskListener mRowBuilderTaskListener;
     
-    public DetailRowBuilderTask(Activity context, RowBuilderTaskListener l) {
-        mActivity = context;
-        mRowBuilderTaskListener = l;
-    }
-
     public DetailRowBuilderTask(Activity context, Map<String, List<Video>> videoGroups,
-                                RowBuilderTaskListener l) {
+                                boolean showPlayButton, RowBuilderTaskListener l) {
 
-        this(context, l);
+        mActivity = context;
+        mShowPlayButton = showPlayButton;
+        mRowBuilderTaskListener = l;
         mVideoGroups = videoGroups;
     }
     
@@ -92,7 +90,7 @@ public class DetailRowBuilderTask extends AsyncTask<Video, Integer, DetailsOverv
             e.printStackTrace();
         }
 
-        if (mVideoGroups == null || mVideoGroups.isEmpty()) {
+        if (mShowPlayButton) {
             row.addAction(new Action(ACTION_PLAY, mActivity.getString(R.string.play)));
         }
 
@@ -135,17 +133,59 @@ public class DetailRowBuilderTask extends AsyncTask<Video, Integer, DetailsOverv
     private void addGroups(ArrayObjectAdapter adapter) {
         if (mVideoGroups != null && !mVideoGroups.isEmpty()) {
             for (Map.Entry<String, List<Video>> entry : mVideoGroups.entrySet()) {
-                CardPresenter presenter = new SeasonCardPresenter(mActivity);
-                ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(presenter);
-                sort(entry.getValue());
-                listRowAdapter.addAll(0, entry.getValue());
-                HeaderItem header = new HeaderItem(0, entry.getKey(), null);
-                adapter.add(new ListRow(header, listRowAdapter));
+                if (!entry.getValue().isEmpty()) {
+                    CardPresenter presenter;
+                    ArrayObjectAdapter listRowAdapter;
+
+                    if (mVideo.isMovie()) {
+                        presenter = new CardPresenter(mActivity);
+                        sortMovies(entry.getValue());
+                    } else {
+                        presenter = new SeasonCardPresenter(mActivity);
+                        sortTvShows(entry.getValue());
+                    }
+
+                    listRowAdapter = new ArrayObjectAdapter(presenter);
+
+                    int max = 15;
+                    int end = entry.getValue().size() > max ? max : entry.getValue().size();
+                    List<Video> subList = entry.getValue().subList(0, end);
+
+                    listRowAdapter.addAll(0, subList);
+                    HeaderItem header = new HeaderItem(0, entry.getKey(), null);
+                    adapter.add(new ListRow(header, listRowAdapter));
+                }
             }
         }
     }
 
-    private void sort(List<Video> videos) {
+    private void sortMovies(List<Video> videos) {
+        final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+        // sort by date
+        Collections.sort(videos, new Comparator<Video>() {
+            @Override
+            public int compare(Video o1, Video o2) {
+                if (o1.getMovie().getReleaseDate() == null) {
+                    return (o2.getMovie().getReleaseDate() == null) ? 0 : -1;
+                }
+                if (o2.getMovie().getReleaseDate() == null) {
+                    return 1;
+                }
+
+                try {
+                    return sdf.parse(o2.getMovie().getReleaseDate())
+                            .compareTo(sdf.parse(o1.getMovie().getReleaseDate()));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+                return 0;
+            }
+        });
+    }
+
+    private void sortTvShows(List<Video> videos) {
         final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         // sort by date

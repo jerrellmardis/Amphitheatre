@@ -41,16 +41,28 @@ public class DetailsDescriptionPresenter extends AbstractDetailsDescriptionPrese
 
         if (video != null) {
             viewHolder.getTitle().setText(video.getName());
-            viewHolder.getBody().setText(video.getOverview());
+
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
             if (video.getMovie() != null) {
+                viewHolder.getBody().setText(video.getOverview());
+
                 try {
-                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                     Date date = formatter.parse(video.getMovie().getReleaseDate());
                     DateFormat df = DateFormat.getDateInstance();
                     String subtitle = String.format(mContext.getString(R.string.released), df.format(date));
                     viewHolder.getSubtitle().setText(subtitle);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                viewHolder.getBody().setText(video.getTvShow().getEpisode().getOverview());
 
+                try {
+                    Date date = formatter.parse(video.getTvShow().getEpisode().getAirDate());
+                    DateFormat df = DateFormat.getDateInstance();
+                    String subtitle = String.format(mContext.getString(R.string.aired), df.format(date));
+                    viewHolder.getSubtitle().setText(subtitle);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

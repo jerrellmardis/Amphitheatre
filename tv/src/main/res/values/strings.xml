@@ -41,15 +41,20 @@
     <string name="videos">Videos</string>
     <string name="search_network_title">Network Shares</string>
     <string name="tv_show">TV Show</string>
-    <string name="tv_shows">TV Shows</string>
+    <string name="all_tv_shows">All TV Shows</string>
     <string name="source_path_required_msg">A network path is required</string>
     <string name="season_number">Season %1$d</string>
     <string name="uncategorized">Uncategorized</string>
     <string name="aired">Aired %1$s</string>
+    <string name="all_category_placeholder">All %1$s</string>
     <string name="rating_description">Rated %.1f/10</string>
+    <string name="tv_show_card_description">Season %1$d • Episode %2$d</string>
     <string name="manually_enter_path">Manually Enter Path</string>
     <string name="recently_released">Recently released</string>
     <string name="recently_aired">Recently aired</string>
+    <string name="recently_added_movies">Recently Added Movies</string>
+    <string name="recently_added_tv_episodes">Recently Added TV Episodes</string>
+    <string name="related_videos">Related Videos</string>
 
     <plurals name="numberOfEpisodesAvailable">
         <item quantity="one">1 Episode</item>

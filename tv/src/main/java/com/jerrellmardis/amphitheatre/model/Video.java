@@ -29,6 +29,7 @@ public class Video extends SugarRecord<Video> implements Serializable {
 
     private Movie movie;
     private TvShow tvShow;
+    private long created;
     private String name;
     private String cardImageUrl;
     private String backgroundImageUrl;
@@ -107,5 +108,13 @@ public class Video extends SugarRecord<Video> implements Serializable {
 
     public void setOverview(String overview) {
         this.overview = overview;
+    }
+
+    public long getCreated() {
+        return created;
+    }
+
+    public void setCreated(long created) {
+        this.created = created;
     }
 }
