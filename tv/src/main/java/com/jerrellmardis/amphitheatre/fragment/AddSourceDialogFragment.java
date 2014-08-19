@@ -102,7 +102,7 @@ public class AddSourceDialogFragment extends DialogFragment implements OnSharesF
     @Override
     public void onResume() {
         super.onResume();
-        searchShares();
+//        searchShares();
     }
 
     @Override
