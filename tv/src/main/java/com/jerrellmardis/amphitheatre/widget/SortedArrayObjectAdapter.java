@@ -16,6 +16,7 @@
 
 package com.jerrellmardis.amphitheatre.widget;
 
+import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
@@ -28,7 +29,7 @@ import java.util.Comparator;
 /**
  * Created by Jerrell Mardis on 8/16/14.
  */
-public class SortedArrayObjectAdapter extends ObjectAdapter {
+public class SortedArrayObjectAdapter extends ArrayObjectAdapter {
 
     private SortedList<Object> mItems;
 

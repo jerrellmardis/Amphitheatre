@@ -17,31 +17,17 @@
 package com.jerrellmardis.amphitheatre.activity;
 
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
-import android.content.Context;
 import android.os.Bundle;
 
 import com.jerrellmardis.amphitheatre.R;
-import com.jerrellmardis.amphitheatre.service.UpdateLibraryJob;
+import com.jerrellmardis.amphitheatre.util.Utils;
 
 public class BrowseActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_browse);
-
-        ComponentName jobService = new ComponentName(BrowseActivity.this, UpdateLibraryJob.class);
-        JobInfo updateLibraryJob = new JobInfo.Builder(0, jobService)
-                .setRequiredNetworkCapabilities(JobInfo.NetworkType.ANY)
-                .setPeriodic(AlarmManager.INTERVAL_HALF_HOUR)
-                .build();
-
-        JobScheduler scheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        scheduler.schedule(updateLibraryJob);
+        Utils.scheduleLibraryUpdateService(this);
     }
 }
