@@ -66,7 +66,7 @@ public class CardPresenter extends Presenter {
             holder.mCardView.setContentText(String.format(
                     mContext.getString(R.string.rating_description),
                     video.getMovie().getVoteAverage()));
-        } else if (video.getMovie() != null && video.getMovie().getVoteAverage() == null) {
+        } else if (video.getMovie() != null) {
             holder.mCardView.setContentText(String.format(
                     mContext.getString(R.string.rating_description), 0.0d));
         }

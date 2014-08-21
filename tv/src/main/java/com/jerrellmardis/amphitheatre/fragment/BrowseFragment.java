@@ -59,7 +59,7 @@ import com.jerrellmardis.amphitheatre.util.PicassoBackgroundManagerTarget;
 import com.jerrellmardis.amphitheatre.util.SecurePreferences;
 import com.jerrellmardis.amphitheatre.util.VideoUtils;
 import com.jerrellmardis.amphitheatre.widget.CardPresenter;
-import com.jerrellmardis.amphitheatre.widget.SortedArrayObjectAdapter;
+import com.jerrellmardis.amphitheatre.widget.SortedObjectAdapter;
 import com.jerrellmardis.amphitheatre.widget.TvShowsCardPresenter;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -82,7 +82,6 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     private final Handler mHandler = new Handler();
 
     private Transformation mBlurTransformation;
-
     private Drawable mDefaultBackground;
     private Target mBackgroundTarget;
     private DisplayMetrics mMetrics;
@@ -115,15 +114,6 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     };
 
     @Override
-    public void onStart() {
-        super.onStart();
-        getActivity().registerReceiver(videoUpdateReceiver,
-                new IntentFilter(Constants.VIDEO_UPDATE_ACTION));
-        getActivity().registerReceiver(libraryUpdateReceiver,
-                new IntentFilter(Constants.LIBRARY_UPDATED_ACTION));
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = super.onCreateView(inflater, container, savedInstanceState);
         mCardPresenter = new CardPresenter(getActivity());
@@ -147,6 +137,19 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         } else {
             loadVideos();
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        getActivity().registerReceiver(videoUpdateReceiver,
+                new IntentFilter(Constants.VIDEO_UPDATE_ACTION));
+        getActivity().registerReceiver(libraryUpdateReceiver,
+                new IntentFilter(Constants.LIBRARY_UPDATED_ACTION));
+
+        // TODO video(s) may have been watched before returning back here, so we need to refresh the view.
+        // This could be important if we want to display "watched" indicators on the cards.
     }
 
     @Override
@@ -307,9 +310,9 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
             // if found add this video
             // if not, create a new row and add it
             if (row != null) {
-                ((SortedArrayObjectAdapter) row.getAdapter()).add(video);
+                ((SortedObjectAdapter) row.getAdapter()).add(video);
             } else {
-                SortedArrayObjectAdapter listRowAdapter = new SortedArrayObjectAdapter(
+                SortedObjectAdapter listRowAdapter = new SortedObjectAdapter(
                         videoNameComparator, mCardPresenter);
                 listRowAdapter.add(video);
 
@@ -332,9 +335,9 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                     // if found add this video
                     // if not, create a new row and add it
                     if (row != null) {
-                        ((SortedArrayObjectAdapter) row.getAdapter()).add(video);
+                        ((SortedObjectAdapter) row.getAdapter()).add(video);
                     } else {
-                        SortedArrayObjectAdapter listRowAdapter = new SortedArrayObjectAdapter(
+                        SortedObjectAdapter listRowAdapter = new SortedObjectAdapter(
                                 videoNameComparator, mCardPresenter);
                         listRowAdapter.add(video);
 
@@ -370,10 +373,10 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
                 // if not found, then add the VideoGroup to the row
                 if (!found) {
-                    ((SortedArrayObjectAdapter) row.getAdapter()).add(new VideoGroup(video));
+                    ((SortedObjectAdapter) row.getAdapter()).add(new VideoGroup(video));
                 }
             } else {
-                SortedArrayObjectAdapter listRowAdapter = new SortedArrayObjectAdapter(
+                SortedObjectAdapter listRowAdapter = new SortedObjectAdapter(
                         videoGroupNameComparator, mTvShowsCardPresenter);
                 listRowAdapter.add(new VideoGroup(video));
 

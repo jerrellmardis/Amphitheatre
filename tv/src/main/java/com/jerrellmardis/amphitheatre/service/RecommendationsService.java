@@ -65,7 +65,8 @@ public class RecommendationsService extends IntentService {
         List<Video> videos = Select
                 .from(Video.class)
                 .where(Condition.prop("is_matched").eq(1),
-                        Condition.prop("is_movie").eq(1))
+                        Condition.prop("is_movie").eq(1),
+                        Condition.prop("is_watched").eq(0))
                 .list();
 
         // filter out movies without a release date
@@ -131,7 +132,8 @@ public class RecommendationsService extends IntentService {
         List<Video> videos = Select
                 .from(Video.class)
                 .where(Condition.prop("is_matched").eq(1),
-                        Condition.prop("is_movie").eq(0))
+                        Condition.prop("is_movie").eq(0),
+                        Condition.prop("is_watched").eq(0))
                 .list();
 
         // filter out TV shows without an air,m  date

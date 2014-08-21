@@ -37,6 +37,7 @@ public class Video extends SugarRecord<Video> implements Serializable {
     private String overview;
     private boolean isMatched;
     private boolean isMovie;
+    private boolean isWatched;
 
     public String getName() {
         return name;
@@ -116,5 +117,13 @@ public class Video extends SugarRecord<Video> implements Serializable {
 
     public void setCreated(long created) {
         this.created = created;
+    }
+
+    public boolean isWatched() {
+        return isWatched;
+    }
+
+    public void setWatched(boolean isWatched) {
+        this.isWatched = isWatched;
     }
 }

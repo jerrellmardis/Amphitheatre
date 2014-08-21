@@ -18,6 +18,7 @@ package com.jerrellmardis.amphitheatre.service;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.util.Log;
 
 import com.jerrellmardis.amphitheatre.api.TMDbClient;
 import com.jerrellmardis.amphitheatre.model.Source;
@@ -44,37 +45,43 @@ import static com.jerrellmardis.amphitheatre.model.Source.Type;
  */
 public class LibraryUpdateService extends IntentService {
 
+    private static final String TAG = "LibraryUpdateService";
+
     public LibraryUpdateService() {
         super("LibraryUpdateService");
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        List<Source> sources = Source.listAll(Source.class);
+        try {
+            List<Source> sources = Source.listAll(Source.class);
 
-        if (sources != null && !sources.isEmpty()) {
-            SecurePreferences prefs = new SecurePreferences(getApplicationContext());
-            String user = prefs.getString(Constants.PREFS_USER_KEY, "");
-            String pass = prefs.getString(Constants.PREFS_PASSWORD_KEY, "");
+            if (sources != null && !sources.isEmpty()) {
+                SecurePreferences prefs = new SecurePreferences(getApplicationContext());
+                String user = prefs.getString(Constants.PREFS_USER_KEY, "");
+                String pass = prefs.getString(Constants.PREFS_PASSWORD_KEY, "");
 
-            Config config = TMDbClient.getConfig();
+                Config config = TMDbClient.getConfig();
 
-            for (Source source : sources) {
-                // get a list of files on the device
-                List<SmbFile> systemFiles = DownloadTaskHelper.getFiles(user, pass, getPath(source));
+                for (Source source : sources) {
+                    // get a list of files on the device
+                    List<SmbFile> systemFiles = DownloadTaskHelper.getFiles(user, pass, getPath(source));
 
-                if (systemFiles != null && !systemFiles.isEmpty()) {
-                    // convert the list of SmbFiles to a Map of file paths to SmbFiles
-                    Map<String, SmbFile> systemFileMap = new HashMap<String, SmbFile>(systemFiles.size());
-                    for (SmbFile file : systemFiles) {
-                        systemFileMap.put(file.getPath(), file);
+                    if (systemFiles != null && !systemFiles.isEmpty()) {
+                        // convert the list of SmbFiles to a Map of file paths to SmbFiles
+                        Map<String, SmbFile> systemFileMap = new HashMap<String, SmbFile>(systemFiles.size());
+                        for (SmbFile file : systemFiles) {
+                            systemFileMap.put(file.getPath(), file);
+                        }
+
+                        reconcileVideoFiles(source, config, systemFileMap);
                     }
-
-                    reconcileVideoFiles(source, config, systemFileMap);
                 }
-            }
 
-            sendBroadcast(new Intent(Constants.LIBRARY_UPDATED_ACTION));
+                sendBroadcast(new Intent(Constants.LIBRARY_UPDATED_ACTION));
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "An error occurred while updating the library.", e);
         }
     }
 
