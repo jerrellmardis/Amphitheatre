@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 def loadSecret(String name) {
-    return hasProperty(name) ? getProperty(name) : "3d3550fd6148ae886461aa04cd2c8a17"
+    return hasProperty(name) ? getProperty(name) : "MISSING"
 }
 
 android {
