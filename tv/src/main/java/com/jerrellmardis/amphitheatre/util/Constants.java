@@ -31,6 +31,9 @@ public final class Constants {
     public static final String PREFS_PASSWORD_KEY = "password";
 
     public static final String VIDEO_UPDATE_ACTION = "videoUpdateAction";
+    public static final String LIBRARY_UPDATED_ACTION = "libraryUpdatedAction";
+
+    public static final String VIDEO_UPDATE_ACTION = "videoUpdateAction";
 
     public static final String PALETTE_VISIBILITY = "paletteVisibility";
     public static final String PALETTE_VIBRANCY = "paletteVibrancy";

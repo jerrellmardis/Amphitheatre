@@ -64,7 +64,7 @@
             android:enabled="true"/>
 
         <service
-            android:name=".service.UpdateLibraryJob"
+            android:name=".service.LibraryUpdateService"
             android:enabled="true"
             android:permission="android.permission.BIND_JOB_SERVICE"/>
 

@@ -42,7 +42,8 @@
         android:id="@+id/share_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"/>
 
     <EditText
         android:id="@+id/path"
@@ -52,8 +53,7 @@
         android:layout_marginBottom="8dp"
         android:hint="@string/enter_ip_address"
         android:imeOptions="actionNext"
-        android:inputType="text"
-        android:visibility="gone"/>
+        android:inputType="text"/>
 
     <EditText
         android:id="@+id/user"

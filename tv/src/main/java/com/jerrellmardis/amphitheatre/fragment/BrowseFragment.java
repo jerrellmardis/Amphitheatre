@@ -33,6 +33,7 @@ import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
+import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.OnItemSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
@@ -61,7 +62,7 @@ import com.jerrellmardis.amphitheatre.util.PicassoBackgroundManagerTarget;
 import com.jerrellmardis.amphitheatre.util.SecurePreferences;
 import com.jerrellmardis.amphitheatre.util.VideoUtils;
 import com.jerrellmardis.amphitheatre.widget.CardPresenter;
-import com.jerrellmardis.amphitheatre.widget.SortedArrayObjectAdapter;
+import com.jerrellmardis.amphitheatre.widget.SortedObjectAdapter;
 import com.jerrellmardis.amphitheatre.widget.TvShowsCardPresenter;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -84,7 +85,6 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     private final Handler mHandler = new Handler();
 
     private Transformation mBlurTransformation;
-
     private Drawable mDefaultBackground;
     private Target mBackgroundTarget;
     private DisplayMetrics mMetrics;
@@ -108,32 +108,23 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         }
     };
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        getActivity().registerReceiver(videoUpdateReceiver,
-                new IntentFilter(Constants.VIDEO_UPDATE_ACTION));
-    }
+    private BroadcastReceiver libraryUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            refresh();
+            Toast.makeText(getActivity(), getString(R.string.update_complete),
+                    Toast.LENGTH_SHORT).show();
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = super.onCreateView(inflater, container, savedInstanceState);
-
-        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mCardPresenter = new CardPresenter(getActivity());
         mTvShowsCardPresenter = new TvShowsCardPresenter(getActivity());
-
-        // add a Settings Header and action buttons
-        HeaderItem gridHeader = new HeaderItem(0, getString(R.string.settings), null);
-        ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(new GridItemPresenter());
-        gridRowAdapter.add(getResources().getString(R.string.add_source));
-        gridRowAdapter.add(getResources().getString(R.string.customization));
-
         mAdapter = new ArrayObjectAdapter(new ListRowPresenter());
-        mAdapter.add(new ListRow(gridHeader, gridRowAdapter));
-
+        addSettingsHeader();
         setAdapter(mAdapter);
-
         return v;
     }
 
@@ -147,28 +138,33 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
         if (Video.count(Video.class, null, null) == 0) {
             showAddSourceDialog();
-            mSharedPreferences.edit().putString(Constants.PALETTE_VISIBILITY,
-                    Enums.PalettePresenterType.ALL.name()).apply();
-            mSharedPreferences.edit().putString(Constants.PALETTE_VIBRANCY,
-                    Enums.PaletteType.MUTED.name()).apply();
         } else {
-            List<Video> videos = Source.listAll(Video.class);
-            if (videos != null && !videos.isEmpty()) {
-                for (Video video : videos) {
-                    addVideoToUi(video);
-                }
-
-                refreshSubCategories();
-
-                mAdapter.notifyArrayItemRangeChanged(0, mAdapter.size());
-            }
+            loadVideos();
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        getActivity().registerReceiver(videoUpdateReceiver,
+                new IntentFilter(Constants.VIDEO_UPDATE_ACTION));
+        getActivity().registerReceiver(libraryUpdateReceiver,
+                new IntentFilter(Constants.LIBRARY_UPDATED_ACTION));
+
+        // TODO video(s) may have been watched before returning back here, so we need to refresh the view.
+        // This could be important if we want to display "watched" indicators on the cards.
     }
 
     @Override
     public void onStop() {
         try {
             getActivity().unregisterReceiver(videoUpdateReceiver);
+        } catch (IllegalArgumentException e) {
+            // do nothing
+        }
+        try {
+            getActivity().unregisterReceiver(libraryUpdateReceiver);
         } catch (IllegalArgumentException e) {
             // do nothing
         }
@@ -197,9 +193,9 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                         Toast.makeText(getActivity(), getString(R.string.update_complete),
                                 Toast.LENGTH_SHORT).show();
 
-                        refreshSubCategories();
+                        rebuildSubCategories();
 
-                        mAdapter.notifyArrayItemRangeChanged(0, mAdapter.size());
+                        reloadAdapters();
 
                         updateRecommendations();
                     }
@@ -216,6 +212,30 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         SecurePreferences securePreferences = new SecurePreferences(getActivity().getApplicationContext());
         securePreferences.edit().putString(Constants.PREFS_USER_KEY, user.toString()).apply();
         securePreferences.edit().putString(Constants.PREFS_PASSWORD_KEY, password.toString()).apply();
+    }
+
+    private void reloadAdapters() {
+        for (int i = 0; i < mAdapter.size(); i++) {
+            ListRow listRow = (ListRow) mAdapter.get(i);
+            ObjectAdapter objectAdapter = listRow.getAdapter();
+            if (objectAdapter instanceof ArrayObjectAdapter) {
+                ArrayObjectAdapter arrayObjectAdapter = ((ArrayObjectAdapter) objectAdapter);
+                arrayObjectAdapter.notifyArrayItemRangeChanged(0, arrayObjectAdapter.size());
+            }
+        }
+    }
+
+    private void loadVideos() {
+        List<Video> videos = Source.listAll(Video.class);
+        if (videos != null && !videos.isEmpty()) {
+            for (Video video : videos) {
+                addVideoToUi(video);
+            }
+
+            rebuildSubCategories();
+
+            reloadAdapters();
+        }
     }
 
     private void prepareBackgroundManager() {
@@ -294,9 +314,9 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
             // if found add this video
             // if not, create a new row and add it
             if (row != null) {
-                ((SortedArrayObjectAdapter) row.getAdapter()).add(video);
+                ((SortedObjectAdapter) row.getAdapter()).add(video);
             } else {
-                SortedArrayObjectAdapter listRowAdapter = new SortedArrayObjectAdapter(
+                SortedObjectAdapter listRowAdapter = new SortedObjectAdapter(
                         videoNameComparator, mCardPresenter);
                 listRowAdapter.add(video);
 
@@ -319,9 +339,9 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                     // if found add this video
                     // if not, create a new row and add it
                     if (row != null) {
-                        ((SortedArrayObjectAdapter) row.getAdapter()).add(video);
+                        ((SortedObjectAdapter) row.getAdapter()).add(video);
                     } else {
-                        SortedArrayObjectAdapter listRowAdapter = new SortedArrayObjectAdapter(
+                        SortedObjectAdapter listRowAdapter = new SortedObjectAdapter(
                                 videoNameComparator, mCardPresenter);
                         listRowAdapter.add(video);
 
@@ -357,10 +377,10 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
                 // if not found, then add the VideoGroup to the row
                 if (!found) {
-                    ((SortedArrayObjectAdapter) row.getAdapter()).add(new VideoGroup(video));
+                    ((SortedObjectAdapter) row.getAdapter()).add(new VideoGroup(video));
                 }
             } else {
-                SortedArrayObjectAdapter listRowAdapter = new SortedArrayObjectAdapter(
+                SortedObjectAdapter listRowAdapter = new SortedObjectAdapter(
                         videoGroupNameComparator, mTvShowsCardPresenter);
                 listRowAdapter.add(new VideoGroup(video));
 
@@ -370,7 +390,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         }
     }
 
-    private void refreshSubCategories() {
+    private void rebuildSubCategories() {
         List<Video> videos = Video.listAll(Video.class);
         Collections.sort(videos, new Comparator<Video>() {
             @Override
@@ -433,6 +453,20 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         }
     }
 
+    private void refresh() {
+        mAdapter = new ArrayObjectAdapter(new ListRowPresenter());
+        addSettingsHeader();
+        loadVideos();
+        setAdapter(mAdapter);
+    }
+
+    private void addSettingsHeader() {
+        HeaderItem gridHeader = new HeaderItem(0, getString(R.string.settings), null);
+        ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(new GridItemPresenter());
+        gridRowAdapter.add(getString(R.string.add_source));
+        mAdapter.add(new ListRow(gridHeader, gridRowAdapter));
+    }
+
     private ListRow findListRow(String headerName) {
         for (int i = 0; i < mAdapter.size(); i++) {
             ListRow row = (ListRow) mAdapter.get(i);
@@ -485,7 +519,6 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         return new OnItemSelectedListener() {
             @Override
             public void onItemSelected(Object item, Row row) {
-
                 if (item instanceof Video) {
                     try {
                         mBackgroundImageUrl = ((Video) item).getBackgroundImageUrl();

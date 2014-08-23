@@ -23,8 +23,11 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.jerrellmardis.amphitheatre.service.RecommendationsService;
+import com.jerrellmardis.amphitheatre.util.Utils;
 
 public class BootupActivity extends BroadcastReceiver {
+
+    public static final int RECOMMENDATIONS_UPDATE_REQUEST_CODE = 0;
 
     private static final long INITIAL_DELAY = 5000;
 
@@ -32,13 +35,15 @@ public class BootupActivity extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().endsWith(Intent.ACTION_BOOT_COMPLETED)) {
             scheduleRecommendationUpdate(context);
+            Utils.scheduleLibraryUpdateService(context);
         }
     }
 
     private void scheduleRecommendationUpdate(Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent recommendationIntent = new Intent(context, RecommendationsService.class);
-        PendingIntent alarmIntent = PendingIntent.getService(context, 0, recommendationIntent, 0);
+        Intent intent = new Intent(context, RecommendationsService.class);
+        PendingIntent alarmIntent = PendingIntent.getService(context,
+                RECOMMENDATIONS_UPDATE_REQUEST_CODE, intent, 0);
 
         alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 INITIAL_DELAY,

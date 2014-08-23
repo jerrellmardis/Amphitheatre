@@ -32,8 +32,18 @@ public class Streamer extends StreamServer {
 	private SmbFile file;
 	protected List<SmbFile> extras; // those can be subtitles
 	private static Streamer instance;
+    private OnStreamListener onStreamListener;
 
-	protected Streamer(int port) throws IOException {
+    public interface OnStreamListener {
+        void onStream(int percentStreamed);
+        void onPlay();
+    }
+
+    public void setOnStreamListener(OnStreamListener onStreamListener) {
+        this.onStreamListener = onStreamListener;
+    }
+
+    protected Streamer(int port) throws IOException {
 		super(port, new File("."));
 	}
 
@@ -83,7 +93,7 @@ public class Streamer extends StreamServer {
 								startFrom = Long.parseLong(range.substring(0, minus));
 								endAt = Long.parseLong(range.substring(minus + 1));
 							}
-						} catch (NumberFormatException nfe) {}						
+						} catch (NumberFormatException nfe) {}
 					}
 				}
 				Log.d("Streamer", "Request: " + range + " from: " + startFrom + ", to: " + endAt);
@@ -106,6 +116,11 @@ public class Streamer extends StreamServer {
 						source.moveTo(startFrom);
 						Log.d("Streamer", "Skipped " + startFrom + " bytes");
 
+                        if (onStreamListener != null) {
+                            int percentStreamed = Math.round((startFrom / (float) endAt) * 100);
+                            onStreamListener.onStream(percentStreamed);
+                        }
+
 						res = new Response(HTTP_PARTIALCONTENT, source.getMimeType(), source);
 						res.addHeader("Content-length", "" + dataLen);
 						res.addHeader("Content-Range", "bytes " + startFrom + "-" + endAt + "/" + fileLen);
@@ -114,6 +129,9 @@ public class Streamer extends StreamServer {
 					source.reset();
 					res = new Response(HTTP_OK, source.getMimeType(), source);
 					res.addHeader("Content-Length", "" + fileLen);
+                    if (onStreamListener != null) {
+                        onStreamListener.onPlay();
+                    }
 				}
 			}
 		} catch (IOException ioe) {

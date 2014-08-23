@@ -24,6 +24,8 @@ import android.os.Bundle;
 
 import com.jerrellmardis.amphitheatre.model.Video;
 import com.jerrellmardis.amphitheatre.server.Streamer;
+import com.orm.query.Condition;
+import com.orm.query.Select;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -55,6 +57,31 @@ public class VideoUtils {
 
         if (activity != null) {
             final Streamer streamer = Streamer.getInstance();
+            streamer.setOnStreamListener(new Streamer.OnStreamListener() {
+                @Override
+                public void onStream(int percentStreamed) {
+                    // FIXME Ideally, the watch status should only get set once the server has streamed a certain % of the video.
+                    // Unfortunately a partial stream is only set when a user has requested to play a partially watched video.
+                }
+
+                @Override
+                public void onPlay() {
+                    video.setWatched(true);
+
+                    List<Video> videos = Select
+                            .from(Video.class)
+                            .where(Condition.prop("video_url").eq(video.getVideoUrl()))
+                            .list();
+
+                    if (!videos.isEmpty()) {
+                        Video vid = videos.get(0);
+                        if (!vid.isWatched()) {
+                            vid.setWatched(true);
+                            vid.save();
+                        }
+                    }
+                }
+            });
 
             new Thread() {
                 public void run() {
