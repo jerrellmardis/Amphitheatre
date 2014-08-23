@@ -22,10 +22,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v17.leanback.app.BackgroundManager;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
@@ -54,6 +56,7 @@ import com.jerrellmardis.amphitheatre.service.RecommendationsService;
 import com.jerrellmardis.amphitheatre.task.GetFilesTask;
 import com.jerrellmardis.amphitheatre.util.BlurTransform;
 import com.jerrellmardis.amphitheatre.util.Constants;
+import com.jerrellmardis.amphitheatre.util.Enums;
 import com.jerrellmardis.amphitheatre.util.PicassoBackgroundManagerTarget;
 import com.jerrellmardis.amphitheatre.util.SecurePreferences;
 import com.jerrellmardis.amphitheatre.util.VideoUtils;
@@ -90,6 +93,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     private ArrayObjectAdapter mAdapter;
     private CardPresenter mCardPresenter;
     private TvShowsCardPresenter mTvShowsCardPresenter;
+    private SharedPreferences mSharedPreferences;
 
     private BroadcastReceiver videoUpdateReceiver = new BroadcastReceiver() {
         @Override
@@ -115,6 +119,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = super.onCreateView(inflater, container, savedInstanceState);
 
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mCardPresenter = new CardPresenter(getActivity());
         mTvShowsCardPresenter = new TvShowsCardPresenter(getActivity());
 
@@ -122,6 +127,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         HeaderItem gridHeader = new HeaderItem(0, getString(R.string.settings), null);
         ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(new GridItemPresenter());
         gridRowAdapter.add(getResources().getString(R.string.add_source));
+        gridRowAdapter.add(getResources().getString(R.string.customization));
 
         mAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         mAdapter.add(new ListRow(gridHeader, gridRowAdapter));
@@ -141,6 +147,10 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
         if (Video.count(Video.class, null, null) == 0) {
             showAddSourceDialog();
+            mSharedPreferences.edit().putString(Constants.PALETTE_VISIBILITY,
+                    Enums.PalettePresenterType.ALL.name()).apply();
+            mSharedPreferences.edit().putString(Constants.PALETTE_VIBRANCY,
+                    Enums.PaletteType.MUTED.name()).apply();
         } else {
             List<Video> videos = Source.listAll(Video.class);
             if (videos != null && !videos.isEmpty()) {
@@ -475,6 +485,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         return new OnItemSelectedListener() {
             @Override
             public void onItemSelected(Object item, Row row) {
+
                 if (item instanceof Video) {
                     try {
                         mBackgroundImageUrl = ((Video) item).getBackgroundImageUrl();
@@ -527,6 +538,8 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                     }
                 } else if (item instanceof String && ((String) item).contains(getString(R.string.add_source))) {
                     showAddSourceDialog();
+                } else if (item instanceof String && ((String) item).contains(getString(R.string.customization))) {
+                    showCustomizeDialog();
                 }
             }
         };
@@ -537,6 +550,13 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         AddSourceDialogFragment addSourceDialog = AddSourceDialogFragment.newInstance();
         addSourceDialog.setTargetFragment(this, 0);
         addSourceDialog.show(fm, AddSourceDialogFragment.class.getSimpleName());
+    }
+
+    private void showCustomizeDialog() {
+        FragmentManager fragmentManager = getFragmentManager();
+        CustomizeFragment customizeFragment = new CustomizeFragment();
+        customizeFragment.setTargetFragment(this, 0);
+        customizeFragment.show(fragmentManager, CustomizeFragment.class.getSimpleName());
     }
 
     private class UpdateBackgroundTask extends TimerTask {

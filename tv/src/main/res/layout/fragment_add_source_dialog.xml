@@ -102,16 +102,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:gravity="right"
+        android:gravity="end"
+        android:divider="@null"
+        style="?android:attr/buttonBarStyle"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/cancel_button"
             android:layout_width="88dp"
             android:layout_height="match_parent"
-            android:background="@null"
             android:text="@string/cancel"
             android:textAllCaps="true"
+            style="?android:attr/buttonBarButtonStyle"
             android:textColor="@drawable/dialog_button_text_selector"
             android:textStyle="bold"/>
 
@@ -119,9 +121,9 @@
             android:id="@+id/add_button"
             android:layout_width="88dp"
             android:layout_height="match_parent"
-            android:background="@null"
             android:text="@string/add"
             android:textAllCaps="true"
+            style="?android:attr/buttonBarButtonStyle"
             android:textColor="@drawable/dialog_button_text_selector"
             android:textStyle="bold"/>
 

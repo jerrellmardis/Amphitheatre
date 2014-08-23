@@ -90,7 +90,8 @@ public class AddSourceDialogFragment extends DialogFragment implements OnSharesF
         return dialog;
     }
 
-    @Override public void onActivityCreated(Bundle savedInstanceState) {
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mShareAdapter = new ArrayAdapter<String>(getActivity(),
                 android.R.layout.simple_spinner_item);

@@ -37,6 +37,13 @@
     <string name="play">Play</string>
     <string name="error">Error</string>
     <string name="ok">OK</string>
+    <string name="muted_palette">Muted</string>
+    <string name="vibrant_palette">Vibrant</string>
+    <string name="no_card">None</string>
+    <string name="single_card">One</string>
+    <string name="all_cards">All</string>
+    <string name="type_lbl">Color strength:</string>
+    <string name="visible_lbl">Color palette visible on:</string>
     <string name="released">Released %1$s</string>
     <string name="videos">Videos</string>
     <string name="search_network_title">Network Shares</string>
@@ -60,5 +67,7 @@
         <item quantity="one">1 Episode</item>
         <item quantity="other">%d Episodes</item>
     </plurals>
+
+    <string name="customization">Customization</string>
 
 </resources>
