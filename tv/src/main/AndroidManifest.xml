@@ -47,7 +47,7 @@
         </activity>
 
         <activity android:name=".activity.DetailsActivity"/>
-
+        <activity android:name=".activity.GridViewActivity"/>
         <activity android:name=".activity.SearchActivity"/>
 
         <receiver

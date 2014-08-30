@@ -17,6 +17,7 @@
 package com.jerrellmardis.amphitheatre.fragment;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.app.BackgroundManager;
 import android.support.v17.leanback.app.DetailsFragment;
@@ -27,6 +28,7 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 
 import com.jerrellmardis.amphitheatre.R;
+import com.jerrellmardis.amphitheatre.activity.DetailsActivity;
 import com.jerrellmardis.amphitheatre.listeners.RowBuilderTaskListener;
 import com.jerrellmardis.amphitheatre.model.Video;
 import com.jerrellmardis.amphitheatre.model.VideoGroup;
@@ -107,7 +109,11 @@ public class VideoDetailsFragment extends DetailsFragment implements RowBuilderT
             @Override
             public void onItemClicked(Object item, Row row) {
                 if (item instanceof Video) {
-                    VideoUtils.playVideo(new WeakReference<Activity>(getActivity()), (Video) item);
+                    //VideoUtils.playVideo(new WeakReference<Activity>(getActivity()), (Video) item);
+                    Intent intent = new Intent(getActivity(), DetailsActivity.class);
+                    intent.putExtra(Constants.IS_VIDEO, true);
+                    intent.putExtra(Constants.VIDEO, (Video) item);
+                    startActivity(intent);
                 }
             }
         };
