@@ -22,9 +22,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v17.leanback.app.BackgroundManager;
@@ -35,21 +33,19 @@ import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.OnItemSelectedListener;
-import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jerrellmardis.amphitheatre.R;
 import com.jerrellmardis.amphitheatre.activity.DetailsActivity;
 import com.jerrellmardis.amphitheatre.activity.GridViewActivity;
 import com.jerrellmardis.amphitheatre.activity.SearchActivity;
+import com.jerrellmardis.amphitheatre.model.GridGenre;
 import com.jerrellmardis.amphitheatre.model.Source;
 import com.jerrellmardis.amphitheatre.model.Video;
 import com.jerrellmardis.amphitheatre.model.VideoGroup;
@@ -57,11 +53,11 @@ import com.jerrellmardis.amphitheatre.service.RecommendationsService;
 import com.jerrellmardis.amphitheatre.task.GetFilesTask;
 import com.jerrellmardis.amphitheatre.util.BlurTransform;
 import com.jerrellmardis.amphitheatre.util.Constants;
-import com.jerrellmardis.amphitheatre.util.LoadUtil;
 import com.jerrellmardis.amphitheatre.util.PicassoBackgroundManagerTarget;
 import com.jerrellmardis.amphitheatre.util.SecurePreferences;
 import com.jerrellmardis.amphitheatre.util.VideoUtils;
 import com.jerrellmardis.amphitheatre.widget.CardPresenter;
+import com.jerrellmardis.amphitheatre.widget.GridItemPresenter;
 import com.jerrellmardis.amphitheatre.widget.SortedObjectAdapter;
 import com.jerrellmardis.amphitheatre.widget.TvShowsCardPresenter;
 import com.squareup.picasso.Picasso;
@@ -73,7 +69,9 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -142,20 +140,6 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
             loadVideos();
         }
 
-    }
-
-    private class MyMoviesTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            LoadUtil.createData();
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            loadVideos();
-        }
     }
 
     @Override
@@ -471,48 +455,51 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     }
 
     private void addGenresHeader(List<Video> videos) {
+        Set<String> movieGenres = new HashSet<String>(videos.size());
+        Set<String> tvShowGenres = new HashSet<String>(videos.size());
 
-        List<String> movieGenres = new ArrayList<String>();
-        List<String> tvShowGenres = new ArrayList<String>();
-        for(Video video : videos) {
-            if(video.isMovie()) {
-                if(video.getMovie().getFlattenedGenres() != null) {
+        for (Video video : videos) {
+            if (video.isMovie()) {
+                if (video.getMovie() != null && video.getMovie().getFlattenedGenres() != null) {
                     String[] gs = video.getMovie().getFlattenedGenres().split(",");
-                    if(gs != null && gs.length > 0) {
-                        for(String genre : gs) {
-                            if(genre.trim().length() > 0 && !movieGenres.contains(genre)) movieGenres.add(genre);
+                    if (gs.length > 0) {
+                        for (String genre : gs) {
+                            if (genre.trim().length() > 0) {
+                                movieGenres.add(genre);
+                            }
                         }
                     }
                 }
-            }
-            else {
-                if(video.getTvShow().getFlattenedGenres() != null) {
+            } else {
+                if (video.getTvShow() != null && video.getTvShow().getFlattenedGenres() != null) {
                     String[] gs = video.getTvShow().getFlattenedGenres().split(",");
-                    if(gs != null && gs.length > 0) {
-                        for(String genre : gs) {
-                            if(genre.trim().length() > 0 && !tvShowGenres.contains(genre)) tvShowGenres.add(genre);
+                    if (gs.length > 0) {
+                        for (String genre : gs) {
+                            if (genre.trim().length() > 0) {
+                                tvShowGenres.add(genre);
+                            }
                         }
                     }
                 }
             }
         }
 
-        if(movieGenres.size() > 0) {
+        if (!movieGenres.isEmpty()) {
             HeaderItem gridHeader = new HeaderItem(0, getString(R.string.movies_genre), null);
-            ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(new GridItemPresenter());
-            for(String genre : movieGenres) {
-                gridRowAdapter.add(new GridGenre(genre, 1));
+            ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(new GridItemPresenter(getActivity()));
+            for (String genre : movieGenres) {
+                gridRowAdapter.add(new GridGenre(genre, Source.Type.MOVIE));
             }
-            mAdapter.add(mAdapter.size()-1, new ListRow(gridHeader, gridRowAdapter));
+            mAdapter.add(mAdapter.size() - 1, new ListRow(gridHeader, gridRowAdapter));
         }
 
-        if(tvShowGenres.size() > 0) {
+        if (!tvShowGenres.isEmpty()) {
             HeaderItem gridHeader = new HeaderItem(0, getString(R.string.tvshows_genre), null);
-            ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(new GridItemPresenter());
-            for(String genre : tvShowGenres) {
-                gridRowAdapter.add(new GridGenre(genre, 2));
+            ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(new GridItemPresenter(getActivity()));
+            for (String genre : tvShowGenres) {
+                gridRowAdapter.add(new GridGenre(genre, Source.Type.TV_SHOW));
             }
-            mAdapter.add(mAdapter.size()-1, new ListRow(gridHeader, gridRowAdapter));
+            mAdapter.add(mAdapter.size() - 1, new ListRow(gridHeader, gridRowAdapter));
         }
     }
 
@@ -525,8 +512,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
     private void addSettingsHeader() {
         HeaderItem gridHeader = new HeaderItem(0, getString(R.string.settings), null);
-        ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(new GridItemPresenter());
-        //gridRowAdapter.add(getString(R.string.grid_view));
+        ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(new GridItemPresenter(getActivity()));
         gridRowAdapter.add(getString(R.string.add_source));
         mAdapter.add(new ListRow(gridHeader, gridRowAdapter));
     }
@@ -633,20 +619,17 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                     } else {
                         VideoUtils.playVideo(new WeakReference<Activity>(getActivity()), (Video) item);
                     }
-                }
-                else if(item instanceof GridGenre) {
+                } else if (item instanceof GridGenre) {
                     GridGenre genre = (GridGenre) item;
                     Intent intent = new Intent(getActivity(), GridViewActivity.class);
-                    intent.putExtra(Constants.GENRE, genre.title);
-                    if(genre.type == 1) {
+                    intent.putExtra(Constants.GENRE, genre.getTitle());
+                    if (genre.getType() == Source.Type.MOVIE) {
                         intent.putExtra(Constants.IS_VIDEO, true);
-                    }
-                    else {
+                    } else {
                         intent.putExtra(Constants.IS_VIDEO, false);
                     }
                     startActivity(intent);
-                }
-                else if (item instanceof String && ((String) item).contains(getString(R.string.add_source))) {
+                } else if (item instanceof String && ((String) item).contains(getString(R.string.add_source))) {
                     showAddSourceDialog();
                 }
             }
@@ -674,45 +657,5 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                 }
             });
         }
-    }
-
-    private class GridItemPresenter extends Presenter {
-
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent) {
-            TextView view = new TextView(parent.getContext());
-            view.setLayoutParams(new ViewGroup.LayoutParams(240, 240));
-            view.setFocusable(true);
-            view.setFocusableInTouchMode(true);
-            view.setBackgroundColor(getResources().getColor(R.color.primary));
-            view.setTextColor(Color.WHITE);
-            view.setGravity(Gravity.CENTER);
-            return new ViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(ViewHolder viewHolder, Object item) {
-            if(item instanceof GridGenre) {
-                ((TextView) viewHolder.view).setText(((GridGenre) item).title);
-            }
-            else {
-                ((TextView) viewHolder.view).setText((String) item);
-            }
-        }
-
-        @Override
-        public void onUnbindViewHolder(ViewHolder viewHolder) { }
-    }
-
-    private class GridGenre {
-
-        GridGenre(String title, int type) {
-            this.title = title;
-            this.type = type;
-        }
-
-        String title;
-        int type;
-
     }
 }

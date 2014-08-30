@@ -16,7 +16,6 @@
 
 package com.jerrellmardis.amphitheatre.fragment;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.app.BackgroundManager;
@@ -36,14 +35,12 @@ import com.jerrellmardis.amphitheatre.task.DetailRowBuilderTask;
 import com.jerrellmardis.amphitheatre.util.BlurTransform;
 import com.jerrellmardis.amphitheatre.util.Constants;
 import com.jerrellmardis.amphitheatre.util.PicassoBackgroundManagerTarget;
-import com.jerrellmardis.amphitheatre.util.VideoUtils;
 import com.orm.query.Condition;
 import com.orm.query.Select;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.squareup.picasso.Transformation;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -109,7 +106,6 @@ public class VideoDetailsFragment extends DetailsFragment implements RowBuilderT
             @Override
             public void onItemClicked(Object item, Row row) {
                 if (item instanceof Video) {
-                    //VideoUtils.playVideo(new WeakReference<Activity>(getActivity()), (Video) item);
                     Intent intent = new Intent(getActivity(), DetailsActivity.class);
                     intent.putExtra(Constants.IS_VIDEO, true);
                     intent.putExtra(Constants.VIDEO, (Video) item);

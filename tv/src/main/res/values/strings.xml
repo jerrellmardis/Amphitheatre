@@ -20,7 +20,7 @@
     <string name="browse_title">My Collection</string>
     <string name="settings">Settings</string>
     <string name="movies_genre">Movies by Genre</string>
-    <string name="tvshows_genre">Tv Shows by Genre</string>
+    <string name="tvshows_genre">TV Shows by Genre</string>
     <string name="tv_shows">TV Shows</string>
     <string name="movies">Movies</string>
     <string name="add_source">Add Source</string>
