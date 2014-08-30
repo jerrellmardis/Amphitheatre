@@ -16,10 +16,12 @@
 
 package com.jerrellmardis.amphitheatre.api;
 
+import com.google.gson.Gson;
 import com.jerrellmardis.amphitheatre.model.guessit.Guess;
 import com.jerrellmardis.amphitheatre.util.ApiConstants;
 
 import retrofit.RestAdapter;
+import retrofit.converter.GsonConverter;
 import retrofit.http.GET;
 import retrofit.http.Query;
 
@@ -38,7 +40,7 @@ public class GuessItClient {
     private static GuessItService getService() {
         if (service == null) {
             RestAdapter restAdapter = new RestAdapter.Builder()
-                    .setConverter(Util.JSON_CONVERTER)
+                    .setConverter(new GsonConverter(new Gson()))
                     .setEndpoint(ApiConstants.GUESS_IT_SERVER_URL)
                     .build();
             service = restAdapter.create(GuessItService.class);
