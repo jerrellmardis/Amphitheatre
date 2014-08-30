@@ -74,6 +74,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeSet;
 
 import static android.view.View.OnClickListener;
 
@@ -418,23 +419,16 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         ListRow unMatchedRow = findListRow(getString(R.string.unmatched));
 
         // recently added movies
-        if (!movies.isEmpty()) {
-            ListRow row = findListRow(getString(R.string.recently_added_movies));
-            if (row != null) {
-                ((ArrayObjectAdapter) row.getAdapter()).clear();
-                ((ArrayObjectAdapter) row.getAdapter()).addAll(0, movies);
-            } else {
-                ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(mCardPresenter);
-                listRowAdapter.addAll(0, movies);
-
-                HeaderItem header = new HeaderItem(0, getString(R.string.recently_added_movies), null);
-                int index = mAdapter.size() > 1 ? mAdapter.size() - 1 : 0;
-                if (unMatchedRow != null) index -= 1;
-                mAdapter.add(index, new ListRow(header, listRowAdapter));
-            }
-        }
+        addRecentlyAddedMovies(movies, unMatchedRow);
 
         // recently added TV shows
+        addRecentlyAddedTvShows(tvShows, unMatchedRow);
+
+        // add genres for movies & TV Shows
+        addGenres(videos, unMatchedRow);
+    }
+
+    private void addRecentlyAddedTvShows(List<Video> tvShows, ListRow unMatchedRow) {
         if (!tvShows.isEmpty()) {
             ListRow row = findListRow(getString(R.string.recently_added_tv_episodes));
             if (row != null) {
@@ -450,13 +444,29 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                 mAdapter.add(index, new ListRow(header, listRowAdapter));
             }
         }
-
-        addGenresHeader(videos);
     }
 
-    private void addGenresHeader(List<Video> videos) {
-        Set<String> movieGenres = new HashSet<String>(videos.size());
-        Set<String> tvShowGenres = new HashSet<String>(videos.size());
+    private void addRecentlyAddedMovies(List<Video> movies, ListRow unMatchedRow) {
+        if (!movies.isEmpty()) {
+            ListRow row = findListRow(getString(R.string.recently_added_movies));
+            if (row != null) {
+                ((ArrayObjectAdapter) row.getAdapter()).clear();
+                ((ArrayObjectAdapter) row.getAdapter()).addAll(0, movies);
+            } else {
+                ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(mCardPresenter);
+                listRowAdapter.addAll(0, movies);
+
+                HeaderItem header = new HeaderItem(0, getString(R.string.recently_added_movies), null);
+                int index = mAdapter.size() > 1 ? mAdapter.size() - 1 : 0;
+                if (unMatchedRow != null) index -= 1;
+                mAdapter.add(index, new ListRow(header, listRowAdapter));
+            }
+        }
+    }
+
+    private void addGenres(List<Video> videos, ListRow unMatchedRow) {
+        Set<String> movieGenres = new TreeSet<String>();
+        Set<String> tvShowGenres = new TreeSet<String>();
 
         for (Video video : videos) {
             if (video.isMovie()) {
@@ -490,7 +500,9 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
             for (String genre : movieGenres) {
                 gridRowAdapter.add(new GridGenre(genre, Source.Type.MOVIE));
             }
-            mAdapter.add(mAdapter.size() - 1, new ListRow(gridHeader, gridRowAdapter));
+            int index = mAdapter.size() > 1 ? mAdapter.size() - 1 : 0;
+            if (unMatchedRow != null) index -= 1;
+            mAdapter.add(index, new ListRow(gridHeader, gridRowAdapter));
         }
 
         if (!tvShowGenres.isEmpty()) {
@@ -499,7 +511,9 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
             for (String genre : tvShowGenres) {
                 gridRowAdapter.add(new GridGenre(genre, Source.Type.TV_SHOW));
             }
-            mAdapter.add(mAdapter.size() - 1, new ListRow(gridHeader, gridRowAdapter));
+            int index = mAdapter.size() > 1 ? mAdapter.size() - 1 : 0;
+            if (unMatchedRow != null) index -= 1;
+            mAdapter.add(index, new ListRow(gridHeader, gridRowAdapter));
         }
     }
 
