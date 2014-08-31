@@ -22,7 +22,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,20 +33,19 @@ import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemClickedListener;
 import android.support.v17.leanback.widget.OnItemSelectedListener;
-import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jerrellmardis.amphitheatre.R;
 import com.jerrellmardis.amphitheatre.activity.DetailsActivity;
+import com.jerrellmardis.amphitheatre.activity.GridViewActivity;
 import com.jerrellmardis.amphitheatre.activity.SearchActivity;
+import com.jerrellmardis.amphitheatre.model.GridGenre;
 import com.jerrellmardis.amphitheatre.model.Source;
 import com.jerrellmardis.amphitheatre.model.Video;
 import com.jerrellmardis.amphitheatre.model.VideoGroup;
@@ -59,6 +57,7 @@ import com.jerrellmardis.amphitheatre.util.PicassoBackgroundManagerTarget;
 import com.jerrellmardis.amphitheatre.util.SecurePreferences;
 import com.jerrellmardis.amphitheatre.util.VideoUtils;
 import com.jerrellmardis.amphitheatre.widget.CardPresenter;
+import com.jerrellmardis.amphitheatre.widget.GridItemPresenter;
 import com.jerrellmardis.amphitheatre.widget.SortedObjectAdapter;
 import com.jerrellmardis.amphitheatre.widget.TvShowsCardPresenter;
 import com.squareup.picasso.Picasso;
@@ -71,8 +70,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeSet;
 
 import static android.view.View.OnClickListener;
 
@@ -132,11 +133,13 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         setupUIElements();
         setupEventListeners();
 
+
         if (Video.count(Video.class, null, null) == 0) {
             showAddSourceDialog();
         } else {
             loadVideos();
         }
+
     }
 
     @Override
@@ -415,23 +418,16 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         ListRow unMatchedRow = findListRow(getString(R.string.unmatched));
 
         // recently added movies
-        if (!movies.isEmpty()) {
-            ListRow row = findListRow(getString(R.string.recently_added_movies));
-            if (row != null) {
-                ((ArrayObjectAdapter) row.getAdapter()).clear();
-                ((ArrayObjectAdapter) row.getAdapter()).addAll(0, movies);
-            } else {
-                ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(mCardPresenter);
-                listRowAdapter.addAll(0, movies);
-
-                HeaderItem header = new HeaderItem(0, getString(R.string.recently_added_movies), null);
-                int index = mAdapter.size() > 1 ? mAdapter.size() - 1 : 0;
-                if (unMatchedRow != null) index -= 1;
-                mAdapter.add(index, new ListRow(header, listRowAdapter));
-            }
-        }
+        addRecentlyAddedMovies(movies, unMatchedRow);
 
         // recently added TV shows
+        addRecentlyAddedTvShows(tvShows, unMatchedRow);
+
+        // add genres for movies & TV Shows
+        addGenres(videos, unMatchedRow);
+    }
+
+    private void addRecentlyAddedTvShows(List<Video> tvShows, ListRow unMatchedRow) {
         if (!tvShows.isEmpty()) {
             ListRow row = findListRow(getString(R.string.recently_added_tv_episodes));
             if (row != null) {
@@ -449,6 +445,77 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         }
     }
 
+    private void addRecentlyAddedMovies(List<Video> movies, ListRow unMatchedRow) {
+        if (!movies.isEmpty()) {
+            ListRow row = findListRow(getString(R.string.recently_added_movies));
+            if (row != null) {
+                ((ArrayObjectAdapter) row.getAdapter()).clear();
+                ((ArrayObjectAdapter) row.getAdapter()).addAll(0, movies);
+            } else {
+                ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(mCardPresenter);
+                listRowAdapter.addAll(0, movies);
+
+                HeaderItem header = new HeaderItem(0, getString(R.string.recently_added_movies), null);
+                int index = mAdapter.size() > 1 ? mAdapter.size() - 1 : 0;
+                if (unMatchedRow != null) index -= 1;
+                mAdapter.add(index, new ListRow(header, listRowAdapter));
+            }
+        }
+    }
+
+    private void addGenres(List<Video> videos, ListRow unMatchedRow) {
+        Set<String> movieGenres = new TreeSet<String>();
+        Set<String> tvShowGenres = new TreeSet<String>();
+
+        for (Video video : videos) {
+            if (video.isMovie()) {
+                if (video.getMovie() != null && video.getMovie().getFlattenedGenres() != null) {
+                    String[] gs = video.getMovie().getFlattenedGenres().split(",");
+                    if (gs.length > 0) {
+                        for (String genre : gs) {
+                            if (genre.trim().length() > 0) {
+                                movieGenres.add(genre);
+                            }
+                        }
+                    }
+                }
+            } else {
+                if (video.getTvShow() != null && video.getTvShow().getFlattenedGenres() != null) {
+                    String[] gs = video.getTvShow().getFlattenedGenres().split(",");
+                    if (gs.length > 0) {
+                        for (String genre : gs) {
+                            if (genre.trim().length() > 0) {
+                                tvShowGenres.add(genre);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!movieGenres.isEmpty()) {
+            HeaderItem gridHeader = new HeaderItem(0, getString(R.string.movies_genre), null);
+            ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(new GridItemPresenter(getActivity()));
+            for (String genre : movieGenres) {
+                gridRowAdapter.add(new GridGenre(genre, Source.Type.MOVIE));
+            }
+            int index = mAdapter.size() > 1 ? mAdapter.size() - 1 : 0;
+            if (unMatchedRow != null) index -= 1;
+            mAdapter.add(index, new ListRow(gridHeader, gridRowAdapter));
+        }
+
+        if (!tvShowGenres.isEmpty()) {
+            HeaderItem gridHeader = new HeaderItem(0, getString(R.string.tvshows_genre), null);
+            ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(new GridItemPresenter(getActivity()));
+            for (String genre : tvShowGenres) {
+                gridRowAdapter.add(new GridGenre(genre, Source.Type.TV_SHOW));
+            }
+            int index = mAdapter.size() > 1 ? mAdapter.size() - 1 : 0;
+            if (unMatchedRow != null) index -= 1;
+            mAdapter.add(index, new ListRow(gridHeader, gridRowAdapter));
+        }
+    }
+
     private void refresh() {
         mAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         addSettingsHeader();
@@ -458,7 +525,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
     private void addSettingsHeader() {
         HeaderItem gridHeader = new HeaderItem(0, getString(R.string.settings), null);
-        ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(new GridItemPresenter());
+        ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(new GridItemPresenter(getActivity()));
         gridRowAdapter.add(getString(R.string.add_source));
         gridRowAdapter.add(getString(R.string.customization));
         mAdapter.add(new ListRow(gridHeader, gridRowAdapter));
@@ -566,6 +633,16 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                     } else {
                         VideoUtils.playVideo(new WeakReference<Activity>(getActivity()), (Video) item);
                     }
+                } else if (item instanceof GridGenre) {
+                    GridGenre genre = (GridGenre) item;
+                    Intent intent = new Intent(getActivity(), GridViewActivity.class);
+                    intent.putExtra(Constants.GENRE, genre.getTitle());
+                    if (genre.getType() == Source.Type.MOVIE) {
+                        intent.putExtra(Constants.IS_VIDEO, true);
+                    } else {
+                        intent.putExtra(Constants.IS_VIDEO, false);
+                    }
+                    startActivity(intent);
                 } else if (item instanceof String && ((String) item).contains(getString(R.string.add_source))) {
                     showAddSourceDialog();
                 } else if (item instanceof String && ((String) item).contains(getString(R.string.customization))) {
@@ -615,28 +692,5 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                 }
             });
         }
-    }
-
-    private class GridItemPresenter extends Presenter {
-
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent) {
-            TextView view = new TextView(parent.getContext());
-            view.setLayoutParams(new ViewGroup.LayoutParams(240, 240));
-            view.setFocusable(true);
-            view.setFocusableInTouchMode(true);
-            view.setBackgroundColor(getResources().getColor(R.color.primary));
-            view.setTextColor(Color.WHITE);
-            view.setGravity(Gravity.CENTER);
-            return new ViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(ViewHolder viewHolder, Object item) {
-            ((TextView) viewHolder.view).setText((String) item);
-        }
-
-        @Override
-        public void onUnbindViewHolder(ViewHolder viewHolder) { }
     }
 }

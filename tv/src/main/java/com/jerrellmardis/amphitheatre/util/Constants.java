@@ -25,6 +25,7 @@ public final class Constants {
 
     public static final String IS_VIDEO = "isVideo";
     public static final String VIDEO = "Video";
+    public static final String GENRE = "Genre";
     public static final String VIDEO_GROUP = "VideoGroup";
 
     public static final String PREFS_USER_KEY = "user";
