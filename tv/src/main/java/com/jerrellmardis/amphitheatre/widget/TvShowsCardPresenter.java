@@ -17,9 +17,15 @@
 package com.jerrellmardis.amphitheatre.widget;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.jerrellmardis.amphitheatre.R;
 import com.jerrellmardis.amphitheatre.model.Video;
@@ -40,7 +46,37 @@ public class TvShowsCardPresenter extends CardPresenter {
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
-        ImageCardView cardView = new ImageCardView(mContext);
+        final ImageCardView cardView = new ImageCardView(mContext);
+
+
+        cardView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean isFocused) {
+                final View infoField = view.findViewById(R.id.info_field);
+                final TextView contentField = (TextView)view.findViewById(R.id.content_text);
+                final TextView titleField = (TextView)view.findViewById(R.id.title_text);
+                final Drawable mainImage = ((ImageView)view.findViewById(R.id.main_image)).getDrawable();
+
+                if (isFocused) {
+                    ((TextView)cardView.findViewById(R.id.title_text)).setMaxLines(3);
+                    FrameLayout.LayoutParams infoLayout = new FrameLayout.LayoutParams(
+                            RelativeLayout.LayoutParams.MATCH_PARENT,
+                            RelativeLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    infoField.setLayoutParams(infoLayout);
+                    RelativeLayout.LayoutParams contentLayout = new RelativeLayout.LayoutParams(
+                            RelativeLayout.LayoutParams.MATCH_PARENT,
+                            RelativeLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    contentLayout.addRule(RelativeLayout.BELOW, R.id.title_text);
+                    contentField.setLayoutParams(contentLayout);
+                }
+                else {
+                    ((TextView)cardView.findViewById(R.id.title_text)).setMaxLines(1);
+                }
+            }
+        });
+
         cardView.setFocusable(true);
         cardView.setFocusableInTouchMode(true);
         cardView.setBackgroundColor(mContext.getResources().getColor(R.color.fastlane_background));

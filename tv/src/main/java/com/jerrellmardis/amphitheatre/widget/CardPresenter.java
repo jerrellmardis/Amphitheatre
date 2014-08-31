@@ -21,6 +21,7 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
@@ -30,16 +31,18 @@ import android.support.v7.graphics.Palette;
 import android.support.v7.graphics.PaletteItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.jerrellmardis.amphitheatre.R;
 import com.jerrellmardis.amphitheatre.model.Video;
 import com.jerrellmardis.amphitheatre.util.Constants;
 import com.jerrellmardis.amphitheatre.util.Enums;
+import com.jerrellmardis.amphitheatre.util.Utils;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
-
-import java.lang.reflect.Method;
 
 public class CardPresenter extends Presenter {
 
@@ -55,84 +58,104 @@ public class CardPresenter extends Presenter {
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
-        ImageCardView cardView = new ImageCardView(mContext);
+        final ImageCardView cardView = new ImageCardView(mContext);
 
         cardView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, final boolean isFocused) {
-                final View infoField = view.findViewById(R.id.info_field);
+                final View infoPanel = view.findViewById(R.id.info_field);
+                final TextView subtitleField = (TextView)view.findViewById(R.id.content_text);
+                final TextView titleField = (TextView)view.findViewById(R.id.title_text);
                 final Drawable mainImage = ((ImageView)view.findViewById(R.id.main_image)).getDrawable();
+
                 final Enums.PalettePresenterType palettePresenterType = Enums.PalettePresenterType.valueOf(
                         mSharedPrefs.getString(Constants.PALETTE_VISIBILITY, ""));
+
+                if (isFocused) {
+                    ((TextView)cardView.findViewById(R.id.title_text)).setMaxLines(4);
+                    FrameLayout.LayoutParams infoLayout = new FrameLayout.LayoutParams(
+                        RelativeLayout.LayoutParams.MATCH_PARENT,
+                        RelativeLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    infoPanel.setLayoutParams(infoLayout);
+                    RelativeLayout.LayoutParams contentLayout = new RelativeLayout.LayoutParams(
+                        RelativeLayout.LayoutParams.MATCH_PARENT,
+                        RelativeLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    contentLayout.addRule(RelativeLayout.BELOW, R.id.title_text);
+                    subtitleField.setLayoutParams(contentLayout);
+                }
+                else {
+                    ((TextView)cardView.findViewById(R.id.title_text)).setMaxLines(1);
+                }
 
                 if (mainImage != null) {
                     Palette.generateAsync(((BitmapDrawable) mainImage).getBitmap(), new Palette.PaletteAsyncListener() {
 
                         @Override
                         public void onGenerated(Palette palette) {
-                            PaletteItem paletteDarkItem = null;
-                            PaletteItem paletteLightItem = null;
-                            PaletteItem paletteItem = null;
-
-                            switch (Enums.PaletteType.valueOf(mSharedPrefs.getString(Constants.PALETTE_VIBRANCY, ""))) {
-                                case VIBRANT:
-                                    paletteDarkItem = palette.getDarkVibrantColor();
-                                    paletteLightItem = palette.getLightVibrantColor();
-                                    paletteItem = palette.getVibrantColor();
-                                    break;
-                                case MUTED:
-                                    paletteDarkItem = palette.getDarkMutedColor();
-                                    paletteLightItem = palette.getLightMutedColor();
-                                    paletteItem = palette.getMutedColor();
-                                    break;
-                            }
-
-
-                            switch (palettePresenterType) {
-                                case ALL:
-                                    if (isFocused) {
-                                        if (paletteItem != null) {
-                                            animateColorChange(
-                                                    infoField,
-                                                    (paletteDarkItem != null) ?
-                                                            paletteDarkItem.getRgb() :
-                                                            mContext.getResources().getColor(R.color.lb_basic_card_info_bg_color),
-                                                    paletteItem.getRgb()
-                                            );
-                                        }
-                                    } else {
-                                        if (paletteDarkItem != null) {
-                                            animateColorChange(
-                                                    infoField,
-                                                    (paletteItem != null) ?
-                                                            paletteItem.getRgb() :
-                                                            mContext.getResources().getColor(R.color.lb_basic_card_info_bg_color),
-                                                    paletteDarkItem.getRgb()
-                                            );
-                                        }
-                                    }
-                                    break;
-                                case FOCUSED:
-                                    if (isFocused) {
-                                        if (paletteDarkItem != null) {
-                                            animateColorChange(
-                                                    infoField,
-                                                    mContext.getResources().getColor(R.color.lb_basic_card_info_bg_color),
-                                                    paletteItem.getRgb()
-                                            );
-                                        }
-                                    } else {
-                                        if (paletteDarkItem != null) {
-                                            animateColorChange(
-                                                    infoField,
-                                                    paletteDarkItem.getRgb(),
-                                                    mContext.getResources().getColor(R.color.lb_basic_card_info_bg_color)
-                                            );
-                                        }
-                                    }
-                                    break;
-                            }
+                        Utils.setTextColor(
+                                titleField,
+                                subtitleField,
+                                Enums.PaletteTextType.valueOf(mSharedPrefs.getString(Constants.PALETTE_TEXT_VISIBILITY, "")),
+                                palette,
+                                isFocused,
+                                mContext
+                        );
+                        Utils.setInfoPanelColor(
+                                infoPanel,
+                                Enums.PalettePresenterType.valueOf(mSharedPrefs.getString(Constants.PALETTE_VISIBILITY, "")),
+                                palette,
+                                isFocused,
+                                mContext
+                        );
                         }
+
+//                            switch (palettePresenterType) {
+//                                case ALL:
+//                                    if (isFocused) {
+//                                        if (paletteLightItem != null) {
+
+//                                            if (paletteItem != null) {
+//                                                contentField.setTextColor(paletteItem.getRgb());
+//                                            }
+//                                            if (paletteDarkItem != null) {
+//                                                titleField.setTextColor(paletteDarkItem.getRgb());
+//                                            }
+//                                        }
+//                                    } else {
+//                                        if (paletteDarkItem != null) {
+
+//                                            if (paletteItem != null) {
+//                                                contentField.setTextColor(paletteItem.getRgb());
+//                                            }
+//                                            if (paletteLightItem != null) {
+//                                                titleField.setTextColor(paletteLightItem.getRgb());
+//                                            }
+//                                        }
+//                                    }
+//                                    break;
+//                                case FOCUSED:
+//                                    if (isFocused) {
+//                                        if (paletteDarkItem != null) {
+
+//                                            if (paletteItem != null) {
+//                                                contentField.setTextColor(paletteItem.getRgb());
+//                                            }
+//                                            if (paletteLightItem != null) {
+//                                                titleField.setTextColor(paletteLightItem.getRgb());
+//                                            }
+//                                        }
+//                                    } else {
+//                                        if (paletteDarkItem != null) {
+
+//                                            contentField.setTextColor(Color.argb(255, 255, 255, 255));
+//                                            titleField.setTextColor(Color.argb(255, 255, 255, 255));
+//                                        }
+//                                    }
+//                                    break;
+//                            }
+//                        }
                     });
                 }
             }
@@ -142,17 +165,6 @@ public class CardPresenter extends Presenter {
         cardView.setFocusableInTouchMode(true);
         cardView.setBackgroundColor(mContext.getResources().getColor(R.color.fastlane_background));
         return new ViewHolder(cardView);
-    }
-
-    protected static void animateColorChange(final View view, int colorFrom, int colorTo) {
-        ValueAnimator valueAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
-        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animator) {
-                view.setBackgroundColor((Integer)animator.getAnimatedValue());
-            }
-        });
-        valueAnimator.start();
     }
 
     @Override
@@ -185,7 +197,7 @@ public class CardPresenter extends Presenter {
                 .into(holder);
 
         // set color to standard for when the user scrolls and the view is reused
-        animateColorChange(
+        Utils.animateColorChange(
                 holder.mCardView.findViewById(R.id.info_field),
                 holder.mCardView.findViewById(R.id.info_field).getDrawingCacheBackgroundColor(),
                 mContext.getResources().getColor(R.color.lb_basic_card_info_bg_color)
@@ -198,13 +210,13 @@ public class CardPresenter extends Presenter {
     static class ViewHolder extends Presenter.ViewHolder implements Target {
 
         protected final ImageCardView mCardView;
-        private final SharedPreferences mSharedPreferences;
+        private final SharedPreferences mSharedPrefs;
 
 
         public ViewHolder(View view) {
             super(view);
             mCardView = (ImageCardView) view;
-            mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(mCardView.getContext());
+            mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(mCardView.getContext());
 
             CheckPrefs();
         }
@@ -215,32 +227,29 @@ public class CardPresenter extends Presenter {
             Drawable bitmapDrawable = new BitmapDrawable(mCardView.getContext().getResources(), bitmap);
             mCardView.setMainImage(bitmapDrawable);
 
-            if (Enums.PalettePresenterType.valueOf(mSharedPreferences.getString(Constants.PALETTE_VISIBILITY, "")) == Enums.PalettePresenterType.ALL) {
+            if (Enums.PalettePresenterType.valueOf(mSharedPrefs.getString(Constants.PALETTE_VISIBILITY, "")) == Enums.PalettePresenterType.ALL) {
                 Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
                     @Override
                     public void onGenerated(Palette palette) {
-                        PaletteItem paletteItem = null;
+                        Utils.setTextColor(
+                                (TextView)mCardView.findViewById(R.id.title_text),
+                                (TextView)mCardView.findViewById(R.id.content_text),
+                                Enums.PaletteTextType.valueOf(mSharedPrefs.getString(Constants.PALETTE_TEXT_VISIBILITY, "")),
+                                palette,
+                                false,
+                                mCardView.getContext()
+                        );
 
-                        switch (Enums.PaletteType.valueOf(mSharedPreferences.getString(Constants.PALETTE_VIBRANCY, ""))) {
-                            case MUTED:
-                                paletteItem = palette.getDarkMutedColor();
-                                break;
-                            case VIBRANT:
-                                paletteItem = palette.getDarkVibrantColor();
-                                break;
-                        }
-
-                        if (paletteItem != null) {
-                            animateColorChange(
-                                    mCardView.findViewById(R.id.info_field),
-                                    mCardView.getContext().getResources().getColor(R.color.lb_basic_card_info_bg_color),
-                                    paletteItem.getRgb()
-                            );
-                        }
+                        Utils.setInfoPanelColor(
+                                mCardView.findViewById(R.id.info_field),
+                                Enums.PalettePresenterType.valueOf(mSharedPrefs.getString(Constants.PALETTE_VISIBILITY, "")),
+                                palette,
+                                false,
+                                mCardView.getContext()
+                        );
                     }
                 });
             }
-            // TODO cross-fade from placeholder. Picasso should provide a way to do this.
         }
 
         @Override
@@ -254,11 +263,14 @@ public class CardPresenter extends Presenter {
         }
 
         private void CheckPrefs() {
-            if (!mSharedPreferences.contains(Constants.PALETTE_VISIBILITY)) {
-                mSharedPreferences.edit().putString(Constants.PALETTE_VISIBILITY, Enums.PalettePresenterType.ALL.name()).apply();
+            if (!mSharedPrefs.contains(Constants.PALETTE_VISIBILITY)) {
+                mSharedPrefs.edit().putString(Constants.PALETTE_VISIBILITY, Enums.PalettePresenterType.ALL.name()).apply();
             }
-            if (!mSharedPreferences.contains(Constants.PALETTE_VIBRANCY)) {
-                mSharedPreferences.edit().putString(Constants.PALETTE_VIBRANCY, Enums.PaletteType.MUTED.name()).apply();
+            if (!mSharedPrefs.contains(Constants.PALETTE_VIBRANCY)) {
+                mSharedPrefs.edit().putString(Constants.PALETTE_VIBRANCY, Enums.PaletteType.MUTED.name()).apply();
+            }
+            if (!mSharedPrefs.contains(Constants.PALETTE_TEXT_VISIBILITY)) {
+                mSharedPrefs.edit().putString(Constants.PALETTE_TEXT_VISIBILITY, Enums.PaletteTextType.NONE.name()).apply();
             }
         }
     }

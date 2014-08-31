@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="500dp"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:background="@color/fastlane_background"
+    android:orientation="vertical"
     android:padding="24dp">
 
     <TextView
@@ -22,18 +23,16 @@
 
     <TextView
         android:id="@+id/lbl_visible"
-        android:layout_below="@id/title"
         android:layout_marginBottom="5dp"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/visible_lbl"/>
 
     <RadioGroup
         android:id="@+id/visible_type"
-        android:layout_below="@id/lbl_visible"
         android:orientation="horizontal"
         android:layout_marginBottom="15dp"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <RadioButton
@@ -60,18 +59,16 @@
 
     <TextView
         android:id="@+id/lbl_color"
-        android:layout_below="@id/visible_type"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/type_lbl"
         android:layout_marginBottom="5dp"/>
 
     <RadioGroup
         android:id="@+id/color_type"
-        android:layout_below="@id/lbl_color"
         android:orientation="horizontal"
-        android:layout_marginBottom="20dp"
-        android:layout_width="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <RadioButton
@@ -89,12 +86,66 @@
 
     </RadioGroup>
 
-    <Button
-        android:id="@+id/btn_okay"
-        android:layout_below="@id/color_type"
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/lbl_text_color"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:text="@string/ok"/>
+        android:text="@string/palette_text_lbl"
+        android:layout_marginBottom="5dp"/>
 
-</RelativeLayout>
+    <RadioGroup
+        android:id="@+id/text_color"
+        android:orientation="horizontal"
+        android:layout_marginBottom="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/no_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/no_text"/>
+
+        <RadioButton
+            android:id="@+id/title_only"
+            android:text="@string/title_only"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <RadioButton
+            android:id="@+id/subtitle_only"
+            android:text="@string/context_only"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <RadioButton
+            android:id="@+id/all_text"
+            android:text="@string/all_card_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </RadioGroup>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:gravity="end"
+        android:divider="@null"
+        style="?android:attr/buttonBarStyle"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="88dp"
+            android:layout_height="match_parent"
+            android:text="@string/save"
+            style="?android:attr/buttonBarButtonStyle"
+            android:background="@null"
+            android:textColor="@drawable/dialog_button_text_selector"
+            android:textStyle="bold"/>
+
+    </LinearLayout>
+
+</LinearLayout>

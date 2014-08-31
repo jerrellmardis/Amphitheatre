@@ -87,7 +87,7 @@
             android:id="@+id/radio_movie"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="8dp"
+            android:layout_marginEnd="8dp"
             android:checked="true"
             android:text="@string/movie"/>
 
@@ -114,6 +114,7 @@
             android:text="@string/cancel"
             android:textAllCaps="true"
             style="?android:attr/buttonBarButtonStyle"
+            android:background="@null"
             android:textColor="@drawable/dialog_button_text_selector"
             android:textStyle="bold"/>
 
@@ -124,6 +125,7 @@
             android:text="@string/add"
             android:textAllCaps="true"
             style="?android:attr/buttonBarButtonStyle"
+            android:background="@null"
             android:textColor="@drawable/dialog_button_text_selector"
             android:textStyle="bold"/>
 

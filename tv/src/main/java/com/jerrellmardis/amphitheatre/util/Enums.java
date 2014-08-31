@@ -15,4 +15,11 @@ public class Enums {
         FOCUSED,
         NONE
     }
+
+    public enum PaletteTextType {
+        NONE,
+        TITLE_ONLY,
+        SUBTITLE_ONLY,
+        ALL
+    }
  }

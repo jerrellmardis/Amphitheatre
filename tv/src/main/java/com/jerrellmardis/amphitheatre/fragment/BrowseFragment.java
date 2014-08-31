@@ -22,12 +22,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.v17.leanback.app.BackgroundManager;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
@@ -57,7 +55,6 @@ import com.jerrellmardis.amphitheatre.service.RecommendationsService;
 import com.jerrellmardis.amphitheatre.task.GetFilesTask;
 import com.jerrellmardis.amphitheatre.util.BlurTransform;
 import com.jerrellmardis.amphitheatre.util.Constants;
-import com.jerrellmardis.amphitheatre.util.Enums;
 import com.jerrellmardis.amphitheatre.util.PicassoBackgroundManagerTarget;
 import com.jerrellmardis.amphitheatre.util.SecurePreferences;
 import com.jerrellmardis.amphitheatre.util.VideoUtils;
@@ -80,7 +77,7 @@ import java.util.TimerTask;
 import static android.view.View.OnClickListener;
 
 public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragment
-        implements AddSourceDialogFragment.OnClickListener {
+        implements AddSourceDialogFragment.OnClickListener, CustomizeDialogFragment.OnSaveListener{
 
     private final Handler mHandler = new Handler();
 
@@ -93,7 +90,6 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     private ArrayObjectAdapter mAdapter;
     private CardPresenter mCardPresenter;
     private TvShowsCardPresenter mTvShowsCardPresenter;
-    private SharedPreferences mSharedPreferences;
 
     private BroadcastReceiver videoUpdateReceiver = new BroadcastReceiver() {
         @Override
@@ -464,6 +460,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         HeaderItem gridHeader = new HeaderItem(0, getString(R.string.settings), null);
         ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(new GridItemPresenter());
         gridRowAdapter.add(getString(R.string.add_source));
+        gridRowAdapter.add(getString(R.string.customization));
         mAdapter.add(new ListRow(gridHeader, gridRowAdapter));
     }
 
@@ -587,9 +584,21 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
 
     private void showCustomizeDialog() {
         FragmentManager fragmentManager = getFragmentManager();
-        CustomizeFragment customizeFragment = new CustomizeFragment();
+        CustomizeDialogFragment customizeFragment = new CustomizeDialogFragment();
         customizeFragment.setTargetFragment(this, 0);
-        customizeFragment.show(fragmentManager, CustomizeFragment.class.getSimpleName());
+//        customizeFragment.getDialog().setOnDismissListener(new DialogInterface.OnDismissListener() {
+//            @Override
+//            public void onDismiss(DialogInterface dialogInterface) {
+//                reloadAdapters();
+//            }
+//        });
+        customizeFragment.show(fragmentManager, CustomizeDialogFragment.class.getSimpleName());
+
+    }
+
+    @Override
+    public void onSaveCustomization() {
+        reloadAdapters();
     }
 
     private class UpdateBackgroundTask extends TimerTask {

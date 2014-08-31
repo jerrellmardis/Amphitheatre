@@ -16,17 +16,25 @@
 
 package com.jerrellmardis.amphitheatre.util;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Environment;
+import android.preference.PreferenceManager;
+import android.support.v7.graphics.Palette;
+import android.support.v7.graphics.PaletteItem;
 import android.util.Log;
 import android.view.Display;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jerrellmardis.amphitheatre.R;
@@ -72,7 +80,6 @@ public final class Utils {
      * @param context
      * @param errorString
      */
-
     public static final void showErrorDialog(Context context, String errorString) {
         new AlertDialog.Builder(context).setTitle(R.string.error)
                 .setMessage(errorString)
@@ -185,6 +192,157 @@ public final class Utils {
             }
         } catch (Exception e) {
             Log.i(Utils.class.getSimpleName(), "Unable to backup database");
+        }
+    }
+
+    public static void animateColorChange(final View view, int colorFrom, int colorTo) {
+        ValueAnimator valueAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                view.setBackgroundColor((Integer)animator.getAnimatedValue());
+            }
+        });
+        valueAnimator.start();
+    }
+
+    public static void setInfoPanelColor(View infoPanel, Enums.PalettePresenterType presenterType, Palette palette, boolean isFocused, Context context) {
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        int defaultBackground = context.getResources().getColor(R.color.lb_basic_card_info_bg_color);
+        PaletteItem dark;
+        PaletteItem light;
+
+        switch(Enums.PaletteType.valueOf(sharedPrefs.getString(Constants.PALETTE_VIBRANCY, ""))) {
+            case VIBRANT:
+                dark = palette.getDarkVibrantColor();
+                light = palette.getLightVibrantColor();
+                break;
+            default:
+                dark = palette.getDarkMutedColor();
+                light = palette.getLightMutedColor();
+                break;
+        }
+
+        switch(presenterType) {
+            case FOCUSED:
+                if (isFocused) {
+                    if (dark != null) {
+                        Utils.animateColorChange(
+                                infoPanel,
+                                defaultBackground,
+                                dark.getRgb()
+                        );
+                    }
+                }
+                else {
+                    if (dark != null) {
+                        Utils.animateColorChange(
+                                infoPanel,
+                                dark.getRgb(),
+                                defaultBackground
+                        );
+                    }
+                }
+                break;
+            case ALL:
+                if (isFocused) {
+                    if (light != null) {
+                        Utils.animateColorChange(
+                                infoPanel,
+                                (dark != null) ?
+                                        dark.getRgb() :
+                                        defaultBackground,
+                                light.getRgb()
+                        );
+                    }
+                }
+                else {
+                    if (dark != null) {
+                        Utils.animateColorChange(
+                                infoPanel,
+                                (light != null) ?
+                                        light.getRgb() :
+                                        defaultBackground,
+                                dark.getRgb()
+                        );
+                    }
+                }
+                break;
+        }
+    }
+
+    public static void setTextColor(TextView titleText, TextView subtitleText, Enums.PaletteTextType textType, Palette palette, boolean isFocused, Context context) {
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Enums.PalettePresenterType paletteType = Enums.PalettePresenterType.valueOf(sharedPrefs.getString(Constants.PALETTE_VISIBILITY, ""));
+        PaletteItem dark;
+        PaletteItem light;
+        PaletteItem normal;
+
+        switch(Enums.PaletteType.valueOf(sharedPrefs.getString(Constants.PALETTE_VIBRANCY, ""))) {
+            case MUTED:
+                dark = palette.getDarkVibrantColor();
+                light = palette.getLightVibrantColor();
+                normal = palette.getVibrantColor();
+                break;
+            default:
+                dark = palette.getDarkMutedColor();
+                light = palette.getLightMutedColor();
+                normal = palette.getMutedColor();
+                break;
+        }
+
+        switch(paletteType) {
+            case ALL:
+
+                break;
+            case FOCUSED:
+
+                break;
+        }
+
+        switch(textType) {
+            case SUBTITLE_ONLY:
+                if (isFocused) {
+                    if (dark != null) {
+                        subtitleText.setTextColor(dark.getRgb());
+                    }
+                }
+                else {
+                    if (normal != null) {
+                        subtitleText.setTextColor(normal.getRgb());
+                    }
+                }
+                break;
+            case TITLE_ONLY:
+                if (isFocused) {
+                    if (dark != null) {
+                        titleText.setTextColor(dark.getRgb());
+                    }
+                }
+                else {
+                    if (light != null) {
+                        titleText.setTextColor(light.getRgb());
+                    }
+                }
+                break;
+            case ALL:
+                if (isFocused) {
+                    if (light != null) {
+                        subtitleText.setTextColor(light.getRgb());
+                    }
+                    if (normal != null) {
+                        titleText.setTextColor(normal.getRgb());
+                    }
+                }
+                else {
+                    if (normal != null) {
+                        subtitleText.setTextColor(normal.getRgb());
+                    }
+                    if (dark != null) {
+                        titleText.setTextColor(dark.getRgb());
+                    }
+                }
+                break;
         }
     }
 }
