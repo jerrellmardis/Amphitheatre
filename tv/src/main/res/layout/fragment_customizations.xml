@@ -21,111 +21,146 @@
         android:textStyle="bold"
         tools:text="CUSTOMIZATIONS"/>
 
-    <TextView
-        android:id="@+id/lbl_visible"
-        android:layout_marginBottom="5dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/visible_lbl"/>
-
-    <RadioGroup
-        android:id="@+id/visible_type"
-        android:orientation="horizontal"
-        android:layout_marginBottom="15dp"
+    <RelativeLayout
+        android:id="@+id/background_section"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <RadioButton
-            android:id="@+id/no_palette"
-            android:text="@string/no_card"
-            android:layout_marginEnd="8dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <RadioButton
-            android:id="@+id/single_palette"
-            android:text="@string/single_card"
-            android:layout_marginEnd="8dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <RadioButton
-            android:id="@+id/all_palette"
-            android:text="@string/all_cards"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-    </RadioGroup>
-
-    <TextView
-        android:id="@+id/lbl_color"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/type_lbl"
-        android:layout_marginBottom="5dp"/>
-
-    <RadioGroup
-        android:id="@+id/color_type"
-        android:orientation="horizontal"
-        android:layout_marginBottom="15dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <RadioButton
-            android:id="@+id/vibrant_palette"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/background_label"
+            android:layout_marginBottom="5dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="@string/vibrant_palette"/>
+            android:text="@string/background_label"/>
 
-        <RadioButton
-            android:id="@+id/muted_palette"
-            android:text="@string/muted_palette"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
 
-    </RadioGroup>
+        <Spinner
+            android:id="@+id/background_visibility"
+            android:layout_below="@id/background_label"
+            android:entries="@array/palette_visibility"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"/>
 
-    <TextView
-        android:id="@+id/lbl_text_color"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/palette_text_lbl"
-        android:layout_marginBottom="5dp"/>
+        <Spinner
+            android:id="@+id/background_unfocused_color"
+            android:layout_below="@id/background_label"
+            android:layout_toEndOf="@id/background_visibility"
+            android:entries="@array/palette_color"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
 
-    <RadioGroup
-        android:id="@+id/text_color"
-        android:orientation="horizontal"
-        android:layout_marginBottom="20dp"
+        <Spinner
+            android:id="@+id/background_focused_color"
+            android:layout_below="@id/background_label"
+            android:layout_toEndOf="@id/background_unfocused_color"
+            android:entries="@array/palette_color"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/title_text_section"
+        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <RadioButton
-            android:id="@+id/no_text"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/title_text_label"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="@string/no_text"/>
+            android:text="@string/title_lbl"
+            android:layout_marginBottom="5dp"/>
 
-        <RadioButton
-            android:id="@+id/title_only"
-            android:text="@string/title_only"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+        <Spinner
+            android:id="@+id/title_text_visibility"
+            android:layout_below="@id/title_text_label"
+            android:entries="@array/palette_visibility"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"/>
 
-        <RadioButton
-            android:id="@+id/subtitle_only"
-            android:text="@string/context_only"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+        <Spinner
+            android:id="@+id/title_unselected_color"
+            android:layout_below="@id/title_text_label"
+            android:layout_toEndOf="@id/title_text_visibility"
+            android:entries="@array/palette_color"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
 
-        <RadioButton
-            android:id="@+id/all_text"
-            android:text="@string/all_card_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+        <Spinner
+            android:id="@+id/title_selected_color"
+            android:layout_below="@id/title_text_label"
+            android:layout_toEndOf="@id/title_unselected_color"
+            android:entries="@array/palette_color"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
 
-    </RadioGroup>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/content_text_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:id="@+id/content_text_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/content_lbl"
+            android:layout_marginBottom="5dp"/>
+
+        <Spinner
+            android:id="@+id/content_text_visibility"
+            android:layout_below="@id/content_text_label"
+            android:entries="@array/palette_visibility"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"/>
+
+        <Spinner
+            android:id="@+id/content_unselected_color"
+            android:layout_below="@id/content_text_label"
+            android:layout_toEndOf="@id/content_text_visibility"
+            android:entries="@array/palette_color"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
+
+        <Spinner
+            android:id="@+id/content_selected_color"
+            android:layout_below="@id/content_text_label"
+            android:layout_toEndOf="@id/content_unselected_color"
+            android:entries="@array/palette_color"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/blur_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/blur_lbl"
+            android:layout_marginBottom="5dp"/>
+
+        <Spinner
+            android:id="@+id/blur_type"
+            android:layout_below="@id/blur_label"
+            android:entries="@array/blur_type"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"/>
+
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -137,10 +172,22 @@
         android:orientation="horizontal">
 
         <Button
+            android:id="@+id/cancel_button"
+            android:layout_width="88dp"
+            android:layout_height="match_parent"
+            android:text="@string/cancel"
+            android:textAllCaps="true"
+            style="?android:attr/buttonBarButtonStyle"
+            android:background="@null"
+            android:textColor="@drawable/dialog_button_text_selector"
+            android:textStyle="bold"/>
+
+        <Button
             android:id="@+id/btn_save"
             android:layout_width="88dp"
             android:layout_height="match_parent"
             android:text="@string/save"
+            android:textAllCaps="true"
             style="?android:attr/buttonBarButtonStyle"
             android:background="@null"
             android:textColor="@drawable/dialog_button_text_selector"

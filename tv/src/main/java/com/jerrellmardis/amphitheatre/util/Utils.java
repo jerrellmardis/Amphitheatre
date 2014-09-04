@@ -40,9 +40,12 @@ import android.widget.Toast;
 import com.jerrellmardis.amphitheatre.R;
 import com.jerrellmardis.amphitheatre.service.LibraryUpdateService;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.lang.reflect.Method;
 import java.nio.channels.FileChannel;
 
 /**
@@ -206,143 +209,31 @@ public final class Utils {
         valueAnimator.start();
     }
 
-    public static void setInfoPanelColor(View infoPanel, Enums.PalettePresenterType presenterType, Palette palette, boolean isFocused, Context context) {
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-        int defaultBackground = context.getResources().getColor(R.color.lb_basic_card_info_bg_color);
-        PaletteItem dark;
-        PaletteItem light;
-
-        switch(Enums.PaletteType.valueOf(sharedPrefs.getString(Constants.PALETTE_VIBRANCY, ""))) {
-            case VIBRANT:
-                dark = palette.getDarkVibrantColor();
-                light = palette.getLightVibrantColor();
-                break;
-            default:
-                dark = palette.getDarkMutedColor();
-                light = palette.getLightMutedColor();
-                break;
+    public static int getPaletteColor(Palette palette, String colorType, int defaultColor) {
+        if (colorType.equals("")) {
+            return defaultColor;
         }
 
-        switch(presenterType) {
-            case FOCUSED:
-                if (isFocused) {
-                    if (dark != null) {
-                        Utils.animateColorChange(
-                                infoPanel,
-                                defaultBackground,
-                                dark.getRgb()
-                        );
-                    }
-                }
-                else {
-                    if (dark != null) {
-                        Utils.animateColorChange(
-                                infoPanel,
-                                dark.getRgb(),
-                                defaultBackground
-                        );
-                    }
-                }
-                break;
-            case ALL:
-                if (isFocused) {
-                    if (light != null) {
-                        Utils.animateColorChange(
-                                infoPanel,
-                                (dark != null) ?
-                                        dark.getRgb() :
-                                        defaultBackground,
-                                light.getRgb()
-                        );
-                    }
-                }
-                else {
-                    if (dark != null) {
-                        Utils.animateColorChange(
-                                infoPanel,
-                                (light != null) ?
-                                        light.getRgb() :
-                                        defaultBackground,
-                                dark.getRgb()
-                        );
-                    }
-                }
-                break;
-        }
-    }
+        Method[] paletteMethods = palette.getClass().getDeclaredMethods();
 
-    public static void setTextColor(TextView titleText, TextView subtitleText, Enums.PaletteTextType textType, Palette palette, boolean isFocused, Context context) {
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-        Enums.PalettePresenterType paletteType = Enums.PalettePresenterType.valueOf(sharedPrefs.getString(Constants.PALETTE_VISIBILITY, ""));
-        PaletteItem dark;
-        PaletteItem light;
-        PaletteItem normal;
-
-        switch(Enums.PaletteType.valueOf(sharedPrefs.getString(Constants.PALETTE_VIBRANCY, ""))) {
-            case MUTED:
-                dark = palette.getDarkVibrantColor();
-                light = palette.getLightVibrantColor();
-                normal = palette.getVibrantColor();
-                break;
-            default:
-                dark = palette.getDarkMutedColor();
-                light = palette.getLightMutedColor();
-                normal = palette.getMutedColor();
-                break;
+        for(Method method : paletteMethods) {
+            if (StringUtils.containsIgnoreCase(method.getName(), colorType)) {
+                try {
+                    PaletteItem item = (PaletteItem)method.invoke(palette);
+                    if (item != null) {
+                        return item.getRgb();
+                    }
+                    else {
+                        return defaultColor;
+                    }
+                }
+                catch(Exception ex) {
+                    Log.d("getPaletteColor", ex.getMessage());
+                    return defaultColor;
+                }
+            }
         }
 
-        switch(paletteType) {
-            case ALL:
-
-                break;
-            case FOCUSED:
-
-                break;
-        }
-
-        switch(textType) {
-            case SUBTITLE_ONLY:
-                if (isFocused) {
-                    if (dark != null) {
-                        subtitleText.setTextColor(dark.getRgb());
-                    }
-                }
-                else {
-                    if (normal != null) {
-                        subtitleText.setTextColor(normal.getRgb());
-                    }
-                }
-                break;
-            case TITLE_ONLY:
-                if (isFocused) {
-                    if (dark != null) {
-                        titleText.setTextColor(dark.getRgb());
-                    }
-                }
-                else {
-                    if (light != null) {
-                        titleText.setTextColor(light.getRgb());
-                    }
-                }
-                break;
-            case ALL:
-                if (isFocused) {
-                    if (light != null) {
-                        subtitleText.setTextColor(light.getRgb());
-                    }
-                    if (normal != null) {
-                        titleText.setTextColor(normal.getRgb());
-                    }
-                }
-                else {
-                    if (normal != null) {
-                        subtitleText.setTextColor(normal.getRgb());
-                    }
-                    if (dark != null) {
-                        titleText.setTextColor(dark.getRgb());
-                    }
-                }
-                break;
-        }
+        return defaultColor;
     }
 }

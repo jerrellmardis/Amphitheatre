@@ -5,21 +5,18 @@ package com.jerrellmardis.amphitheatre.util;
  */
 public class Enums {
 
-    public enum PaletteType {
-        VIBRANT,
-        MUTED
-    }
-
     public enum PalettePresenterType {
-        ALL,
-        FOCUSED,
-        NONE
+        ALLCARDS,
+        FOCUSEDCARD,
+        NOTHING
     }
 
-    public enum PaletteTextType {
-        NONE,
-        TITLE_ONLY,
-        SUBTITLE_ONLY,
-        ALL
+    public enum PaletteColor {
+        VIBRANT,
+        LIGHTVIBRANT,
+        DARKVIBRANT,
+        MUTED,
+        LIGHTMUTED,
+        DARKMUTED
     }
  }

@@ -34,7 +34,17 @@ public final class Constants {
     public static final String LIBRARY_UPDATED_ACTION = "libraryUpdatedAction";
     public static final String VIDEO_UPDATE_ACTION = "videoUpdateAction";
 
-    public static final String PALETTE_VISIBILITY = "paletteVisibility";
-    public static final String PALETTE_VIBRANCY = "paletteVibrancy";
-    public static final String PALETTE_TEXT_VISIBILITY = "paletteTextVisibility";
+    public static final String PALETTE_TITLE_SELECTED = "titleSelected";
+    public static final String PALETTE_TITLE_UNSELECTED = "titleUnselected";
+    public static final String PALETTE_TITLE_VISIBLE = "titleVisible";
+
+    public static final String PALETTE_CONTENT_SELECTED = "contentSelected";
+    public static final String PALETTE_CONTENT_UNSELECTED = "contentUnselected";
+    public static final String PALETTE_CONTENT_VISIBLE = "contentVisible";
+
+    public static final String PALETTE_BACKGROUND_SELECTED = "backgroundSelected";
+    public static final String PALETTE_BACKGROUND_UNSELECTED = "backgroundUnselected";
+    public static final String PALETTE_BACKGROUND_VISIBLE = "backgroundVisible";
+
+    public static final String BACKGROUND_BLUR = "backgroundBlur";
 }
