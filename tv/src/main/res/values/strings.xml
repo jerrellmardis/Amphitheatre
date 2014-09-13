@@ -83,7 +83,6 @@
 
     <string-array name="blur_type">
         <item>On</item>
-        <!--<string name="blurred_off">Off</string>-->
     </string-array>
 
     <string-array name="palette_visibility">

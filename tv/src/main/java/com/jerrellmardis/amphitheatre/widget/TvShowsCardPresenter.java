@@ -55,77 +55,7 @@ public class TvShowsCardPresenter extends CardPresenter {
         cardView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, final boolean isFocused) {
-                final Drawable mainImage = ((ImageView)view.findViewById(R.id.main_image)).getDrawable();
-
-                if (isFocused) {
-                    ((TextView)cardView.findViewById(R.id.title_text)).setMaxLines(4);
-                }
-                else {
-                    ((TextView)cardView.findViewById(R.id.title_text)).setMaxLines(1);
-                }
-
-                if (mainImage != null) {
-                    Palette.generateAsync(((BitmapDrawable) mainImage).getBitmap(), new Palette.PaletteAsyncListener() {
-
-                        @Override
-                        public void onGenerated(Palette palette) {
-
-                            if (isFocused) {
-                                Utils.animateColorChange(
-                                        cardView.findViewById(R.id.info_field),
-                                        Utils.getPaletteColor(
-                                                palette,
-                                                mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_UNSELECTED, ""),
-                                                mContext.getResources().getColor(R.color.lb_basic_card_info_bg_color)),
-                                        Utils.getPaletteColor(
-                                                palette,
-                                                mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_SELECTED, ""),
-                                                mContext.getResources().getColor(R.color.lb_basic_card_info_bg_color))
-                                );
-
-                                ((TextView) cardView.findViewById(R.id.title_text)).setTextColor(
-                                        Utils.getPaletteColor(
-                                                palette,
-                                                mSharedPrefs.getString(Constants.PALETTE_TITLE_SELECTED, ""),
-                                                mContext.getResources().getColor(R.color.lb_basic_card_title_text_color))
-                                );
-
-                                ((TextView) cardView.findViewById(R.id.content_text)).setTextColor(
-                                        Utils.getPaletteColor(
-                                                palette,
-                                                mSharedPrefs.getString(Constants.PALETTE_CONTENT_SELECTED, ""),
-                                                mContext.getResources().getColor(R.color.lb_basic_card_content_text_color))
-                                );
-                            } else {
-                                Utils.animateColorChange(
-                                        cardView.findViewById(R.id.info_field),
-                                        Utils.getPaletteColor(
-                                                palette,
-                                                mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_SELECTED, ""),
-                                                mContext.getResources().getColor(R.color.lb_basic_card_info_bg_color)),
-                                        Utils.getPaletteColor(
-                                                palette,
-                                                mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_UNSELECTED, ""),
-                                                mContext.getResources().getColor(R.color.lb_basic_card_info_bg_color))
-                                );
-
-                                ((TextView) cardView.findViewById(R.id.title_text)).setTextColor(
-                                        Utils.getPaletteColor(
-                                                palette,
-                                                mSharedPrefs.getString(Constants.PALETTE_TITLE_UNSELECTED, ""),
-                                                mContext.getResources().getColor(R.color.lb_basic_card_title_text_color))
-                                );
-
-                                ((TextView) cardView.findViewById(R.id.content_text)).setTextColor(
-                                        Utils.getPaletteColor(
-                                                palette,
-                                                mSharedPrefs.getString(Constants.PALETTE_CONTENT_UNSELECTED, ""),
-                                                mContext.getResources().getColor(R.color.lb_basic_card_content_text_color))
-                                );
-                            }
-                        }
-                    });
-                }
+                setFocusState(cardView, isFocused, view);
             }
         });
 
@@ -133,6 +63,80 @@ public class TvShowsCardPresenter extends CardPresenter {
         cardView.setFocusableInTouchMode(true);
         cardView.setBackgroundColor(mContext.getResources().getColor(R.color.fastlane_background));
         return new ViewHolder(cardView);
+    }
+
+    private void setFocusState(final ImageCardView cardView, final boolean isFocused, View view) {
+        final Drawable mainImage = ((ImageView)view.findViewById(R.id.main_image)).getDrawable();
+
+        if (isFocused) {
+            ((TextView)cardView.findViewById(R.id.title_text)).setMaxLines(4);
+        }
+        else {
+            ((TextView)cardView.findViewById(R.id.title_text)).setMaxLines(1);
+        }
+
+        if (mainImage != null) {
+            Palette.generateAsync(((BitmapDrawable) mainImage).getBitmap(), new Palette.PaletteAsyncListener() {
+
+                @Override
+                public void onGenerated(Palette palette) {
+
+                    if (isFocused) {
+                        Utils.animateColorChange(
+                                cardView.findViewById(R.id.info_field),
+                                Utils.getPaletteColor(
+                                        palette,
+                                        mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_UNSELECTED, ""),
+                                        mContext.getResources().getColor(R.color.lb_basic_card_info_bg_color)),
+                                Utils.getPaletteColor(
+                                        palette,
+                                        mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_SELECTED, ""),
+                                        mContext.getResources().getColor(R.color.lb_basic_card_info_bg_color))
+                        );
+
+                        ((TextView) cardView.findViewById(R.id.title_text)).setTextColor(
+                                Utils.getPaletteColor(
+                                        palette,
+                                        mSharedPrefs.getString(Constants.PALETTE_TITLE_SELECTED, ""),
+                                        mContext.getResources().getColor(R.color.lb_basic_card_title_text_color))
+                        );
+
+                        ((TextView) cardView.findViewById(R.id.content_text)).setTextColor(
+                                Utils.getPaletteColor(
+                                        palette,
+                                        mSharedPrefs.getString(Constants.PALETTE_CONTENT_SELECTED, ""),
+                                        mContext.getResources().getColor(R.color.lb_basic_card_content_text_color))
+                        );
+                    } else {
+                        Utils.animateColorChange(
+                                cardView.findViewById(R.id.info_field),
+                                Utils.getPaletteColor(
+                                        palette,
+                                        mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_SELECTED, ""),
+                                        mContext.getResources().getColor(R.color.lb_basic_card_info_bg_color)),
+                                Utils.getPaletteColor(
+                                        palette,
+                                        mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_UNSELECTED, ""),
+                                        mContext.getResources().getColor(R.color.lb_basic_card_info_bg_color))
+                        );
+
+                        ((TextView) cardView.findViewById(R.id.title_text)).setTextColor(
+                                Utils.getPaletteColor(
+                                        palette,
+                                        mSharedPrefs.getString(Constants.PALETTE_TITLE_UNSELECTED, ""),
+                                        mContext.getResources().getColor(R.color.lb_basic_card_title_text_color))
+                        );
+
+                        ((TextView) cardView.findViewById(R.id.content_text)).setTextColor(
+                                Utils.getPaletteColor(
+                                        palette,
+                                        mSharedPrefs.getString(Constants.PALETTE_CONTENT_UNSELECTED, ""),
+                                        mContext.getResources().getColor(R.color.lb_basic_card_content_text_color))
+                        );
+                    }
+                }
+            });
+        }
     }
 
     @Override

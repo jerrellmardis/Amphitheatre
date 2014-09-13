@@ -663,14 +663,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         FragmentManager fragmentManager = getFragmentManager();
         CustomizeDialogFragment customizeFragment = new CustomizeDialogFragment();
         customizeFragment.setTargetFragment(this, 0);
-//        customizeFragment.getDialog().setOnDismissListener(new DialogInterface.OnDismissListener() {
-//            @Override
-//            public void onDismiss(DialogInterface dialogInterface) {
-//                reloadAdapters();
-//            }
-//        });
         customizeFragment.show(fragmentManager, CustomizeDialogFragment.class.getSimpleName());
-
     }
 
     @Override
