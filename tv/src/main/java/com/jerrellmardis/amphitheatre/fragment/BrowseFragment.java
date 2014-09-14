@@ -78,7 +78,7 @@ import java.util.TreeSet;
 import static android.view.View.OnClickListener;
 
 public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragment
-        implements AddSourceDialogFragment.OnClickListener {
+        implements AddSourceDialogFragment.OnClickListener, CustomizeDialogFragment.OnSaveListener{
 
     private final Handler mHandler = new Handler();
 
@@ -527,6 +527,7 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         HeaderItem gridHeader = new HeaderItem(0, getString(R.string.settings), null);
         ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(new GridItemPresenter(getActivity()));
         gridRowAdapter.add(getString(R.string.add_source));
+        gridRowAdapter.add(getString(R.string.customization));
         mAdapter.add(new ListRow(gridHeader, gridRowAdapter));
     }
 
@@ -644,6 +645,8 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
                     startActivity(intent);
                 } else if (item instanceof String && ((String) item).contains(getString(R.string.add_source))) {
                     showAddSourceDialog();
+                } else if (item instanceof String && ((String) item).contains(getString(R.string.customization))) {
+                    showCustomizeDialog();
                 }
             }
         };
@@ -654,6 +657,18 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
         AddSourceDialogFragment addSourceDialog = AddSourceDialogFragment.newInstance();
         addSourceDialog.setTargetFragment(this, 0);
         addSourceDialog.show(fm, AddSourceDialogFragment.class.getSimpleName());
+    }
+
+    private void showCustomizeDialog() {
+        FragmentManager fragmentManager = getFragmentManager();
+        CustomizeDialogFragment customizeFragment = new CustomizeDialogFragment();
+        customizeFragment.setTargetFragment(this, 0);
+        customizeFragment.show(fragmentManager, CustomizeDialogFragment.class.getSimpleName());
+    }
+
+    @Override
+    public void onSaveCustomization() {
+        reloadAdapters();
     }
 
     private class UpdateBackgroundTask extends TimerTask {

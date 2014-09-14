@@ -42,6 +42,17 @@
     <string name="play">Play</string>
     <string name="error">Error</string>
     <string name="ok">OK</string>
+    <string name="save">Save</string>
+
+    <string name="blur_lbl">Background blur:</string>
+    <string name="content_lbl">Info content palette:</string>
+    <string name="title_lbl">Info title palette:</string>
+    <string name="background_label">Info background palette:</string>
+
+    <string name="no_card">Nothing</string>
+    <string name="single_card">Focused Card</string>
+    <string name="all_cards">All Cards</string>
+
     <string name="released">Released %1$s</string>
     <string name="videos">Videos</string>
     <string name="search_network_title">Network Shares</string>
@@ -61,9 +72,30 @@
     <string name="recently_added_tv_episodes">Recently Added TV Episodes</string>
     <string name="related_videos">Related Videos</string>
 
+    <string-array name="palette_color">
+        <item>Light Muted</item>
+        <item>Dark Muted</item>
+        <item>Muted</item>
+        <item>Light Vibrant</item>
+        <item>Dark Vibrant</item>
+        <item>Vibrant</item>
+    </string-array>
+
+    <string-array name="blur_type">
+        <item>On</item>
+    </string-array>
+
+    <string-array name="palette_visibility">
+        <item>@string/no_card</item>
+        <item>@string/single_card</item>
+        <item>@string/all_cards</item>
+    </string-array>
+
     <plurals name="numberOfEpisodesAvailable">
         <item quantity="one">1 Episode</item>
         <item quantity="other">%d Episodes</item>
     </plurals>
+
+    <string name="customization">Customization</string>
 
 </resources>

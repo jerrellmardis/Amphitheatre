@@ -16,25 +16,36 @@
 
 package com.jerrellmardis.amphitheatre.util;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Environment;
+import android.preference.PreferenceManager;
+import android.support.v7.graphics.Palette;
+import android.support.v7.graphics.PaletteItem;
 import android.util.Log;
 import android.view.Display;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jerrellmardis.amphitheatre.R;
 import com.jerrellmardis.amphitheatre.service.LibraryUpdateService;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.lang.reflect.Method;
 import java.nio.channels.FileChannel;
 
 /**
@@ -72,7 +83,6 @@ public final class Utils {
      * @param context
      * @param errorString
      */
-
     public static final void showErrorDialog(Context context, String errorString) {
         new AlertDialog.Builder(context).setTitle(R.string.error)
                 .setMessage(errorString)
@@ -186,5 +196,44 @@ public final class Utils {
         } catch (Exception e) {
             Log.i(Utils.class.getSimpleName(), "Unable to backup database");
         }
+    }
+
+    public static void animateColorChange(final View view, int colorFrom, int colorTo) {
+        ValueAnimator valueAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                view.setBackgroundColor((Integer)animator.getAnimatedValue());
+            }
+        });
+        valueAnimator.start();
+    }
+
+    public static int getPaletteColor(Palette palette, String colorType, int defaultColor) {
+        if (colorType.equals("")) {
+            return defaultColor;
+        }
+
+        Method[] paletteMethods = palette.getClass().getDeclaredMethods();
+
+        for(Method method : paletteMethods) {
+            if (StringUtils.containsIgnoreCase(method.getName(), colorType)) {
+                try {
+                    PaletteItem item = (PaletteItem)method.invoke(palette);
+                    if (item != null) {
+                        return item.getRgb();
+                    }
+                    else {
+                        return defaultColor;
+                    }
+                }
+                catch(Exception ex) {
+                    Log.d("getPaletteColor", ex.getMessage());
+                    return defaultColor;
+                }
+            }
+        }
+
+        return defaultColor;
     }
 }

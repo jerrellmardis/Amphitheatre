@@ -17,13 +17,23 @@
 package com.jerrellmardis.amphitheatre.widget;
 
 import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
+import android.support.v7.graphics.Palette;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.jerrellmardis.amphitheatre.R;
 import com.jerrellmardis.amphitheatre.model.Video;
 import com.jerrellmardis.amphitheatre.model.VideoGroup;
+import com.jerrellmardis.amphitheatre.util.Constants;
+import com.jerrellmardis.amphitheatre.util.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
@@ -40,11 +50,93 @@ public class TvShowsCardPresenter extends CardPresenter {
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
-        ImageCardView cardView = new ImageCardView(mContext);
+        final ImageCardView cardView = new ImageCardView(mContext);
+
+        cardView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, final boolean isFocused) {
+                setFocusState(cardView, isFocused, view);
+            }
+        });
+
         cardView.setFocusable(true);
         cardView.setFocusableInTouchMode(true);
         cardView.setBackgroundColor(mContext.getResources().getColor(R.color.fastlane_background));
         return new ViewHolder(cardView);
+    }
+
+    private void setFocusState(final ImageCardView cardView, final boolean isFocused, View view) {
+        final Drawable mainImage = ((ImageView)view.findViewById(R.id.main_image)).getDrawable();
+
+        if (isFocused) {
+            ((TextView)cardView.findViewById(R.id.title_text)).setMaxLines(4);
+        }
+        else {
+            ((TextView)cardView.findViewById(R.id.title_text)).setMaxLines(1);
+        }
+
+        if (mainImage != null) {
+            Palette.generateAsync(((BitmapDrawable) mainImage).getBitmap(), new Palette.PaletteAsyncListener() {
+
+                @Override
+                public void onGenerated(Palette palette) {
+
+                    if (isFocused) {
+                        Utils.animateColorChange(
+                                cardView.findViewById(R.id.info_field),
+                                Utils.getPaletteColor(
+                                        palette,
+                                        mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_UNSELECTED, ""),
+                                        mContext.getResources().getColor(R.color.lb_basic_card_info_bg_color)),
+                                Utils.getPaletteColor(
+                                        palette,
+                                        mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_SELECTED, ""),
+                                        mContext.getResources().getColor(R.color.lb_basic_card_info_bg_color))
+                        );
+
+                        ((TextView) cardView.findViewById(R.id.title_text)).setTextColor(
+                                Utils.getPaletteColor(
+                                        palette,
+                                        mSharedPrefs.getString(Constants.PALETTE_TITLE_SELECTED, ""),
+                                        mContext.getResources().getColor(R.color.lb_basic_card_title_text_color))
+                        );
+
+                        ((TextView) cardView.findViewById(R.id.content_text)).setTextColor(
+                                Utils.getPaletteColor(
+                                        palette,
+                                        mSharedPrefs.getString(Constants.PALETTE_CONTENT_SELECTED, ""),
+                                        mContext.getResources().getColor(R.color.lb_basic_card_content_text_color))
+                        );
+                    } else {
+                        Utils.animateColorChange(
+                                cardView.findViewById(R.id.info_field),
+                                Utils.getPaletteColor(
+                                        palette,
+                                        mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_SELECTED, ""),
+                                        mContext.getResources().getColor(R.color.lb_basic_card_info_bg_color)),
+                                Utils.getPaletteColor(
+                                        palette,
+                                        mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_UNSELECTED, ""),
+                                        mContext.getResources().getColor(R.color.lb_basic_card_info_bg_color))
+                        );
+
+                        ((TextView) cardView.findViewById(R.id.title_text)).setTextColor(
+                                Utils.getPaletteColor(
+                                        palette,
+                                        mSharedPrefs.getString(Constants.PALETTE_TITLE_UNSELECTED, ""),
+                                        mContext.getResources().getColor(R.color.lb_basic_card_title_text_color))
+                        );
+
+                        ((TextView) cardView.findViewById(R.id.content_text)).setTextColor(
+                                Utils.getPaletteColor(
+                                        palette,
+                                        mSharedPrefs.getString(Constants.PALETTE_CONTENT_UNSELECTED, ""),
+                                        mContext.getResources().getColor(R.color.lb_basic_card_content_text_color))
+                        );
+                    }
+                }
+            });
+        }
     }
 
     @Override
@@ -102,6 +194,26 @@ public class TvShowsCardPresenter extends CardPresenter {
                     .resize(mCardWidth, mCardHeight)
                     .centerCrop()
                     .into(holder);
+
+            //rebuild the layout for the info area so it expands when we set the maxlines higher
+            FrameLayout.LayoutParams infoLayout = new FrameLayout.LayoutParams(
+                    RelativeLayout.LayoutParams.MATCH_PARENT,
+                    RelativeLayout.LayoutParams.WRAP_CONTENT
+            );
+            holder.mCardView.findViewById(R.id.info_field).setLayoutParams(infoLayout);
+            RelativeLayout.LayoutParams contentLayout = new RelativeLayout.LayoutParams(
+                    RelativeLayout.LayoutParams.MATCH_PARENT,
+                    RelativeLayout.LayoutParams.WRAP_CONTENT
+            );
+            contentLayout.addRule(RelativeLayout.BELOW, R.id.title_text);
+            holder.mCardView.findViewById(R.id.content_text).setLayoutParams(contentLayout);
+
+            // set color to standard for when the user scrolls and the view is reused
+            Utils.animateColorChange(
+                    holder.mCardView.findViewById(R.id.info_field),
+                    holder.mCardView.findViewById(R.id.info_field).getDrawingCacheBackgroundColor(),
+                    mContext.getResources().getColor(R.color.lb_basic_card_info_bg_color)
+            );
         }
     }
 }
