@@ -18,6 +18,7 @@ import android.widget.Spinner;
 import com.jerrellmardis.amphitheatre.R;
 import com.jerrellmardis.amphitheatre.util.Constants;
 import com.jerrellmardis.amphitheatre.util.Enums;
+import com.jerrellmardis.amphitheatre.util.Utils;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -37,6 +38,8 @@ public class CustomizeDialogFragment extends DialogFragment{
     @InjectView(R.id.title_text_visibility) Spinner mTitleVisibility;
     @InjectView(R.id.title_unselected_color) Spinner mTitleUnselected;
     @InjectView(R.id.title_selected_color) Spinner mTitleSelected;
+
+    @InjectView(R.id.blur_type) Spinner mBlurType;
 
     private SharedPreferences mSharedPrefs;
     private OnSaveListener mOnSaveListener;
@@ -120,39 +123,9 @@ public class CustomizeDialogFragment extends DialogFragment{
             }
         });
 
-        checkPrefs();
+        Utils.checkPrefs(mSharedPrefs);
         loadSettings();
         return view;
-    }
-
-    private void checkPrefs() {
-        if (!mSharedPrefs.contains(Constants.PALETTE_BACKGROUND_VISIBLE)) {
-            mSharedPrefs.edit().putString(Constants.PALETTE_BACKGROUND_VISIBLE, Enums.PalettePresenterType.FOCUSEDCARD.name()).apply();
-        }
-        if (!mSharedPrefs.contains(Constants.PALETTE_BACKGROUND_UNSELECTED)) {
-            mSharedPrefs.edit().putString(Constants.PALETTE_BACKGROUND_UNSELECTED, "").apply();
-        }
-        if (!mSharedPrefs.contains(Constants.PALETTE_BACKGROUND_SELECTED)) {
-            mSharedPrefs.edit().putString(Constants.PALETTE_BACKGROUND_SELECTED, Enums.PaletteColor.DARKMUTED.name()).apply();
-        }
-        if (!mSharedPrefs.contains(Constants.PALETTE_TITLE_VISIBLE)) {
-            mSharedPrefs.edit().putString(Constants.PALETTE_TITLE_VISIBLE, Enums.PalettePresenterType.NOTHING.name()).apply();
-        }
-        if (!mSharedPrefs.contains(Constants.PALETTE_TITLE_UNSELECTED)) {
-            mSharedPrefs.edit().putString(Constants.PALETTE_TITLE_UNSELECTED, "").apply();
-        }
-        if (!mSharedPrefs.contains(Constants.PALETTE_TITLE_SELECTED)) {
-            mSharedPrefs.edit().putString(Constants.PALETTE_TITLE_UNSELECTED, "").apply();
-        }
-        if (!mSharedPrefs.contains(Constants.PALETTE_CONTENT_VISIBLE)) {
-            mSharedPrefs.edit().putString(Constants.PALETTE_CONTENT_VISIBLE, Enums.PalettePresenterType.NOTHING.name()).apply();
-        }
-        if (!mSharedPrefs.contains(Constants.PALETTE_CONTENT_UNSELECTED)) {
-            mSharedPrefs.edit().putString(Constants.PALETTE_CONTENT_UNSELECTED, "").apply();
-        }
-        if (!mSharedPrefs.contains(Constants.PALETTE_CONTENT_SELECTED)) {
-            mSharedPrefs.edit().putString(Constants.PALETTE_CONTENT_UNSELECTED, "").apply();
-        }
     }
 
     @Override
@@ -180,7 +153,7 @@ public class CustomizeDialogFragment extends DialogFragment{
     }
 
     private void saveCustomizations() {
-        switch(Enums.PalettePresenterType.valueOf(mBackgroundVisibility.getSelectedItem().toString().replace(" ", "").toUpperCase())) {
+        switch(Enums.PalettePresenterType.valueOf(mBackgroundVisibility.getSelectedItemPosition())) {
             case NOTHING:
                 saveSetting(Constants.PALETTE_BACKGROUND_VISIBLE, Enums.PalettePresenterType.NOTHING.name());
                 saveSetting(Constants.PALETTE_BACKGROUND_UNSELECTED, "");
@@ -189,18 +162,21 @@ public class CustomizeDialogFragment extends DialogFragment{
             case FOCUSEDCARD:
                 saveSetting(Constants.PALETTE_BACKGROUND_VISIBLE, Enums.PalettePresenterType.FOCUSEDCARD.name());
                 saveSetting(Constants.PALETTE_BACKGROUND_UNSELECTED, "");
-                saveSetting(Constants.PALETTE_BACKGROUND_SELECTED, Enums.PaletteColor.valueOf(
-                        mBackgroundSelected.getSelectedItem().toString().replace(" ", "").toUpperCase()).name());
+                saveSetting(
+                        Constants.PALETTE_BACKGROUND_SELECTED,
+                        Enums.PaletteColor.valueOf(mBackgroundSelected.getSelectedItemPosition()).name());
                 break;
             case ALLCARDS:
                 saveSetting(Constants.PALETTE_BACKGROUND_VISIBLE, Enums.PalettePresenterType.ALLCARDS.name());
-                saveSetting(Constants.PALETTE_BACKGROUND_UNSELECTED, Enums.PaletteColor.valueOf(
-                        mBackgroundUnselected.getSelectedItem().toString().replace(" ", "").toUpperCase()).name());
-                saveSetting(Constants.PALETTE_BACKGROUND_SELECTED, Enums.PaletteColor.valueOf(
-                        mBackgroundSelected.getSelectedItem().toString().replace(" ", "").toUpperCase()).name());
+                saveSetting(
+                        Constants.PALETTE_BACKGROUND_UNSELECTED,
+                        Enums.PaletteColor.valueOf(mBackgroundUnselected.getSelectedItemPosition()).name());
+                saveSetting(
+                        Constants.PALETTE_BACKGROUND_SELECTED,
+                        Enums.PaletteColor.valueOf(mBackgroundSelected.getSelectedItemPosition()).name());
                 break;
         }
-        switch(Enums.PalettePresenterType.valueOf(mContentVisibility.getSelectedItem().toString().replace(" ", "").toUpperCase())) {
+        switch(Enums.PalettePresenterType.valueOf(mContentVisibility.getSelectedItemPosition())) {
             case NOTHING:
                 saveSetting(Constants.PALETTE_CONTENT_VISIBLE, Enums.PalettePresenterType.NOTHING.name());
                 saveSetting(Constants.PALETTE_CONTENT_UNSELECTED, "");
@@ -209,18 +185,21 @@ public class CustomizeDialogFragment extends DialogFragment{
             case FOCUSEDCARD:
                 saveSetting(Constants.PALETTE_CONTENT_VISIBLE, Enums.PalettePresenterType.FOCUSEDCARD.name());
                 saveSetting(Constants.PALETTE_CONTENT_UNSELECTED, "");
-                saveSetting(Constants.PALETTE_CONTENT_SELECTED, Enums.PaletteColor.valueOf(
-                        mContentSelected.getSelectedItem().toString().replace(" ", "").toUpperCase()).name());
+                saveSetting(
+                        Constants.PALETTE_CONTENT_SELECTED,
+                        Enums.PaletteColor.valueOf(mContentSelected.getSelectedItemPosition()).name());
                 break;
             case ALLCARDS:
                 saveSetting(Constants.PALETTE_CONTENT_VISIBLE, Enums.PalettePresenterType.ALLCARDS.name());
-                saveSetting(Constants.PALETTE_CONTENT_UNSELECTED, Enums.PaletteColor.valueOf(
-                        mContentUnselected.getSelectedItem().toString().replace(" ", "").toUpperCase()).name());
-                saveSetting(Constants.PALETTE_CONTENT_SELECTED, Enums.PaletteColor.valueOf(
-                        mContentSelected.getSelectedItem().toString().replace(" ", "").toUpperCase()).name());
+                saveSetting(
+                        Constants.PALETTE_CONTENT_UNSELECTED,
+                        Enums.PaletteColor.valueOf(mContentUnselected.getSelectedItemPosition()).name());
+                saveSetting(
+                        Constants.PALETTE_CONTENT_SELECTED,
+                        Enums.PaletteColor.valueOf(mContentSelected.getSelectedItemPosition()).name());
                 break;
         }
-        switch(Enums.PalettePresenterType.valueOf(mTitleVisibility.getSelectedItem().toString().replace(" ", "").toUpperCase())) {
+        switch(Enums.PalettePresenterType.valueOf(mTitleVisibility.getSelectedItemPosition())) {
             case NOTHING:
                 saveSetting(Constants.PALETTE_TITLE_VISIBLE, Enums.PalettePresenterType.NOTHING.name());
                 saveSetting(Constants.PALETTE_TITLE_UNSELECTED, "");
@@ -229,15 +208,26 @@ public class CustomizeDialogFragment extends DialogFragment{
             case FOCUSEDCARD:
                 saveSetting(Constants.PALETTE_TITLE_VISIBLE, Enums.PalettePresenterType.FOCUSEDCARD.name());
                 saveSetting(Constants.PALETTE_TITLE_UNSELECTED, "");
-                saveSetting(Constants.PALETTE_TITLE_SELECTED, Enums.PaletteColor.valueOf(
-                        mTitleSelected.getSelectedItem().toString().replace(" ", "").toUpperCase()).name());
+                saveSetting(
+                        Constants.PALETTE_TITLE_SELECTED,
+                        Enums.PaletteColor.valueOf(mTitleSelected.getSelectedItemPosition()).name());
                 break;
             case ALLCARDS:
                 saveSetting(Constants.PALETTE_TITLE_VISIBLE, Enums.PalettePresenterType.ALLCARDS.name());
-                saveSetting(Constants.PALETTE_TITLE_UNSELECTED, Enums.PaletteColor.valueOf(
-                        mTitleUnselected.getSelectedItem().toString().replace(" ", "").toUpperCase()).name());
-                saveSetting(Constants.PALETTE_TITLE_SELECTED, Enums.PaletteColor.valueOf(
-                        mTitleSelected.getSelectedItem().toString().replace(" ", "").toUpperCase()).name());
+                saveSetting(
+                        Constants.PALETTE_TITLE_UNSELECTED,
+                        Enums.PaletteColor.valueOf(mTitleUnselected.getSelectedItemPosition()).name());
+                saveSetting(
+                        Constants.PALETTE_TITLE_SELECTED,
+                        Enums.PaletteColor.valueOf(mTitleSelected.getSelectedItemPosition()).name());
+                break;
+        }
+        switch(Enums.BlurState.valueOf(mBlurType.getSelectedItemPosition())) {
+            case ON:
+                saveSetting(Constants.BACKGROUND_BLUR, Enums.BlurState.ON.name());
+                break;
+            case OFF:
+                saveSetting(Constants.BACKGROUND_BLUR, Enums.BlurState.OFF.name());
                 break;
         }
     }
@@ -258,77 +248,55 @@ public class CustomizeDialogFragment extends DialogFragment{
         mSharedPrefs.edit().putString(key, value).apply();
     }
 
-    private int getTypePosition(Enums.PalettePresenterType type) {
-        switch(type) {
-            case NOTHING:
-                return 0;
-            case ALLCARDS:
-                return 2;
-            default:
-                return 1;
-        }
-    }
-
-    private int getColorPosition(Enums.PaletteColor color) {
-        switch(color) {
-            case DARKVIBRANT:
-                return 4;
-            case DARKMUTED:
-                return 1;
-            case LIGHTMUTED:
-                return 0;
-            case LIGHTVIBRANT:
-                return 3;
-            case MUTED:
-                return 2;
-            case VIBRANT:
-                return 5;
-            default:
-                return -1;
-        }
-    }
-
     private void loadSettings() {
         switch(Enums.PalettePresenterType.valueOf(mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_VISIBLE, ""))) {
             case NOTHING:
-                mBackgroundVisibility.setSelection(getTypePosition(Enums.PalettePresenterType.NOTHING));
+                mBackgroundVisibility.setSelection(Enums.PalettePresenterType.NOTHING.getOrdinal());
                 break;
             case FOCUSEDCARD:
-                mBackgroundVisibility.setSelection(getTypePosition(Enums.PalettePresenterType.FOCUSEDCARD));
-                mBackgroundSelected.setSelection(getColorPosition(Enums.PaletteColor.valueOf(mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_SELECTED, ""))));
+                mBackgroundVisibility.setSelection(Enums.PalettePresenterType.FOCUSEDCARD.getOrdinal());
+                mBackgroundSelected.setSelection(Enums.PaletteColor.getOrdinal(mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_SELECTED, "")));
                 break;
             case ALLCARDS:
-                mBackgroundVisibility.setSelection(getTypePosition(Enums.PalettePresenterType.ALLCARDS));
-                mBackgroundSelected.setSelection(getColorPosition(Enums.PaletteColor.valueOf(mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_SELECTED, ""))));
-                mBackgroundUnselected.setSelection(getColorPosition(Enums.PaletteColor.valueOf(mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_UNSELECTED, ""))));
+                mBackgroundVisibility.setSelection(Enums.PalettePresenterType.ALLCARDS.getOrdinal());
+                mBackgroundSelected.setSelection(Enums.PaletteColor.getOrdinal(mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_SELECTED, "")));
+                mBackgroundUnselected.setSelection(Enums.PaletteColor.getOrdinal(mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_UNSELECTED, "")));
                 break;
         }
         switch(Enums.PalettePresenterType.valueOf(mSharedPrefs.getString(Constants.PALETTE_CONTENT_VISIBLE, ""))) {
             case NOTHING:
-                mContentVisibility.setSelection(getTypePosition(Enums.PalettePresenterType.NOTHING));
+                mContentVisibility.setSelection(Enums.PalettePresenterType.NOTHING.getOrdinal());
                 break;
             case FOCUSEDCARD:
-                mContentVisibility.setSelection(getTypePosition(Enums.PalettePresenterType.FOCUSEDCARD));
-                mContentSelected.setSelection(getColorPosition(Enums.PaletteColor.valueOf(mSharedPrefs.getString(Constants.PALETTE_CONTENT_SELECTED, ""))));
+                mContentVisibility.setSelection(Enums.PalettePresenterType.FOCUSEDCARD.getOrdinal());
+                mContentSelected.setSelection(Enums.PaletteColor.getOrdinal(mSharedPrefs.getString(Constants.PALETTE_CONTENT_SELECTED, "")));
                 break;
             case ALLCARDS:
-                mContentVisibility.setSelection(getTypePosition(Enums.PalettePresenterType.ALLCARDS));
-                mContentSelected.setSelection(getColorPosition(Enums.PaletteColor.valueOf(mSharedPrefs.getString(Constants.PALETTE_CONTENT_SELECTED, ""))));
-                mContentUnselected.setSelection(getColorPosition(Enums.PaletteColor.valueOf(mSharedPrefs.getString(Constants.PALETTE_CONTENT_UNSELECTED, ""))));
+                mContentVisibility.setSelection(Enums.PalettePresenterType.ALLCARDS.getOrdinal());
+                mContentSelected.setSelection(Enums.PaletteColor.getOrdinal(mSharedPrefs.getString(Constants.PALETTE_CONTENT_SELECTED, "")));
+                mContentUnselected.setSelection(Enums.PaletteColor.getOrdinal(mSharedPrefs.getString(Constants.PALETTE_CONTENT_UNSELECTED, "")));
                 break;
         }
         switch(Enums.PalettePresenterType.valueOf(mSharedPrefs.getString(Constants.PALETTE_TITLE_VISIBLE, ""))) {
             case NOTHING:
-                mTitleVisibility.setSelection(getTypePosition(Enums.PalettePresenterType.NOTHING));
+                mTitleVisibility.setSelection(Enums.PalettePresenterType.NOTHING.getOrdinal());
                 break;
             case FOCUSEDCARD:
-                mTitleVisibility.setSelection(getTypePosition(Enums.PalettePresenterType.FOCUSEDCARD));
-                mTitleSelected.setSelection(getColorPosition(Enums.PaletteColor.valueOf(mSharedPrefs.getString(Constants.PALETTE_TITLE_SELECTED, ""))));
+                mTitleVisibility.setSelection(Enums.PalettePresenterType.FOCUSEDCARD.getOrdinal());
+                mTitleSelected.setSelection(Enums.PaletteColor.getOrdinal(mSharedPrefs.getString(Constants.PALETTE_TITLE_SELECTED, "")));
                 break;
             case ALLCARDS:
-                mTitleVisibility.setSelection(getTypePosition(Enums.PalettePresenterType.ALLCARDS));
-                mTitleSelected.setSelection(getColorPosition(Enums.PaletteColor.valueOf(mSharedPrefs.getString(Constants.PALETTE_TITLE_SELECTED, ""))));
-                mTitleUnselected.setSelection(getColorPosition(Enums.PaletteColor.valueOf(mSharedPrefs.getString(Constants.PALETTE_TITLE_UNSELECTED, ""))));
+                mTitleVisibility.setSelection(Enums.PalettePresenterType.ALLCARDS.getOrdinal());
+                mTitleSelected.setSelection(Enums.PaletteColor.getOrdinal(mSharedPrefs.getString(Constants.PALETTE_TITLE_SELECTED, "")));
+                mTitleUnselected.setSelection(Enums.PaletteColor.getOrdinal(mSharedPrefs.getString(Constants.PALETTE_TITLE_UNSELECTED, "")));
+                break;
+        }
+        switch (Enums.BlurState.valueOf(mSharedPrefs.getString(Constants.BACKGROUND_BLUR, ""))) {
+            case OFF:
+                mBlurType.setSelection(Enums.BlurState.OFF.getOrdinal());
+                break;
+            case ON:
+                mBlurType.setSelection(Enums.BlurState.ON.getOrdinal());
                 break;
         }
     }

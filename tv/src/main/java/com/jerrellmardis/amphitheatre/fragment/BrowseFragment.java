@@ -22,9 +22,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v17.leanback.app.BackgroundManager;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
@@ -53,6 +55,7 @@ import com.jerrellmardis.amphitheatre.service.RecommendationsService;
 import com.jerrellmardis.amphitheatre.task.GetFilesTask;
 import com.jerrellmardis.amphitheatre.util.BlurTransform;
 import com.jerrellmardis.amphitheatre.util.Constants;
+import com.jerrellmardis.amphitheatre.util.Enums;
 import com.jerrellmardis.amphitheatre.util.PicassoBackgroundManagerTarget;
 import com.jerrellmardis.amphitheatre.util.SecurePreferences;
 import com.jerrellmardis.amphitheatre.util.VideoUtils;
@@ -547,14 +550,33 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     }
 
     private void updateBackground(String url) {
-        Picasso.with(getActivity())
-                .load(url)
-                .transform(mBlurTransformation)
-                .placeholder(R.drawable.placeholder)
-                .resize(mMetrics.widthPixels, mMetrics.heightPixels)
-                .centerCrop()
-                .skipMemoryCache()
-                .into(mBackgroundTarget);
+
+        SharedPreferences sharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(getActivity().getApplicationContext());
+
+        switch(Enums.BlurState.valueOf(sharedPrefs.getString(Constants.BACKGROUND_BLUR, ""))) {
+            case ON:
+                Picasso.with(getActivity())
+                        .load(url)
+                        .transform(mBlurTransformation)
+                        .placeholder(R.drawable.placeholder)
+                        .resize(mMetrics.widthPixels, mMetrics.heightPixels)
+                        .centerCrop()
+                        .skipMemoryCache()
+                        .into(mBackgroundTarget);
+                break;
+            case OFF:
+                Picasso.with(getActivity())
+                        .load(url)
+                        .placeholder(R.drawable.placeholder)
+                        .resize(mMetrics.widthPixels, mMetrics.heightPixels)
+                        .centerCrop()
+                        .skipMemoryCache()
+                        .into(mBackgroundTarget);
+                break;
+        }
+
+
     }
 
     private void clearBackground() {

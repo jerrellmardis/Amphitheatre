@@ -236,4 +236,41 @@ public final class Utils {
 
         return defaultColor;
     }
+
+    public static void checkPrefs(SharedPreferences sharedPrefs) {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+
+        if (!sharedPrefs.contains(Constants.PALETTE_BACKGROUND_VISIBLE)) {
+            editor.putString(Constants.PALETTE_BACKGROUND_VISIBLE, Enums.PalettePresenterType.FOCUSEDCARD.name());
+        }
+        if (!sharedPrefs.contains(Constants.PALETTE_BACKGROUND_UNSELECTED)) {
+            editor.putString(Constants.PALETTE_BACKGROUND_UNSELECTED, "");
+        }
+        if (!sharedPrefs.contains(Constants.PALETTE_BACKGROUND_SELECTED)) {
+            editor.putString(Constants.PALETTE_BACKGROUND_SELECTED, Enums.PaletteColor.DARKMUTED.name());
+        }
+        if (!sharedPrefs.contains(Constants.PALETTE_TITLE_VISIBLE)) {
+            editor.putString(Constants.PALETTE_TITLE_VISIBLE, Enums.PalettePresenterType.NOTHING.name());
+        }
+        if (!sharedPrefs.contains(Constants.PALETTE_TITLE_UNSELECTED)) {
+            editor.putString(Constants.PALETTE_TITLE_UNSELECTED, "");
+        }
+        if (!sharedPrefs.contains(Constants.PALETTE_TITLE_SELECTED)) {
+            editor.putString(Constants.PALETTE_TITLE_UNSELECTED, "");
+        }
+        if (!sharedPrefs.contains(Constants.PALETTE_CONTENT_VISIBLE)) {
+            editor.putString(Constants.PALETTE_CONTENT_VISIBLE, Enums.PalettePresenterType.NOTHING.name());
+        }
+        if (!sharedPrefs.contains(Constants.PALETTE_CONTENT_UNSELECTED)) {
+            editor.putString(Constants.PALETTE_CONTENT_UNSELECTED, "");
+        }
+        if (!sharedPrefs.contains(Constants.PALETTE_CONTENT_SELECTED)) {
+            editor.putString(Constants.PALETTE_CONTENT_UNSELECTED, "");
+        }
+        if (!sharedPrefs.contains(Constants.BACKGROUND_BLUR)) {
+            editor.putString(Constants.BACKGROUND_BLUR, Enums.BlurState.ON.name());
+        }
+
+        editor.apply();
+    }
 }
