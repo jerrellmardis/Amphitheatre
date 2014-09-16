@@ -207,7 +207,7 @@ public class CardPresenter extends Presenter {
             mCardView = (ImageCardView) view;
             mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(mCardView.getContext());
 
-            checkPrefs();
+            Utils.checkPrefs(mSharedPrefs);
         }
 
         @Override
@@ -258,38 +258,6 @@ public class CardPresenter extends Presenter {
             mCardView.setMainImage(placeHolderDrawable);
         }
 
-        private void checkPrefs() {
-            SharedPreferences.Editor editor = mSharedPrefs.edit();
 
-            if (!mSharedPrefs.contains(Constants.PALETTE_BACKGROUND_VISIBLE)) {
-                editor.putString(Constants.PALETTE_BACKGROUND_VISIBLE, Enums.PalettePresenterType.FOCUSEDCARD.name());
-            }
-            if (!mSharedPrefs.contains(Constants.PALETTE_BACKGROUND_UNSELECTED)) {
-                editor.putString(Constants.PALETTE_BACKGROUND_UNSELECTED, "");
-            }
-            if (!mSharedPrefs.contains(Constants.PALETTE_BACKGROUND_SELECTED)) {
-                editor.putString(Constants.PALETTE_BACKGROUND_SELECTED, Enums.PaletteColor.DARKMUTED.name());
-            }
-            if (!mSharedPrefs.contains(Constants.PALETTE_TITLE_VISIBLE)) {
-                editor.putString(Constants.PALETTE_TITLE_VISIBLE, Enums.PalettePresenterType.NOTHING.name());
-            }
-            if (!mSharedPrefs.contains(Constants.PALETTE_TITLE_UNSELECTED)) {
-                editor.putString(Constants.PALETTE_TITLE_UNSELECTED, "");
-            }
-            if (!mSharedPrefs.contains(Constants.PALETTE_TITLE_SELECTED)) {
-                editor.putString(Constants.PALETTE_TITLE_UNSELECTED, "");
-            }
-            if (!mSharedPrefs.contains(Constants.PALETTE_CONTENT_VISIBLE)) {
-                editor.putString(Constants.PALETTE_CONTENT_VISIBLE, Enums.PalettePresenterType.NOTHING.name());
-            }
-            if (!mSharedPrefs.contains(Constants.PALETTE_CONTENT_UNSELECTED)) {
-                editor.putString(Constants.PALETTE_CONTENT_UNSELECTED, "");
-            }
-            if (!mSharedPrefs.contains(Constants.PALETTE_CONTENT_SELECTED)) {
-                editor.putString(Constants.PALETTE_CONTENT_UNSELECTED, "");
-            }
-
-            editor.apply();
-        }
     }
 }

@@ -22,9 +22,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v17.leanback.app.BackgroundManager;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
@@ -53,6 +55,7 @@ import com.jerrellmardis.amphitheatre.service.RecommendationsService;
 import com.jerrellmardis.amphitheatre.task.GetFilesTask;
 import com.jerrellmardis.amphitheatre.util.BlurTransform;
 import com.jerrellmardis.amphitheatre.util.Constants;
+import com.jerrellmardis.amphitheatre.util.Enums;
 import com.jerrellmardis.amphitheatre.util.PicassoBackgroundManagerTarget;
 import com.jerrellmardis.amphitheatre.util.SecurePreferences;
 import com.jerrellmardis.amphitheatre.util.VideoUtils;
@@ -61,6 +64,7 @@ import com.jerrellmardis.amphitheatre.widget.GridItemPresenter;
 import com.jerrellmardis.amphitheatre.widget.SortedObjectAdapter;
 import com.jerrellmardis.amphitheatre.widget.TvShowsCardPresenter;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 import com.squareup.picasso.Transformation;
 
@@ -547,14 +551,23 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     }
 
     private void updateBackground(String url) {
-        Picasso.with(getActivity())
+        SharedPreferences sharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(getActivity().getApplicationContext());
+
+        RequestCreator requestCreator = Picasso.with(getActivity())
                 .load(url)
-                .transform(mBlurTransformation)
                 .placeholder(R.drawable.placeholder)
                 .resize(mMetrics.widthPixels, mMetrics.heightPixels)
                 .centerCrop()
-                .skipMemoryCache()
-                .into(mBackgroundTarget);
+                .skipMemoryCache();
+
+        switch(Enums.BlurState.valueOf(sharedPrefs.getString(Constants.BACKGROUND_BLUR, ""))) {
+            case ON:
+                requestCreator = requestCreator.transform(mBlurTransformation);
+                break;
+        }
+
+        requestCreator.into(mBackgroundTarget);
     }
 
     private void clearBackground() {
