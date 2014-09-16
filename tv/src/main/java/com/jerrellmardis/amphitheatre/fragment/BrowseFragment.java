@@ -64,6 +64,7 @@ import com.jerrellmardis.amphitheatre.widget.GridItemPresenter;
 import com.jerrellmardis.amphitheatre.widget.SortedObjectAdapter;
 import com.jerrellmardis.amphitheatre.widget.TvShowsCardPresenter;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 import com.squareup.picasso.Transformation;
 
@@ -550,33 +551,23 @@ public class BrowseFragment extends android.support.v17.leanback.app.BrowseFragm
     }
 
     private void updateBackground(String url) {
-
         SharedPreferences sharedPrefs = PreferenceManager
                 .getDefaultSharedPreferences(getActivity().getApplicationContext());
 
+        RequestCreator requestCreator = Picasso.with(getActivity())
+                .load(url)
+                .placeholder(R.drawable.placeholder)
+                .resize(mMetrics.widthPixels, mMetrics.heightPixels)
+                .centerCrop()
+                .skipMemoryCache();
+
         switch(Enums.BlurState.valueOf(sharedPrefs.getString(Constants.BACKGROUND_BLUR, ""))) {
             case ON:
-                Picasso.with(getActivity())
-                        .load(url)
-                        .transform(mBlurTransformation)
-                        .placeholder(R.drawable.placeholder)
-                        .resize(mMetrics.widthPixels, mMetrics.heightPixels)
-                        .centerCrop()
-                        .skipMemoryCache()
-                        .into(mBackgroundTarget);
-                break;
-            case OFF:
-                Picasso.with(getActivity())
-                        .load(url)
-                        .placeholder(R.drawable.placeholder)
-                        .resize(mMetrics.widthPixels, mMetrics.heightPixels)
-                        .centerCrop()
-                        .skipMemoryCache()
-                        .into(mBackgroundTarget);
+                requestCreator = requestCreator.transform(mBlurTransformation);
                 break;
         }
 
-
+        requestCreator.into(mBackgroundTarget);
     }
 
     private void clearBackground() {

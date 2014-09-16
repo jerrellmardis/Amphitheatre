@@ -10,18 +10,18 @@ public class Enums {
         FOCUSEDCARD(1),
         NOTHING(0);
 
-        private int mOrdinal;
+        private int mPosition;
 
-        PalettePresenterType(int ordinal) {
-            this.mOrdinal = ordinal;
+        PalettePresenterType(int position) {
+            this.mPosition = position;
         }
 
-        public int getOrdinal() {
-            return this.mOrdinal;
+        public int getPosition() {
+            return this.mPosition;
         }
 
-        public static int getOrdinal(String value) {
-            return PalettePresenterType.valueOf(value.replace(" ", "").toUpperCase()).getOrdinal();
+        public static int getPosition(String value) {
+            return PalettePresenterType.valueOf(value.replace(" ", "").toUpperCase()).getPosition();
         }
 
         public static PalettePresenterType valueOf(int ordinal) {
@@ -44,22 +44,22 @@ public class Enums {
         LIGHTMUTED(0),
         DARKMUTED(1);
 
-        private int mOrdinal;
+        private int mPosition;
 
-        PaletteColor(int ordinal) {
-            this.mOrdinal = ordinal;
+        PaletteColor(int position) {
+            this.mPosition = position;
         }
 
-        public int getOrdinal() {
-            return this.mOrdinal;
+        public int getPosition() {
+            return this.mPosition;
         }
 
-        public static int getOrdinal(String value) {
-            return PaletteColor.valueOf(value.replace(" ", "").toUpperCase()).getOrdinal();
+        public static int getPosition(String value) {
+            return PaletteColor.valueOf(value.replace(" ", "").toUpperCase()).getPosition();
         }
 
-        public static PaletteColor valueOf(int ordinal) {
-            switch (ordinal) {
+        public static PaletteColor valueOf(int position) {
+            switch (position) {
                 case 0:
                     return LIGHTMUTED;
                 case 2:
@@ -80,22 +80,22 @@ public class Enums {
         ON(0),
         OFF(1);
 
-        private int mOrdinal;
+        private int mPosition;
 
-        BlurState(int ordinal) {
-            this.mOrdinal = ordinal;
+        BlurState(int position) {
+            this.mPosition = position;
         }
 
-        public int getOrdinal() {
-            return this.mOrdinal;
+        public int getPosition() {
+            return this.mPosition;
         }
 
-        public static int getOrdinal(String value) {
-            return BlurState.valueOf(value.toUpperCase()).getOrdinal();
+        public static int getPosition(String value) {
+            return BlurState.valueOf(value.toUpperCase()).getPosition();
         }
 
-        public static BlurState valueOf(int ordinal) {
-            switch(ordinal) {
+        public static BlurState valueOf(int position) {
+            switch(position) {
                 case 1:
                     return BlurState.OFF;
                 default:

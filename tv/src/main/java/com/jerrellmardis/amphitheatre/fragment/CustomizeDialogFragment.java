@@ -251,52 +251,52 @@ public class CustomizeDialogFragment extends DialogFragment{
     private void loadSettings() {
         switch(Enums.PalettePresenterType.valueOf(mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_VISIBLE, ""))) {
             case NOTHING:
-                mBackgroundVisibility.setSelection(Enums.PalettePresenterType.NOTHING.getOrdinal());
+                mBackgroundVisibility.setSelection(Enums.PalettePresenterType.NOTHING.getPosition());
                 break;
             case FOCUSEDCARD:
-                mBackgroundVisibility.setSelection(Enums.PalettePresenterType.FOCUSEDCARD.getOrdinal());
-                mBackgroundSelected.setSelection(Enums.PaletteColor.getOrdinal(mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_SELECTED, "")));
+                mBackgroundVisibility.setSelection(Enums.PalettePresenterType.FOCUSEDCARD.getPosition());
+                mBackgroundSelected.setSelection(Enums.PaletteColor.getPosition(mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_SELECTED, "")));
                 break;
             case ALLCARDS:
-                mBackgroundVisibility.setSelection(Enums.PalettePresenterType.ALLCARDS.getOrdinal());
-                mBackgroundSelected.setSelection(Enums.PaletteColor.getOrdinal(mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_SELECTED, "")));
-                mBackgroundUnselected.setSelection(Enums.PaletteColor.getOrdinal(mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_UNSELECTED, "")));
+                mBackgroundVisibility.setSelection(Enums.PalettePresenterType.ALLCARDS.getPosition());
+                mBackgroundSelected.setSelection(Enums.PaletteColor.getPosition(mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_SELECTED, "")));
+                mBackgroundUnselected.setSelection(Enums.PaletteColor.getPosition(mSharedPrefs.getString(Constants.PALETTE_BACKGROUND_UNSELECTED, "")));
                 break;
         }
         switch(Enums.PalettePresenterType.valueOf(mSharedPrefs.getString(Constants.PALETTE_CONTENT_VISIBLE, ""))) {
             case NOTHING:
-                mContentVisibility.setSelection(Enums.PalettePresenterType.NOTHING.getOrdinal());
+                mContentVisibility.setSelection(Enums.PalettePresenterType.NOTHING.getPosition());
                 break;
             case FOCUSEDCARD:
-                mContentVisibility.setSelection(Enums.PalettePresenterType.FOCUSEDCARD.getOrdinal());
-                mContentSelected.setSelection(Enums.PaletteColor.getOrdinal(mSharedPrefs.getString(Constants.PALETTE_CONTENT_SELECTED, "")));
+                mContentVisibility.setSelection(Enums.PalettePresenterType.FOCUSEDCARD.getPosition());
+                mContentSelected.setSelection(Enums.PaletteColor.getPosition(mSharedPrefs.getString(Constants.PALETTE_CONTENT_SELECTED, "")));
                 break;
             case ALLCARDS:
-                mContentVisibility.setSelection(Enums.PalettePresenterType.ALLCARDS.getOrdinal());
-                mContentSelected.setSelection(Enums.PaletteColor.getOrdinal(mSharedPrefs.getString(Constants.PALETTE_CONTENT_SELECTED, "")));
-                mContentUnselected.setSelection(Enums.PaletteColor.getOrdinal(mSharedPrefs.getString(Constants.PALETTE_CONTENT_UNSELECTED, "")));
+                mContentVisibility.setSelection(Enums.PalettePresenterType.ALLCARDS.getPosition());
+                mContentSelected.setSelection(Enums.PaletteColor.getPosition(mSharedPrefs.getString(Constants.PALETTE_CONTENT_SELECTED, "")));
+                mContentUnselected.setSelection(Enums.PaletteColor.getPosition(mSharedPrefs.getString(Constants.PALETTE_CONTENT_UNSELECTED, "")));
                 break;
         }
         switch(Enums.PalettePresenterType.valueOf(mSharedPrefs.getString(Constants.PALETTE_TITLE_VISIBLE, ""))) {
             case NOTHING:
-                mTitleVisibility.setSelection(Enums.PalettePresenterType.NOTHING.getOrdinal());
+                mTitleVisibility.setSelection(Enums.PalettePresenterType.NOTHING.getPosition());
                 break;
             case FOCUSEDCARD:
-                mTitleVisibility.setSelection(Enums.PalettePresenterType.FOCUSEDCARD.getOrdinal());
-                mTitleSelected.setSelection(Enums.PaletteColor.getOrdinal(mSharedPrefs.getString(Constants.PALETTE_TITLE_SELECTED, "")));
+                mTitleVisibility.setSelection(Enums.PalettePresenterType.FOCUSEDCARD.getPosition());
+                mTitleSelected.setSelection(Enums.PaletteColor.getPosition(mSharedPrefs.getString(Constants.PALETTE_TITLE_SELECTED, "")));
                 break;
             case ALLCARDS:
-                mTitleVisibility.setSelection(Enums.PalettePresenterType.ALLCARDS.getOrdinal());
-                mTitleSelected.setSelection(Enums.PaletteColor.getOrdinal(mSharedPrefs.getString(Constants.PALETTE_TITLE_SELECTED, "")));
-                mTitleUnselected.setSelection(Enums.PaletteColor.getOrdinal(mSharedPrefs.getString(Constants.PALETTE_TITLE_UNSELECTED, "")));
+                mTitleVisibility.setSelection(Enums.PalettePresenterType.ALLCARDS.getPosition());
+                mTitleSelected.setSelection(Enums.PaletteColor.getPosition(mSharedPrefs.getString(Constants.PALETTE_TITLE_SELECTED, "")));
+                mTitleUnselected.setSelection(Enums.PaletteColor.getPosition(mSharedPrefs.getString(Constants.PALETTE_TITLE_UNSELECTED, "")));
                 break;
         }
         switch (Enums.BlurState.valueOf(mSharedPrefs.getString(Constants.BACKGROUND_BLUR, ""))) {
             case OFF:
-                mBlurType.setSelection(Enums.BlurState.OFF.getOrdinal());
+                mBlurType.setSelection(Enums.BlurState.OFF.getPosition());
                 break;
             case ON:
-                mBlurType.setSelection(Enums.BlurState.ON.getOrdinal());
+                mBlurType.setSelection(Enums.BlurState.ON.getPosition());
                 break;
         }
     }
