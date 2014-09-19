@@ -3,7 +3,7 @@ Amphitheatre
 
 Amphitheatre is an Android TV project aimed to bring you the best of your content in a simple and visually appealing fashion. It connects to your network shares, organizes and serves videos to an Android capable media player.
 
-![Amphitheatre](images/movies_1.png)
+![Amphitheatre](images/palette_expanding_info_panel.png)
 
 **Features**
 * Indexes movie and TV show files on your SMB or CIFS shares.
@@ -29,7 +29,7 @@ Amphitheatre does not play the actual video file but serves it to a capable medi
 Contributing
 ------------
 
-All contributions are welcome! 
+All contributions are welcome!
 
 License
 -------
