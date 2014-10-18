@@ -27,14 +27,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.support.v7.graphics.Palette;
-import android.support.v7.graphics.PaletteItem;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jerrellmardis.amphitheatre.R;
@@ -219,7 +216,7 @@ public final class Utils {
         for(Method method : paletteMethods) {
             if (StringUtils.containsIgnoreCase(method.getName(), colorType)) {
                 try {
-                    PaletteItem item = (PaletteItem)method.invoke(palette);
+                    Palette.Swatch item = (Palette.Swatch)method.invoke(palette);
                     if (item != null) {
                         return item.getRgb();
                     }
