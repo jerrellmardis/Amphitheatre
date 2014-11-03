@@ -16,8 +16,20 @@
 
 package com.jerrellmardis.amphitheatre.task;
 
+import com.jerrellmardis.amphitheatre.R;
+import com.jerrellmardis.amphitheatre.listeners.RowBuilderTaskListener;
+import com.jerrellmardis.amphitheatre.model.Video;
+import com.jerrellmardis.amphitheatre.util.Utils;
+import com.jerrellmardis.amphitheatre.util.VideoUtils;
+import com.jerrellmardis.amphitheatre.widget.CardPresenter;
+import com.jerrellmardis.amphitheatre.widget.DetailsDescriptionPresenter;
+import com.jerrellmardis.amphitheatre.widget.SeasonCardPresenter;
+import com.squareup.picasso.Picasso;
+
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
@@ -28,17 +40,8 @@ import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.OnActionClickedListener;
+import android.text.TextUtils;
 import android.widget.Toast;
-
-import com.jerrellmardis.amphitheatre.R;
-import com.jerrellmardis.amphitheatre.listeners.RowBuilderTaskListener;
-import com.jerrellmardis.amphitheatre.model.Video;
-import com.jerrellmardis.amphitheatre.util.Utils;
-import com.jerrellmardis.amphitheatre.util.VideoUtils;
-import com.jerrellmardis.amphitheatre.widget.CardPresenter;
-import com.jerrellmardis.amphitheatre.widget.DetailsDescriptionPresenter;
-import com.jerrellmardis.amphitheatre.widget.SeasonCardPresenter;
-import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -55,6 +58,7 @@ import java.util.Map;
 public class DetailRowBuilderTask extends AsyncTask<Video, Integer, DetailsOverviewRow> {
 
     private static final int ACTION_PLAY = 1;
+    private static final int ACTION_VIEW_TRAILER = 2;
     private static final int DETAIL_THUMB_HEIGHT = 274;
     private static final int DETAIL_THUMB_WIDTH = Math.round(DETAIL_THUMB_HEIGHT * (2 / 3f));
 
@@ -94,6 +98,11 @@ public class DetailRowBuilderTask extends AsyncTask<Video, Integer, DetailsOverv
             row.addAction(new Action(ACTION_PLAY, mActivity.getString(R.string.play)));
         }
 
+        if (mVideo.getMovie() != null && !TextUtils.isEmpty(mVideo.getMovie().getTrailer())) {
+            row.addAction(
+                    new Action(ACTION_VIEW_TRAILER, mActivity.getString(R.string.watch_trailer)));
+        }
+
         return row;
     }
 
@@ -110,6 +119,10 @@ public class DetailRowBuilderTask extends AsyncTask<Video, Integer, DetailsOverv
             public void onActionClicked(Action action) {
                 if (action.getId() == ACTION_PLAY) {
                     VideoUtils.playVideo(new WeakReference<Activity>(mActivity), mVideo);
+                }
+                else if (action.getId() == ACTION_VIEW_TRAILER) {
+                    Uri trailerUri = Uri.parse(mVideo.getMovie().getTrailer());
+                    mActivity.startActivity(new Intent(Intent.ACTION_VIEW, trailerUri));
                 }
                 else {
                     Toast.makeText(mActivity, action.toString(), Toast.LENGTH_SHORT).show();

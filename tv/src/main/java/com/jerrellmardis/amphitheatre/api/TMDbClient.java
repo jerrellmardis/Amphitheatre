@@ -19,11 +19,13 @@ package com.jerrellmardis.amphitheatre.api;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import com.jerrellmardis.amphitheatre.model.tmdb.Config;
 import com.jerrellmardis.amphitheatre.model.tmdb.Episode;
 import com.jerrellmardis.amphitheatre.model.tmdb.Movie;
 import com.jerrellmardis.amphitheatre.model.tmdb.SearchResult;
 import com.jerrellmardis.amphitheatre.model.tmdb.TvShow;
+import com.jerrellmardis.amphitheatre.model.tmdb.Videos;
 import com.jerrellmardis.amphitheatre.util.ApiConstants;
 
 import retrofit.RequestInterceptor;
@@ -44,6 +46,9 @@ public class TMDbClient {
 
         @GET("/movie/{id}")
         Movie getMovie(@Path("id") Long id);
+
+        @GET("/movie/{id}/videos")
+        Videos getVideos(@Path("id") Long id);
 
         @GET("/tv/{id}")
         TvShow getTvShow(@Path("id") Long id);
@@ -87,7 +92,9 @@ public class TMDbClient {
     }
 
     public static Movie getMovie(Long id) {
-        return getService().getMovie(id);
+        Movie movie = getService().getMovie(id);
+        addBestTrailer(movie);
+        return movie;
     }
 
     public static TvShow getTvShow(Long id) {
@@ -104,5 +111,29 @@ public class TMDbClient {
 
     public static Episode getEpisode(Long id, int seasonNumber, int episodeNumber) {
         return getService().getEpisode(id, seasonNumber, episodeNumber);
+    }
+
+    /**
+     * Adds the best trailer to the movie record.
+     *
+     * Currently, 'best' is defined as the first trailer from YouTube.
+     *
+     * @param movie The movie for which to fetch a trailer.
+     * @return The same movie with the trailer property set.
+     */
+    public static Movie addBestTrailer(Movie movie) {
+        Videos vids = getService().getVideos(movie.getId());
+        if (vids == null || vids.getResults() == null || vids.getResults().isEmpty()) {
+            return movie;
+        }
+
+        for (Videos.Video vid : vids.getResults()) {
+            if (vid.getType().equals("Trailer") && vid.getSite().equals("YouTube")) {
+                movie.setTrailer(String.format("http://youtube.com/watch?v=%s", vid.getKey()));
+                break;
+            }
+        }
+
+        return movie;
     }
 }

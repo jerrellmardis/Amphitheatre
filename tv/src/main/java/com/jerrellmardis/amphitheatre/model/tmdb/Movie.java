@@ -47,6 +47,7 @@ public class Movie extends SugarRecord<Movie> implements Serializable {
     private String title;
     private Double voteAverage;
     private Long voteCount;
+    private String trailer;
 
     @Ignore private Map<String, Object> additionalProperties = new HashMap<String, Object>();
     @Ignore private List<Genre> genres = new ArrayList<Genre>();
@@ -210,6 +211,14 @@ public class Movie extends SugarRecord<Movie> implements Serializable {
 
     public void setVoteCount(Long voteCount) {
         this.voteCount = voteCount;
+    }
+
+    public String getTrailer() {
+        return trailer;
+    }
+
+    public void setTrailer(String trailer) {
+        this.trailer = trailer;
     }
 
     public String getFlattenedGenres() {
