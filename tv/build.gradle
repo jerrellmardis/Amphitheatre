@@ -6,7 +6,7 @@ def loadSecret(String name) {
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.0.1"
+    buildToolsVersion "21.0.2"
 
     defaultConfig {
         applicationId "com.jerrellmardis.amphitheatre"
@@ -53,12 +53,11 @@ dependencies {
     compile 'com.android.support:leanback-v17:21.0.0'
     compile 'com.android.support:appcompat-v7:21.0.0'
     compile 'com.android.support:palette-v7:21.0.0'
-    compile 'com.squareup.picasso:picasso:2.3.2'
-    compile 'com.squareup.retrofit:retrofit:1.6.1'
-    compile 'com.google.code.gson:gson:2.2.4'
+    compile 'com.squareup.picasso:picasso:2.3.4'
+    compile 'com.squareup.retrofit:retrofit:1.7.1'
+    compile 'com.google.code.gson:gson:2.3'
     compile 'org.apache.commons:commons-lang3:3.3.2'
     compile 'org.apache.commons:commons-collections4:4.0'
-    compile 'com.jakewharton:butterknife:5.1.2'
-    compile 'com.github.castorflex.smoothprogressbar:library:0.5.2'
+    compile 'com.jakewharton:butterknife:6.0.0'
     compile 'com.github.satyan:sugar:1.3'
 }
