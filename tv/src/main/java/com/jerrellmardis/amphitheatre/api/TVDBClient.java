@@ -60,7 +60,7 @@ public class TVDBClient implements MediaClient{
                     .setRequestInterceptor(new RequestInterceptor() {
                         @Override
                         public void intercept(RequestFacade request) {
-                            request.addQueryParam("api_key", ApiConstants.TMDB_SERVER_API_KEY);
+                            request.addQueryParam("api_key", ApiConstants.TVDB_SERVER_API_KEY);
                         }
                     })
                     .build();
