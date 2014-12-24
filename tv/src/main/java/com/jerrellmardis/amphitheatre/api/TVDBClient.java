@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2014 Jerrell Mardis
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.jerrellmardis.amphitheatre.api;
 
 import com.google.gson.FieldNamingPolicy;
@@ -36,11 +20,11 @@ import retrofit.http.Path;
 import retrofit.http.Query;
 
 /**
- * Created by Jerrell Mardis on 7/8/14.
+ * HTTP client for the TVDB API
  */
-public class TMDbClient implements MediaClient {
+public class TVDBClient implements MediaClient{
 
-    private interface TMDbService {
+    private interface TVDBService {
         @GET("/configuration")
         Config getConfig();
 
@@ -55,7 +39,7 @@ public class TMDbClient implements MediaClient {
 
         @GET("/tv/{id}/season/{season_number}/episode/{episode_number}")
         Episode getEpisode(@Path("id") Long id, @Path("season_number") int seasonNumber,
-                           @Path("episode_number") int episodeNumber);
+                @Path("episode_number") int episodeNumber);
 
         @GET("/search/movie")
         SearchResult findMovie(@Query("query") CharSequence name, @Query("year") Integer year);
@@ -64,9 +48,9 @@ public class TMDbClient implements MediaClient {
         SearchResult findTvShow(@Query("query") CharSequence name);
     }
 
-    private static TMDbService service;
+    private static TVDBService service;
 
-    private static TMDbService getService() {
+    private static TVDBService getService() {
         Gson gson = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .create();
@@ -82,58 +66,43 @@ public class TMDbClient implements MediaClient {
                         }
                     })
                     .build();
-            service = restAdapter.create(TMDbService.class);
+            service = restAdapter.create(TVDBService.class);
         }
         return service;
     }
 
+    @Override
     public Config getConfig() {
-        return getService().getConfig();
+        return null;
     }
 
+    @Override
     public Movie getMovie(Long id) {
-        Movie movie = getService().getMovie(id);
-        addBestTrailer(movie);
-        return movie;
+        return null;
     }
 
+    @Override
     public TvShow getTvShow(Long id) {
-        return getService().getTvShow(id);
+        return null;
     }
 
+    @Override
     public SearchResult findMovie(CharSequence name, Integer year) {
-        return getService().findMovie(name, year);
+        return null;
     }
 
+    @Override
     public SearchResult findTvShow(CharSequence name) {
-        return getService().findTvShow(name);
+        return null;
     }
 
+    @Override
     public Episode getEpisode(Long id, int seasonNumber, int episodeNumber) {
-        return getService().getEpisode(id, seasonNumber, episodeNumber);
+        return null;
     }
 
-    /**
-     * Adds the best trailer to the movie record.
-     *
-     * Currently, 'best' is defined as the first trailer from YouTube.
-     *
-     * @param movie The movie for which to fetch a trailer.
-     * @return The same movie with the trailer property set.
-     */
+    @Override
     public Movie addBestTrailer(Movie movie) {
-        Videos vids = getService().getVideos(movie.getId());
-        if (vids == null || vids.getResults() == null || vids.getResults().isEmpty()) {
-            return movie;
-        }
-
-        for (Videos.Video vid : vids.getResults()) {
-            if (vid.getType().equals("Trailer") && vid.getSite().equals("YouTube")) {
-                movie.setTrailer(String.format("http://youtube.com/watch?v=%s", vid.getKey()));
-                break;
-            }
-        }
-
-        return movie;
+        return null;
     }
 }

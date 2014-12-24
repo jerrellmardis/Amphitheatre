@@ -54,7 +54,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.0.0'
     compile 'com.android.support:palette-v7:21.0.0'
     compile 'com.squareup.picasso:picasso:2.3.4'
-    compile 'com.squareup.retrofit:retrofit:1.7.1'
+    compile 'com.squareup.retrofit:retrofit:1.8.0'
     compile 'com.mobprofs:retrofit-simplexmlconverter:1.1'
     compile 'com.google.code.gson:gson:2.3'
     compile 'org.apache.commons:commons-lang3:3.3.2'
