@@ -24,6 +24,8 @@ public interface MediaClient {
 
     public Episode getEpisode(Long id, int seasonNumber, int episodeNumber);
 
+    public Episode getEpisode(Long id);
+
     /**
      * Adds the best trailer to the movie record.
      *

@@ -28,6 +28,7 @@ public final class ApiConstants {
     public static final String TMDB_SERVER_URL = "https://api.themoviedb.org/3";
     public static final String TMDB_SERVER_API_KEY = BuildConfig.TMDB_API_KEY;
 
-    public static final String TVDB_SERVER_URL = "http://thetvdb.com/api/";
+    public static final String TVDB_SERVER_URL = "http://thetvdb.com/api";
+
     public static final String TVDB_SERVER_API_KEY = BuildConfig.TVDB_API_KEY;
 }

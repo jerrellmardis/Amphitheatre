@@ -113,6 +113,12 @@ public class TMDbClient implements MediaClient {
         return getService().getEpisode(id, seasonNumber, episodeNumber);
     }
 
+    @Override
+    public Episode getEpisode(Long id) {
+        //Do nothing
+        return null;
+    }
+
     /**
      * Adds the best trailer to the movie record.
      *
