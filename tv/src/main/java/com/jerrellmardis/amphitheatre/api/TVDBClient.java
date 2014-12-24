@@ -15,6 +15,7 @@ import com.jerrellmardis.amphitheatre.util.ApiConstants;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.converter.GsonConverter;
+import retrofit.converter.SimpleXMLConverter;
 import retrofit.http.GET;
 import retrofit.http.Path;
 import retrofit.http.Query;
@@ -51,13 +52,10 @@ public class TVDBClient implements MediaClient{
     private static TVDBService service;
 
     private static TVDBService getService() {
-        Gson gson = new GsonBuilder()
-                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-                .create();
 
         if (service == null) {
             RestAdapter restAdapter = new RestAdapter.Builder()
-                    .setConverter(new GsonConverter(gson))
+                    .setConverter(new SimpleXMLConverter() )
                     .setEndpoint(ApiConstants.TMDB_SERVER_URL)
                     .setRequestInterceptor(new RequestInterceptor() {
                         @Override
