@@ -21,6 +21,7 @@ import org.simpleframework.xml.Root;
 
 @Root(strict = false)
 public abstract class BaseResponse {
+
     @Element(name = "id", required = false)
     private Long mId;
 
