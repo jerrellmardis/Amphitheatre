@@ -10,11 +10,6 @@ import android.test.AndroidTestCase;
  */
 public class TVDBClientTest extends AndroidTestCase {
 
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
-
     public void testShouldSearchForHeroesSeries() {
         SearchResult searchResult = ApiClient.getInstance().createTVDBClient().findTvShow("Heroes");
         assertNotNull(searchResult);
