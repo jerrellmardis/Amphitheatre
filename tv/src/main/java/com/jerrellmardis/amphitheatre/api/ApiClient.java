@@ -1,7 +1,7 @@
 package com.jerrellmardis.amphitheatre.api;
 
 /**
- * @author Ushahidi Team <team@ushahidi.com>
+ * For access the different media clients available
  */
 public class ApiClient {
 
