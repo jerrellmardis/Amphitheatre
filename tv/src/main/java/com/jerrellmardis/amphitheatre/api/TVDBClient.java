@@ -94,11 +94,9 @@ public class TVDBClient implements MediaClient {
 
         EpisodeResponse episodeResponse = getService().getEpisode(
                 ApiConstants.TVDB_SERVER_API_KEY, id, airDate);
-        System.out.println("Episodes "+episodeResponse.toString());
         if(episodeResponse !=null) {
             com.jerrellmardis.amphitheatre.model.tvdb.Episode tvdbEpisode = episodeResponse
                   .getEpisode();
-            System.out.println("Episodess: "+tvdbEpisode.toString());
             if (tvdbEpisode != null) {
                 Episode episode = new Episode();
                 episode.setName(tvdbEpisode.getEpisodeName());
