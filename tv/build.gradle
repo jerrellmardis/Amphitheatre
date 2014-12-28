@@ -6,7 +6,7 @@ def loadSecret(String name) {
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.0.2"
+    buildToolsVersion "21.1.2"
 
     defaultConfig {
         applicationId "com.jerrellmardis.amphitheatre"
@@ -46,6 +46,10 @@ android {
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/NOTICE.txt'
     }
+
+    lintOptions {
+        abortOnError = false
+    }
 }
 
 dependencies {
@@ -62,6 +66,8 @@ dependencies {
     compile 'com.jakewharton:butterknife:6.0.0'
     compile 'com.github.satyan:sugar:1.3'
     compile ('com.squareup.retrofit:converter-simplexml:1.8.0') {
+        //Exclude these otherwise the conflict with simplexml classes shipped with core
         exclude group: 'xpp3', module: 'xpp3'
+        exclude group: 'stax', module: 'stax-api'
     }
 }

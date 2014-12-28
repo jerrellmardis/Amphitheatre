@@ -114,7 +114,7 @@ public class TMDbClient implements MediaClient {
     }
 
     @Override
-    public Episode getEpisode(Long id) {
+    public Episode getEpisode(Long id, String airDate) {
         //Do nothing
         return null;
     }

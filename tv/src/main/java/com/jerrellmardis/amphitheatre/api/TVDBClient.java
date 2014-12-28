@@ -5,7 +5,7 @@ import com.jerrellmardis.amphitheatre.model.tmdb.Episode;
 import com.jerrellmardis.amphitheatre.model.tmdb.Movie;
 import com.jerrellmardis.amphitheatre.model.tmdb.SearchResult;
 import com.jerrellmardis.amphitheatre.model.tmdb.TvShow;
-import com.jerrellmardis.amphitheatre.model.tmdb.Videos;
+import com.jerrellmardis.amphitheatre.model.tvdb.EpisodeResponse;
 import com.jerrellmardis.amphitheatre.model.tvdb.Language;
 import com.jerrellmardis.amphitheatre.model.tvdb.Series;
 import com.jerrellmardis.amphitheatre.model.tvdb.SeriesResult;
@@ -16,29 +16,11 @@ import java.util.List;
 
 import retrofit.RestAdapter;
 import retrofit.converter.SimpleXMLConverter;
-import retrofit.http.GET;
-import retrofit.http.Path;
-import retrofit.http.Query;
 
 /**
  * HTTP client for the TVDB API
  */
-public class TVDBClient implements MediaClient{
-
-    private interface TVDBService {
-        
-        @GET("/{apikey}/series/{seriesid}/{language}")
-        com.jerrellmardis.amphitheatre.model.tvdb.Episode getEpisode(@Query("apikey") String apiKey,
-                @Query("seriesid") long seriesId, @Query("language") Language language);
-
-        @GET("/search/movie")
-        SearchResult findMovie(@Query("query") CharSequence name, @Query("year") Integer year);
-
-        // Search for series
-        @GET("/GetSeries.php")
-        SeriesResult findTvShow(@Query("seriesname") String seriesName,
-                @Query("language") Language language);
-    }
+public class TVDBClient implements MediaClient {
 
     private static TVDBService service;
 
@@ -48,6 +30,7 @@ public class TVDBClient implements MediaClient{
             RestAdapter restAdapter = new RestAdapter.Builder()
                     .setConverter(new SimpleXMLConverter())
                     .setEndpoint(ApiConstants.TVDB_SERVER_URL)
+                    .setLogLevel(RestAdapter.LogLevel.FULL)
                     .build();
             service = restAdapter.create(TVDBService.class);
         }
@@ -86,25 +69,36 @@ public class TVDBClient implements MediaClient{
     }
 
     @Override
-    public Episode getEpisode(Long id) {
+    public Episode getEpisode(Long id, int seasonNumber, int episodeNumber) {
         return this.getEpisode(id, 0, 0);
     }
 
     @Override
-    public Episode getEpisode(Long id, int seasonNumber, int episodeNumber) {
-        com.jerrellmardis.amphitheatre.model.tvdb.Episode tvdbEpisode = getService().getEpisode(
-                ApiConstants.TVDB_SERVER_API_KEY, id, Language.ALL);
-        Episode episode = new Episode();
-        episode.setName(tvdbEpisode.getName());
-        episode.setAirDate(tvdbEpisode.getFirstAiringDate());
-        episode.setOverview(tvdbEpisode.getDescription());
-        episode.setSeasonNumber(tvdbEpisode.getSeasonNumber());
-        episode.setStillPath(tvdbEpisode.getImageUrl());
-        //Use Series id as TMDbId
-        episode.setTmdbId(tvdbEpisode.getId());
-        episode.setId(tvdbEpisode.getId());
+    public Episode getEpisode(Long id, String airDate) {
 
-        return episode;
+        EpisodeResponse episodeResponse = getService().getEpisode(
+                ApiConstants.TVDB_SERVER_API_KEY, id, airDate);
+        System.out.println("Episodes "+episodeResponse.toString());
+        if(episodeResponse !=null) {
+            com.jerrellmardis.amphitheatre.model.tvdb.Episode tvdbEpisode = episodeResponse
+                  .getEpisode();
+            System.out.println("Episodess: "+tvdbEpisode.toString());
+            if (tvdbEpisode != null) {
+                Episode episode = new Episode();
+                episode.setName(tvdbEpisode.getEpisodeName());
+                episode.setAirDate(tvdbEpisode.getFirstAiringDate());
+                episode.setOverview(tvdbEpisode.getDescription());
+                episode.setSeasonNumber(tvdbEpisode.getSeasonNumber());
+                episode.setStillPath(tvdbEpisode.getImageUrl());
+                episode.setEpisodeNumber(tvdbEpisode.getEpisodeNumber());
+                //Use Series id as TMDbId
+                episode.setTmdbId(tvdbEpisode.getSeriesId());
+                episode.setId(tvdbEpisode.getId());
+                return episode;
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -119,7 +113,7 @@ public class TVDBClient implements MediaClient{
         for (Series series : seriesResult.getSeries()) {
             SearchResult.Result result = new SearchResult.Result();
             result.setName(series.getSeriesName());
-            result.setId(Long.valueOf(series.getId()));
+            result.setId(series.getId());
             result.setPoster_path(series.getPosters());
             results.add(result);
         }

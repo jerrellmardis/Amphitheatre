@@ -224,7 +224,7 @@ public final class DownloadTaskHelper {
                                         guess.getSeason(), guess.getEpisodeNumber());
                         if (episode == null) {
                             episode = ApiClient.getInstance().createTVDBClient()
-                                    .getEpisode(tvShow.getId());
+                                    .getEpisode(tvShow.getId(),tvShow.getEpisode().getAirDate());
                         }
                         if (episode != null) {
                             if (!TextUtils.isEmpty(episode.getStillPath())) {

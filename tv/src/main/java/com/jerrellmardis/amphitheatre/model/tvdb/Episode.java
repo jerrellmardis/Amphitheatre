@@ -7,7 +7,10 @@ import org.simpleframework.xml.Root;
 public class Episode extends BaseResponse {
 
     @Element(name = "EpisodeName", required = false)
-    private String mName;
+    private String mEpisodeName;
+
+    @Element(name = "EpisodeNumber", required = false)
+    private Long mEpisodeNumber;
 
     @Element(name = "SeasonNumber", required = false)
     private int mSeasonNumber;
@@ -15,8 +18,18 @@ public class Episode extends BaseResponse {
     @Element(name = "filename", required = false)
     private String mImageUrl;
 
-    public String getName() {
-        return mName;
+    @Element(name = "seasonid", required = false)
+    private Long mSeasonId;
+
+    @Element(name = "seriesid", required = false)
+    private Long mSeriesId;
+
+    public String getEpisodeName() {
+        return mEpisodeName;
+    }
+
+    public Long getEpisodeNumber() {
+        return mEpisodeNumber;
     }
 
     public int getSeasonNumber() {
@@ -25,5 +38,25 @@ public class Episode extends BaseResponse {
 
     public String getImageUrl() {
         return mImageUrl;
+    }
+
+    public Long getSeasonId() {
+        return mSeasonId;
+    }
+
+    public Long getSeriesId() {
+        return mSeriesId;
+    }
+
+    @Override
+    public String toString() {
+        return "Episode{" +
+                "mEpisodeName='" + mEpisodeName + '\'' +
+                ", mEpisodeNumber=" + mEpisodeNumber +
+                ", mSeasonNumber=" + mSeasonNumber +
+                ", mImageUrl='" + mImageUrl + '\'' +
+                ", mSeasonId=" + mSeasonId +
+                ", mSeriesId=" + mSeriesId +
+                '}';
     }
 }

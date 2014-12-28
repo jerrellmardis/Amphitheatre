@@ -64,4 +64,18 @@ public abstract class BaseResponse {
     public String getFirstAiringDate() {
         return mFirstAiringDate;
     }
+
+    @Override
+    public String toString() {
+        return "BaseResponse{" +
+                "mId=" + mId +
+                ", mImdbId='" + mImdbId + '\'' +
+                ", mLanguage='" + mLanguage + '\'' +
+                ", mDescription='" + mDescription + '\'' +
+                ", mRating=" + mRating +
+                ", mRatingCount=" + mRatingCount +
+                ", mLastUpdated=" + mLastUpdated +
+                ", mFirstAiringDate='" + mFirstAiringDate + '\'' +
+                '}';
+    }
 }
