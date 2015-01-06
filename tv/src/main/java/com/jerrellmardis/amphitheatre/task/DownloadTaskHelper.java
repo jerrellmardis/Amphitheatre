@@ -16,10 +16,8 @@
 
 package com.jerrellmardis.amphitheatre.task;
 
-import android.text.TextUtils;
-
+import com.jerrellmardis.amphitheatre.api.ApiClient;
 import com.jerrellmardis.amphitheatre.api.GuessItClient;
-import com.jerrellmardis.amphitheatre.api.TMDbClient;
 import com.jerrellmardis.amphitheatre.model.Video;
 import com.jerrellmardis.amphitheatre.model.guessit.Guess;
 import com.jerrellmardis.amphitheatre.model.tmdb.Config;
@@ -32,6 +30,8 @@ import com.jerrellmardis.amphitheatre.util.VideoUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
+
+import android.text.TextUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -101,18 +101,25 @@ public final class DownloadTaskHelper {
         if (!TextUtils.isEmpty(guess.getTitle())) {
             try {
                 // search for the movie
-                SearchResult result = TMDbClient.findMovie(guess.getTitle(), guess.getYear());
+                SearchResult result = ApiClient
+                        .getInstance().createTMDbClient().findMovie(guess.getTitle(),
+                                guess.getYear());
 
                 // if found, get the detailed info for the movie
                 if (result.getResults() != null && !result.getResults().isEmpty()) {
                     Long id = result.getResults().get(0).getId();
 
                     if (id != null) {
-                        Movie movie = TMDbClient.getMovie(id);
+                        Movie movie;
+                        movie = ApiClient.getInstance().createTMDbClient().getMovie(id);
+                        if(movie == null) {
+                            movie = ApiClient.getInstance().createTVDBClient().getMovie(id);
+                        }
                         movie.setTmdbId(id);
                         movie.setId(null);
                         movie.setFlattenedGenres(StringUtils.join(movie.getGenres(), ","));
-                        movie.setFlattenedProductionCompanies(StringUtils.join(movie.getProductionCompanies(), ","));
+                        movie.setFlattenedProductionCompanies(
+                                StringUtils.join(movie.getProductionCompanies(), ","));
                         movie.save();
 
                         video.setOverview(movie.getOverview());
@@ -189,11 +196,19 @@ public final class DownloadTaskHelper {
                     tvShow = TvShow.copy(tvShows.get(0));
                     tmdbId = tvShow.getTmdbId();
                 } else {
-                    SearchResult result = TMDbClient.findTvShow(guess.getSeries());
-
+                    SearchResult result;
+                    result = ApiClient.getInstance().createTMDbClient()
+                            .findTvShow(guess.getSeries());
+                    if(result == null) {
+                        result = ApiClient.getInstance().createTVDBClient()
+                                .findTvShow(guess.getSeries());
+                    }
                     if (result.getResults() != null && !result.getResults().isEmpty()) {
                         tmdbId = result.getResults().get(0).getId();
-                        tvShow = TMDbClient.getTvShow(tmdbId);
+                        tvShow = ApiClient.getInstance().createTMDbClient().getTvShow(tmdbId);
+                        if(tvShow == null) {
+                            tvShow = ApiClient.getInstance().createTVDBClient().getTvShow(tmdbId);
+                        }
                         tvShow.setTmdbId(tmdbId);
                         tvShow.setId(null);
                         tvShow.setFlattenedGenres(StringUtils.join(tvShow.getGenres(), ","));
@@ -203,9 +218,14 @@ public final class DownloadTaskHelper {
                 if (tmdbId != null) {
                     // get the Episode information
                     if (guess.getEpisodeNumber() != null && guess.getSeason() != null) {
-                        Episode episode = TMDbClient.getEpisode(tvShow.getTmdbId(),
-                                guess.getSeason(), guess.getEpisodeNumber());
-
+                        Episode episode;
+                        episode = ApiClient.getInstance().createTMDbClient()
+                                .getEpisode(tvShow.getTmdbId(),
+                                        guess.getSeason(), guess.getEpisodeNumber());
+                        if (episode == null) {
+                            episode = ApiClient.getInstance().createTVDBClient()
+                                    .getEpisode(tvShow.getId(),tvShow.getEpisode().getAirDate());
+                        }
                         if (episode != null) {
                             if (!TextUtils.isEmpty(episode.getStillPath())) {
                                 String stillPathUrl = config.getImages().getBase_url() + "original" +

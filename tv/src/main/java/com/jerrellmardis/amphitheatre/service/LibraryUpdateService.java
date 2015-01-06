@@ -20,6 +20,8 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
+import com.jerrellmardis.amphitheatre.api.ApiClient;
+import com.jerrellmardis.amphitheatre.api.MediaClientFactory;
 import com.jerrellmardis.amphitheatre.api.TMDbClient;
 import com.jerrellmardis.amphitheatre.model.Source;
 import com.jerrellmardis.amphitheatre.model.Video;
@@ -61,7 +63,7 @@ public class LibraryUpdateService extends IntentService {
                 String user = prefs.getString(Constants.PREFS_USER_KEY, "");
                 String pass = prefs.getString(Constants.PREFS_PASSWORD_KEY, "");
 
-                Config config = TMDbClient.getConfig();
+                Config config = ApiClient.getInstance().createTMDbClient().getConfig();
 
                 for (Source source : sources) {
                     // get a list of files on the device

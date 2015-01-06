@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-package com.jerrellmardis.amphitheatre.util;
-
-import com.jerrellmardis.amphitheatre.BuildConfig;
+package com.jerrellmardis.amphitheatre.api;
 
 /**
- * Created by Jerrell Mardis on 8/5/14.
+ * Create the media client type to use.
  */
-public final class ApiConstants {
+public class MediaClientFactory {
 
-    public static final String GUESS_IT_SERVER_URL = "http://guessit.io";
+    public MediaClient createTMDbClient() {
+        return new TMDbClient();
+    }
 
-    public static final String TMDB_SERVER_URL = "https://api.themoviedb.org/3";
-    public static final String TMDB_SERVER_API_KEY = BuildConfig.TMDB_API_KEY;
-
-    public static final String TVDB_SERVER_URL = "http://thetvdb.com/api";
-
-    public static final String TVDB_SERVER_API_KEY = BuildConfig.TVDB_API_KEY;
+    public MediaClient createTVDBClient() {
+        return new TVDBClient();
+    }
 }

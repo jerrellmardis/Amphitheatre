@@ -38,7 +38,7 @@ import retrofit.http.Query;
 /**
  * Created by Jerrell Mardis on 7/8/14.
  */
-public class TMDbClient {
+public class TMDbClient implements MediaClient {
 
     private interface TMDbService {
         @GET("/configuration")
@@ -87,30 +87,36 @@ public class TMDbClient {
         return service;
     }
 
-    public static Config getConfig() {
+    public Config getConfig() {
         return getService().getConfig();
     }
 
-    public static Movie getMovie(Long id) {
+    public Movie getMovie(Long id) {
         Movie movie = getService().getMovie(id);
         addBestTrailer(movie);
         return movie;
     }
 
-    public static TvShow getTvShow(Long id) {
+    public TvShow getTvShow(Long id) {
         return getService().getTvShow(id);
     }
 
-    public static SearchResult findMovie(CharSequence name, Integer year) {
+    public SearchResult findMovie(CharSequence name, Integer year) {
         return getService().findMovie(name, year);
     }
 
-    public static SearchResult findTvShow(CharSequence name) {
+    public SearchResult findTvShow(CharSequence name) {
         return getService().findTvShow(name);
     }
 
-    public static Episode getEpisode(Long id, int seasonNumber, int episodeNumber) {
+    public Episode getEpisode(Long id, int seasonNumber, int episodeNumber) {
         return getService().getEpisode(id, seasonNumber, episodeNumber);
+    }
+
+    @Override
+    public Episode getEpisode(Long id, String airDate) {
+        //Do nothing
+        return null;
     }
 
     /**
@@ -121,7 +127,7 @@ public class TMDbClient {
      * @param movie The movie for which to fetch a trailer.
      * @return The same movie with the trailer property set.
      */
-    public static Movie addBestTrailer(Movie movie) {
+    public Movie addBestTrailer(Movie movie) {
         Videos vids = getService().getVideos(movie.getId());
         if (vids == null || vids.getResults() == null || vids.getResults().isEmpty()) {
             return movie;

@@ -22,6 +22,11 @@ You'll need to sign up as a developer and add your TMDb API Key to your `~/.grad
 TMDB_API_KEY=<your api key>
 ```
 
+You'll also need to sign up for a [TVDB API Key](http://thetvdb.com/wiki/index.php/Programmers_API) and add it to your `~/.gradle/gradle.properties`:
+```
+TVDB_API_KEY=<your api key>
+```
+
 #### Media Player
 
 Amphitheatre does not play the actual video file but serves it to a capable media player application. So you'll need to install a media player as well. MXPlayer is a great player worth checking out.

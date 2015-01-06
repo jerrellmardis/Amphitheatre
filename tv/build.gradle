@@ -6,7 +6,7 @@ def loadSecret(String name) {
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.0.2"
+    buildToolsVersion "21.1.2"
 
     defaultConfig {
         applicationId "com.jerrellmardis.amphitheatre"
@@ -17,6 +17,7 @@ android {
         renderscriptTargetApi 19
 
         buildConfigField "String", "TMDB_API_KEY", "\"${loadSecret("TMDB_API_KEY")}\""
+        buildConfigField "String", "TVDB_API_KEY", "\"${loadSecret("TVDB_API_KEY")}\""
     }
 
     buildTypes {
@@ -25,7 +26,7 @@ android {
             versionNameSuffix '-dev'
         }
         release {
-            runProguard false
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -45,6 +46,10 @@ android {
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/NOTICE.txt'
     }
+
+    lintOptions {
+        abortOnError = false
+    }
 }
 
 dependencies {
@@ -54,10 +59,15 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.0.0'
     compile 'com.android.support:palette-v7:21.0.0'
     compile 'com.squareup.picasso:picasso:2.3.4'
-    compile 'com.squareup.retrofit:retrofit:1.7.1'
+    compile 'com.squareup.retrofit:retrofit:1.8.0'
     compile 'com.google.code.gson:gson:2.3'
     compile 'org.apache.commons:commons-lang3:3.3.2'
     compile 'org.apache.commons:commons-collections4:4.0'
     compile 'com.jakewharton:butterknife:6.0.0'
     compile 'com.github.satyan:sugar:1.3'
+    compile ('com.squareup.retrofit:converter-simplexml:1.8.0') {
+        //Exclude these otherwise they conflict with some classes shipped with core
+        exclude group: 'xpp3', module: 'xpp3'
+        exclude group: 'stax', module: 'stax-api'
+    }
 }

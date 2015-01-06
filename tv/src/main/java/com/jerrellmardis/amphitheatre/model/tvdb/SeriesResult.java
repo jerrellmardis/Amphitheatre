@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package com.jerrellmardis.amphitheatre.util;
+package com.jerrellmardis.amphitheatre.model.tvdb;
 
-import com.jerrellmardis.amphitheatre.BuildConfig;
+import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.Root;
 
-/**
- * Created by Jerrell Mardis on 8/5/14.
- */
-public final class ApiConstants {
+import java.util.List;
 
-    public static final String GUESS_IT_SERVER_URL = "http://guessit.io";
+@Root(name = "Data", strict = false)
+public class SeriesResult {
 
-    public static final String TMDB_SERVER_URL = "https://api.themoviedb.org/3";
-    public static final String TMDB_SERVER_API_KEY = BuildConfig.TMDB_API_KEY;
+    @ElementList(name = "Series", inline = true, required = false)
+    private List<Series> mSeries;
 
-    public static final String TVDB_SERVER_URL = "http://thetvdb.com/api";
-
-    public static final String TVDB_SERVER_API_KEY = BuildConfig.TVDB_API_KEY;
+    public List<Series> getSeries() {
+        return mSeries;
+    }
 }

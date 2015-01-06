@@ -19,6 +19,7 @@ package com.jerrellmardis.amphitheatre.task;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.jerrellmardis.amphitheatre.api.ApiClient;
 import com.jerrellmardis.amphitheatre.api.TMDbClient;
 import com.jerrellmardis.amphitheatre.listeners.TaskListener;
 import com.jerrellmardis.amphitheatre.model.tmdb.Config;
@@ -73,7 +74,7 @@ public class GetFilesTask extends AsyncTask<Void, Void, List<SmbFile>> implement
 
     @Override
     protected List<SmbFile> doInBackground(Void... params) {
-        mConfig = TMDbClient.getConfig();
+        mConfig = ApiClient.getInstance().createTMDbClient().getConfig();
         return new ArrayList<SmbFile>(DownloadTaskHelper.getFiles(mUser, mPassword, mPath));
     }
 
